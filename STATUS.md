@@ -1,7 +1,7 @@
 # STATUS (single source of truth for resumed sessions)
 
 state: PHASE_1_BUILD
-heartbeat_utc: 2026-10-23T21:30:00Z   # orchestrator updates this; see ORCHESTRATION.md for the lock rule
+heartbeat_utc: 2026-10-23T21:29:30Z   # orchestrator updates this; see ORCHESTRATION.md for the lock rule
 active_session: orchestrator-original
 
 Spec: context_pack/docs/PRD_v2_MVP.md (milestones M0..M7). Decisions: context_pack/docs/IMPLEMENTATION_DECISIONS.md. Rules: ORCHESTRATION.md.
@@ -11,8 +11,8 @@ Spec: context_pack/docs/PRD_v2_MVP.md (milestones M0..M7). Decisions: context_pa
 | Milestone | Scope | State | Notes |
 | --- | --- | --- | --- |
 | Phase 0 | PRD critique + v2 plan + decisions | DONE | reviewed by orchestrator |
-| M0 | Engine harness, preflight, measurements (GPU) | TODO | owns app/engine/, scripts/preflight.py, context_pack/docs/ENGINE_MEASUREMENTS.md |
-| M1 | Compiler, recipes, rule planner, capabilities.json (no GPU) | TODO | owns app/backend/{compiler,planner,plan_schema,capabilities}*, app/recipes/, app/tests/test_m1*, fixtures; creates app/.venv |
+| M0 | Engine harness, preflight, measurements (GPU) | DONE (orchestrator re-ran preflight and ffprobe on all 5 takes: OK). AT-M0-08 [H] pending user. | owns app/engine/, scripts/preflight.py, context_pack/docs/ENGINE_MEASUREMENTS.md |
+| M1 | Compiler, recipes, rule planner, capabilities.json (no GPU) | IN PROGRESS (Sonnet sub-agent launched 21:29Z; report -> reports/M1.md) | owns app/backend/{compiler,planner,plan_schema,capabilities}*, app/recipes/, app/tests/test_m1*, fixtures; creates app/.venv |
 | M2 | Backend vertical slice (db, queue, worker, API, export) | TODO (needs M0+M1) | |
 | M3 | No-build frontend, MVP-1 complete | TODO (needs M2) | |
 | M4 | Providers (claude -p / API OFF by default), chips/patch | TODO | mechanical tests only |
@@ -24,7 +24,11 @@ Spec: context_pack/docs/PRD_v2_MVP.md (milestones M0..M7). Decisions: context_pa
 
 | # | time | what | seed | output | verdict |
 | --- | --- | --- | --- | --- | --- |
-| (none yet) | | | | | |
+| 1-3 | 21:3xZ | M0 yamuna request, 3 takes, 168 s | 24103001/2/3 | runs/_m0/20261023T213344Z/yamuna3/ | technical OK (48k stereo 24-bit FLAC); not listened |
+| 4 | 21:3xZ | M0 length 60 s | 24103060 | .../len60/ | technical OK |
+| 5 | 21:4xZ | M0 length 240 s | 24103240 | .../len240/ | technical OK |
+
+Takes used: 5 of ~12. Remaining planned: M2-04 (3), M3 e2e (1), 3 spare.
 
 ## Environment notes
 
@@ -32,6 +36,15 @@ Spec: context_pack/docs/PRD_v2_MVP.md (milestones M0..M7). Decisions: context_pa
 - `caffeinate` (10h timeout) started by orchestrator. Closed lid still sleeps.
 - ACE python (read-only, shared): /Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/tools/acestep-venv/bin/python ; ACE source: .../tools/ace-step-1.5 ; ffmpeg /opt/homebrew/bin/ffmpeg ; ComfyUI video queue :8388 (check idle before rendering).
 - Local git repo initialised in the project root; never push.
+
+## Engine facts learned in M0 (see context_pack/docs/ENGINE_MEASUREMENTS.md)
+
+- Load 4.9 s; 168 s take ~21-26 s wall; 240 s take 31.6 s wall -> keep the 240 s cap. Engine FLAC is 24-bit, ~25 MB per 168 s.
+- Peak footprint 51-55 GB on a 48 GiB Mac: NEVER overlap an ACE render with a ComfyUI job (preflight checks :8388).
+- ACE tries to auto-download the missing 5Hz LM; run_takes.py patches that in-process and blocks outbound TCP. scripts/render_local.py is NOT guarded: do not use it.
+- Silence check is fragile (take with a 7.6 s quiet tail measured 4.5% vs 5% limit): M2 must make the silence floor/threshold sensible (-50 dB, 0.5 s used) and treat it as a warning, not a hard failure.
+- take_done.path in run_takes.py events is relative to OUT_DIR (caller renames .partial).
+- Two aborted pre-patch loads touched checkpoints/ (re-copied two identical code files, one Google TCP probe). No weights changed; sizes match inventory.
 
 ## Needs user (morning)
 
@@ -46,3 +59,7 @@ Spec: context_pack/docs/PRD_v2_MVP.md (milestones M0..M7). Decisions: context_pa
 ## Blockers
 
 - (none)
+
+## Resume hint
+
+If M0/M1 show IN PROGRESS but no sub-agent is running (new session), check reports/M0.md and reports/M1.md and the files each owns; verify with their acceptance tests, then re-dispatch only the missing parts.
