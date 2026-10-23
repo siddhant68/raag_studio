@@ -15,9 +15,9 @@ Spec: context_pack/docs/PRD_v2_MVP.md (milestones M0..M7). Decisions: context_pa
 | M1 | Compiler, recipes, rule planner, capabilities.json (no GPU) | DONE (orchestrator re-ran 119 tests: pass). AT-M1-10 [H] pending user (context_pack/docs/M1_CAPTION_COMPARISON.md). | owns app/backend/{compiler,planner,plan_schema,capabilities}*, app/recipes/, app/tests/test_m1*, fixtures; creates app/.venv |
 | M2 | Backend vertical slice (db, queue, worker, API, export) | IN PROGRESS (Sonnet agent launched; report -> reports/M2.md; uses 3 render takes) | |
 | M3 | No-build frontend, MVP-1 complete | TODO (needs M2) | |
-| M4 | Providers (claude -p / API OFF by default), chips/patch | IN PROGRESS (agent shared with M6 harness; report -> reports/M4_M6.md; owns app/backend/providers, app/experiments) | mechanical tests only |
+| M4 | Providers (claude -p / API OFF by default), chips/patch | DONE standalone (274 tests pass incl. M1; orchestrator re-ran). Wiring into API pending after M2: use backend.providers.registry get_planner(settings)/plan_with_status() in a thread. AT-M4-07 [H] pending user. | mechanical tests only |
 | M5 | Lyrics duration fit, language labels, disk meter, prune, taste ledger | PARTIAL (lyric_fit + labels in M1; prune/disk meter in M2; taste ledger endpoint + UI in M3) | |
-| M6 | Experiment harness only (no GPU arms) | IN PROGRESS (same agent as M4) | |
+| M6 | Experiment harness only (no GPU arms) | DONE harness (E3/E4/E5 flagged engine_ready:false: run_takes only does text2music). No GPU arms run. | |
 | Final | README run instructions, MORNING_SUMMARY.md | TODO | |
 
 ## Render ledger (cap ~12 takes; planned 9, see IMPLEMENTATION_DECISIONS.md)
