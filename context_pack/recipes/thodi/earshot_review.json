@@ -1,0 +1,1001 @@
+{
+  "measurement": {
+    "duration": 152.0,
+    "peak_dbfs": -1.5,
+    "true_peak_dbtp": -1.5,
+    "rms_dbfs": -16.2,
+    "lufs": -14.0,
+    "short_term_max_lufs": -10.8,
+    "lra_lu": 8.9,
+    "clipped_samples": 0,
+    "dc": 0.0006,
+    "noise_floor_dbfs": -31.2,
+    "dynamic_range_db": 24.7,
+    "digital_silence_frac": 0.0006,
+    "side_to_mid_db": -9.1,
+    "correlation": 0.782,
+    "attack_at": 0.323,
+    "peak_at": 113.896,
+    "attack_ms": 166.0,
+    "decay_ms": 18555.0,
+    "centroid_hz": 377,
+    "rolloff95_hz": 1187,
+    "bands_db": {
+      "sub": -7.9,
+      "low": -2.7,
+      "lowmid": -6.1,
+      "mid": -13.0,
+      "presence": -22.4,
+      "air": -23.0,
+      "top": -38.6
+    },
+    "bandwidth_hz": 20480,
+    "flatness": 0.0006,
+    "brightness_hz": 1919,
+    "tonal_peak_ratio_db": 49.0,
+    "harmonic_ratio": 0.917,
+    "f0_hz": 92.4,
+    "onsets": [
+      0.313,
+      0.488,
+      1.045,
+      1.637,
+      2.357,
+      2.438,
+      2.752,
+      3.181,
+      3.216,
+      3.297,
+      3.413,
+      3.587,
+      4.18,
+      4.725,
+      5.875,
+      6.118,
+      6.293,
+      6.629,
+      6.711,
+      7.268,
+      7.86,
+      8.638,
+      9.009,
+      9.056,
+      9.392,
+      9.636,
+      9.799,
+      10.368,
+      10.983,
+      12.109,
+      12.33,
+      12.492,
+      12.794,
+      12.91,
+      13.502,
+      14.095,
+      14.838,
+      15.279,
+      15.604,
+      15.685,
+      15.766,
+      15.871,
+      16.057,
+      16.649,
+      17.194,
+      18.355,
+      18.704,
+      19.017,
+      19.156,
+      19.76,
+      20.306,
+      21.885,
+      22.094,
+      22.291,
+      24.427,
+      24.95,
+      25.809,
+      26.598,
+      27.202,
+      27.574,
+      28.003,
+      28.119,
+      28.897,
+      30.499,
+      30.627,
+      30.917,
+      31.068,
+      31.277,
+      32.798,
+      33.622,
+      34.11,
+      36.618,
+      37.047,
+      37.314,
+      38.51,
+      39.01,
+      39.695,
+      39.996,
+      43.294,
+      43.549,
+      43.735,
+      44.501,
+      44.722,
+      45.685,
+      46.057,
+      46.835,
+      49.818,
+      50.341,
+      50.956,
+      51.154,
+      51.537,
+      51.931,
+      52.28,
+      52.64,
+      52.883,
+      53.476,
+      54.068,
+      54.219,
+      54.625,
+      55.008,
+      55.391,
+      55.786,
+      56.599,
+      56.912,
+      57.179,
+      57.388,
+      57.748,
+      58.433,
+      58.538,
+      58.874,
+      58.874,
+      59.281,
+      59.722,
+      60.267,
+      60.476,
+      60.883,
+      61.289,
+      61.44,
+      61.637,
+      61.637,
+      62.044,
+      62.206,
+      62.415,
+      62.775,
+      63.414,
+      63.611,
+      64.006,
+      64.726,
+      65.144,
+      65.759,
+      65.956,
+      66.502,
+      66.734,
+      67.106,
+      67.872,
+      68.267,
+      68.661,
+      68.824,
+      69.068,
+      69.265,
+      69.451,
+      69.648,
+      69.857,
+      70.438,
+      70.577,
+      71.018,
+      71.204,
+      71.413,
+      71.773,
+      72.075,
+      72.191,
+      72.539,
+      72.667,
+      72.957,
+      73.329,
+      73.526,
+      73.747,
+      74.06,
+      74.141,
+      74.234,
+      74.501,
+      74.664,
+      74.873,
+      75.059,
+      75.302,
+      76.057,
+      76.452,
+      76.649,
+      76.846,
+      77.23,
+      77.392,
+      77.601,
+      77.996,
+      78.356,
+      78.797,
+      79.122,
+      79.784,
+      79.935,
+      80.364,
+      80.713,
+      81.119,
+      81.27,
+      81.514,
+      82.292,
+      82.675,
+      82.895,
+      83.081,
+      83.453,
+      83.847,
+      84.196,
+      84.625,
+      84.985,
+      85.368,
+      85.821,
+      86.018,
+      86.216,
+      86.587,
+      87.353,
+      87.737,
+      88.538
+    ],
+    "onset_count": 338,
+    "onsets_per_s": 2.22
+  },
+  "finite": true,
+  "descriptions": {
+    "verse": {
+      "path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/thodi_der_aur_20261022/takes/take_01_22102611/d9764b1d-29df-b8a5-0dbd-80115360720d.wav",
+      "start": 10,
+      "end": 20,
+      "duration": 10.0,
+      "measurements": {
+        "duration": 10.0,
+        "peak_dbfs": -2.0,
+        "true_peak_dbtp": -2.0,
+        "rms_dbfs": -17.0,
+        "lufs": -14.8,
+        "lra_lu": 4.1,
+        "attack_ms": 0.0,
+        "brightness_hz": 566,
+        "bandwidth_hz": 10240,
+        "noise_floor_dbfs": -28.8,
+        "flatness": 0.0,
+        "harmonic_ratio": 0.936,
+        "f0_hz": 91.5,
+        "onset_count": 24,
+        "onsets_per_s": 2.4,
+        "width": "side/mid -8 dB",
+        "digital_silence_frac": 0.0001
+      },
+      "shape": "busy, 2.4 onsets/s, tonal, pitch ~92 Hz (F#2) (attack 0 ms)",
+      "top_tags": [
+        {
+          "term": "a reverse cymbal swell",
+          "category": "transitions",
+          "z": 1.46,
+          "cosine": 0.094,
+          "verdict": "no match"
+        },
+        {
+          "term": "footsteps on grass",
+          "category": "nature",
+          "z": 1.41,
+          "cosine": 0.029,
+          "verdict": "no match"
+        },
+        {
+          "term": "a celesta note",
+          "category": "chimes",
+          "z": 1.36,
+          "cosine": 0.135,
+          "verdict": "no match"
+        },
+        {
+          "term": "paper rustling",
+          "category": "foley",
+          "z": 1.34,
+          "cosine": 0.072,
+          "verdict": "no match"
+        }
+      ],
+      "music_hints": [
+        {
+          "term": "acoustic guitar music",
+          "category": "music_genre",
+          "z": 3.87,
+          "cosine": 0.311
+        },
+        {
+          "term": "sad and melancholic music",
+          "category": "music_mood",
+          "z": 3.8,
+          "cosine": 0.31
+        },
+        {
+          "term": "romantic music",
+          "category": "music_mood",
+          "z": 3.63,
+          "cosine": 0.336
+        },
+        {
+          "term": "an acoustic guitar",
+          "category": "instruments",
+          "z": 3.36,
+          "cosine": 0.275
+        }
+      ],
+      "tags": {
+        "transitions": [
+          {
+            "term": "a reverse cymbal swell",
+            "z": 1.46,
+            "cosine": 0.094
+          },
+          {
+            "term": "a quick swipe",
+            "z": 0.89,
+            "cosine": 0.069
+          },
+          {
+            "term": "a deep cinematic whoosh",
+            "z": 0.65,
+            "cosine": 0.005
+          }
+        ],
+        "impacts": [
+          {
+            "term": "a punchy impact hit",
+            "z": 0.65,
+            "cosine": -0.049
+          },
+          {
+            "term": "a big braam",
+            "z": 0.63,
+            "cosine": 0.033
+          },
+          {
+            "term": "a cinematic hit with a long tail",
+            "z": 0.42,
+            "cosine": -0.041
+          }
+        ],
+        "ui": [
+          {
+            "term": "a success chime",
+            "z": 0.62,
+            "cosine": 0.081
+          },
+          {
+            "term": "a notification ding",
+            "z": -0.18,
+            "cosine": -0.026
+          },
+          {
+            "term": "a phone vibration buzz",
+            "z": -0.26,
+            "cosine": -0.074
+          }
+        ],
+        "keyboard": [
+          {
+            "term": "a soft key release click",
+            "z": -0.11,
+            "cosine": -0.038
+          },
+          {
+            "term": "an enter key press",
+            "z": -0.34,
+            "cosine": 0.017
+          },
+          {
+            "term": "a spacebar press",
+            "z": -0.82,
+            "cosine": -0.034
+          }
+        ],
+        "foley": [
+          {
+            "term": "paper rustling",
+            "z": 1.34,
+            "cosine": 0.072
+          },
+          {
+            "term": "footsteps on gravel",
+            "z": 1.21,
+            "cosine": -0.027
+          },
+          {
+            "term": "cloth rustling",
+            "z": 1.04,
+            "cosine": 0.054
+          }
+        ],
+        "water": [
+          {
+            "term": "a stream flowing",
+            "z": -0.27,
+            "cosine": -0.028
+          },
+          {
+            "term": "a waterfall",
+            "z": -0.44,
+            "cosine": -0.036
+          },
+          {
+            "term": "a water drop",
+            "z": -0.57,
+            "cosine": -0.022
+          }
+        ],
+        "nature": [
+          {
+            "term": "footsteps on grass",
+            "z": 1.41,
+            "cosine": 0.029
+          },
+          {
+            "term": "walking through dry leaves",
+            "z": 1.19,
+            "cosine": 0.038
+          },
+          {
+            "term": "leaves rustling",
+            "z": 0.94,
+            "cosine": 0.034
+          }
+        ],
+        "chimes": [
+          {
+            "term": "a celesta note",
+            "z": 1.36,
+            "cosine": 0.135
+          },
+          {
+            "term": "a music box melody",
+            "z": 1.3,
+            "cosine": 0.108
+          },
+          {
+            "term": "a kalimba note",
+            "z": 1.28,
+            "cosine": 0.083
+          }
+        ],
+        "ambience": [
+          {
+            "term": "a gentle breeze in tall grass",
+            "z": 0.7,
+            "cosine": -0.009
+          },
+          {
+            "term": "skylarks over a meadow",
+            "z": 0.55,
+            "cosine": 0.005
+          },
+          {
+            "term": "birds singing in the morning",
+            "z": 0.52,
+            "cosine": -0.062
+          }
+        ],
+        "everyday": [
+          {
+            "term": "keys jingling",
+            "z": 0.75,
+            "cosine": 0.011
+          },
+          {
+            "term": "a match being struck",
+            "z": 0.33,
+            "cosine": -0.041
+          },
+          {
+            "term": "a cat meowing",
+            "z": 0.3,
+            "cosine": -0.065
+          }
+        ],
+        "music_genre": [
+          {
+            "term": "acoustic guitar music",
+            "z": 3.87,
+            "cosine": 0.311
+          },
+          {
+            "term": "jazz music",
+            "z": 3.23,
+            "cosine": 0.224
+          },
+          {
+            "term": "cheerful ukulele music",
+            "z": 2.22,
+            "cosine": 0.172
+          }
+        ],
+        "music_mood": [
+          {
+            "term": "sad and melancholic music",
+            "z": 3.8,
+            "cosine": 0.31
+          },
+          {
+            "term": "romantic music",
+            "z": 3.63,
+            "cosine": 0.336
+          },
+          {
+            "term": "calm and relaxing music",
+            "z": 2.75,
+            "cosine": 0.195
+          }
+        ],
+        "instruments": [
+          {
+            "term": "an acoustic guitar",
+            "z": 3.36,
+            "cosine": 0.275
+          },
+          {
+            "term": "pizzicato strings",
+            "z": 2.53,
+            "cosine": 0.189
+          },
+          {
+            "term": "a bass guitar",
+            "z": 2.52,
+            "cosine": 0.182
+          }
+        ],
+        "voice": [
+          {
+            "term": "a person breathing",
+            "z": 0.66,
+            "cosine": -0.017
+          },
+          {
+            "term": "a voice-over narration",
+            "z": 0.59,
+            "cosine": -0.021
+          },
+          {
+            "term": "a man speaking",
+            "z": 0.48,
+            "cosine": -0.124
+          }
+        ],
+        "quality": [
+          {
+            "term": "a warm sound",
+            "z": 1.53,
+            "cosine": 0.152
+          },
+          {
+            "term": "a satisfying sound",
+            "z": 0.96,
+            "cosine": 0.105
+          },
+          {
+            "term": "a crisp sound",
+            "z": 0.8,
+            "cosine": 0.042
+          }
+        ],
+        "production": [
+          {
+            "term": "a field recording outdoors",
+            "z": 0.33,
+            "cosine": -0.042
+          },
+          {
+            "term": "a low quality recording with hiss",
+            "z": 0.08,
+            "cosine": -0.053
+          },
+          {
+            "term": "a pure sine wave tone",
+            "z": -0.03,
+            "cosine": -0.022
+          }
+        ]
+      },
+      "audioset": [
+        {
+          "label": "Music",
+          "p": 0.934
+        },
+        {
+          "label": "Guitar",
+          "p": 0.279
+        },
+        {
+          "label": "Acoustic guitar",
+          "p": 0.272
+        },
+        {
+          "label": "Plucked string instrument",
+          "p": 0.253
+        },
+        {
+          "label": "Musical instrument",
+          "p": 0.216
+        }
+      ],
+      "character": [],
+      "summary": "10.00 s busy, 2.4 onsets/s, tonal, pitch ~92 Hz (F#2) (attack 0 ms). Music (AudioSet Music 0.93). Unvalidated hints - genre: acoustic guitar music (z +3.8); mood (wrong for ~1 in 5 tracks in a test): sad and melancholic music (z +3.8), romantic music (z +3.6). No sound-effect description stands out (closest: a reverse cymbal swell z +1.4, footsteps on grass z +1.4; tentative). AudioSet: Music 0.93, Guitar 0.28, Acoustic guitar 0.27. peak -2.0 dBFS, -14.8 LUFS, brightness 566 Hz, bandwidth 10.2 kHz, noise floor -29 dBFS, side/mid -8 dB."
+    },
+    "chorus": {
+      "path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/thodi_der_aur_20261022/takes/take_01_22102611/d9764b1d-29df-b8a5-0dbd-80115360720d.wav",
+      "start": 45,
+      "end": 55,
+      "duration": 10.0,
+      "measurements": {
+        "duration": 10.0,
+        "peak_dbfs": -2.0,
+        "true_peak_dbtp": -2.0,
+        "rms_dbfs": -16.5,
+        "lufs": -14.6,
+        "lra_lu": 6.0,
+        "attack_ms": 35.0,
+        "brightness_hz": 1753,
+        "bandwidth_hz": 20480,
+        "noise_floor_dbfs": -26.4,
+        "flatness": 0.0004,
+        "harmonic_ratio": 0.78,
+        "onset_count": 20,
+        "onsets_per_s": 2.0,
+        "width": "side/mid -10 dB",
+        "digital_silence_frac": 0.0001
+      },
+      "shape": "busy, 2.0 onsets/s (attack 35 ms)",
+      "top_tags": [
+        {
+          "term": "birds singing in the morning",
+          "category": "ambience",
+          "z": 2.17,
+          "cosine": 0.035,
+          "verdict": "weak"
+        },
+        {
+          "term": "a bird chirping",
+          "category": "everyday",
+          "z": 2.12,
+          "cosine": 0.041,
+          "verdict": "weak"
+        },
+        {
+          "term": "an electrical hum",
+          "category": "ambience",
+          "z": 1.78,
+          "cosine": 0.035,
+          "verdict": "no match"
+        },
+        {
+          "term": "a sub bass drop",
+          "category": "impacts",
+          "z": 1.61,
+          "cosine": 0.065,
+          "verdict": "no match"
+        }
+      ],
+      "music_hints": [
+        {
+          "term": "sad and melancholic music",
+          "category": "music_mood",
+          "z": 3.16,
+          "cosine": 0.225
+        },
+        {
+          "term": "romantic music",
+          "category": "music_mood",
+          "z": 3.02,
+          "cosine": 0.255
+        },
+        {
+          "term": "indie pop music",
+          "category": "music_genre",
+          "z": 2.97,
+          "cosine": 0.231
+        },
+        {
+          "term": "calm and relaxing music",
+          "category": "music_mood",
+          "z": 2.88,
+          "cosine": 0.171
+        }
+      ],
+      "tags": {
+        "transitions": [
+          {
+            "term": "a reverse cymbal swell",
+            "z": 1.12,
+            "cosine": 0.049
+          },
+          {
+            "term": "a rising riser building tension",
+            "z": 0.06,
+            "cosine": -0.007
+          },
+          {
+            "term": "a soft air whoosh",
+            "z": 0.04,
+            "cosine": -0.055
+          }
+        ],
+        "impacts": [
+          {
+            "term": "a sub bass drop",
+            "z": 1.61,
+            "cosine": 0.065
+          },
+          {
+            "term": "a low rumble",
+            "z": 1.05,
+            "cosine": 0.002
+          },
+          {
+            "term": "a big drum hit",
+            "z": 0.95,
+            "cosine": -0.011
+          }
+        ],
+        "ui": [
+          {
+            "term": "a phone vibration buzz",
+            "z": 1.44,
+            "cosine": 0.033
+          },
+          {
+            "term": "a camera shutter click",
+            "z": 0.32,
+            "cosine": 0.011
+          },
+          {
+            "term": "an error buzz",
+            "z": 0.28,
+            "cosine": -0.033
+          }
+        ],
+        "keyboard": [
+          {
+            "term": "a soft key release click",
+            "z": 0.3,
+            "cosine": -0.019
+          },
+          {
+            "term": "a single mechanical keyboard key press",
+            "z": -1.12,
+            "cosine": -0.074
+          },
+          {
+            "term": "an enter key press",
+            "z": -1.41,
+            "cosine": -0.062
+          }
+        ],
+        "foley": [
+          {
+            "term": "footsteps on gravel",
+            "z": 0.96,
+            "cosine": -0.064
+          },
+          {
+            "term": "a mouth pop",
+            "z": 0.7,
+            "cosine": 0.045
+          },
+          {
+            "term": "footsteps on wood",
+            "z": 0.55,
+            "cosine": -0.063
+          }
+        ],
+        "water": [
+          {
+            "term": "a water drop",
+            "z": -0.12,
+            "cosine": 0.004
+          },
+          {
+            "term": "bubbles underwater",
+            "z": -0.52,
+            "cosine": -0.09
+          },
+          {
+            "term": "a waterfall",
+            "z": -0.64,
+            "cosine": -0.056
+          }
+        ],
+        "nature": [
+          {
+            "term": "insects buzzing",
+            "z": 0.57,
+            "cosine": -0.015
+          },
+          {
+            "term": "a bee flying by",
+            "z": 0.47,
+            "cosine": -0.027
+          },
+          {
+            "term": "an apple falling on grass",
+            "z": 0.37,
+            "cosine": -0.025
+          }
+        ],
+        "chimes": [
+          {
+            "term": "a music box melody",
+            "z": 0.1,
+            "cosine": 0.006
+          },
+          {
+            "term": "a celesta note",
+            "z": -0.02,
+            "cosine": 0.021
+          },
+          {
+            "term": "a magic sparkle chime",
+            "z": -0.1,
+            "cosine": 0.007
+          }
+        ],
+        "ambience": [
+          {
+            "term": "birds singing in the morning",
+            "z": 2.17,
+            "cosine": 0.035
+          },
+          {
+            "term": "an electrical hum",
+            "z": 1.78,
+            "cosine": 0.035
+          },
+          {
+            "term": "a quiet room tone",
+            "z": 1.59,
+            "cosine": 0.008
+          }
+        ],
+        "everyday": [
+          {
+            "term": "a bird chirping",
+            "z": 2.12,
+            "cosine": 0.041
+          },
+          {
+            "term": "a match being struck",
+            "z": 1.41,
+            "cosine": 0.019
+          },
+          {
+            "term": "a power drill",
+            "z": 1.08,
+            "cosine": -0.005
+          }
+        ],
+        "music_genre": [
+          {
+            "term": "indie pop music",
+            "z": 2.97,
+            "cosine": 0.231
+          },
+          {
+            "term": "jazz music",
+            "z": 2.82,
+            "cosine": 0.16
+          },
+          {
+            "term": "drum and bass music",
+            "z": 1.94,
+            "cosine": 0.084
+          }
+        ],
+        "music_mood": [
+          {
+            "term": "sad and melancholic music",
+            "z": 3.16,
+            "cosine": 0.225
+          },
+          {
+            "term": "romantic music",
+            "z": 3.02,
+            "cosine": 0.255
+          },
+          {
+            "term": "calm and relaxing music",
+            "z": 2.88,
+            "cosine": 0.171
+          }
+        ],
+        "instruments": [
+          {
+            "term": "a vocal chop",
+            "z": 1.58,
+            "cosine": 0.134
+          },
+          {
+            "term": "a bass guitar",
+            "z": 0.98,
+            "cosine": 0.047
+          },
+          {
+            "term": "crisp hi-hats",
+            "z": 0.96,
+            "cosine": 0.036
+          }
+        ],
+        "voice": [
+          {
+            "term": "singing vocals",
+            "z": 2.47,
+            "cosine": 0.104
+          },
+          {
+            "term": "a man speaking",
+            "z": 1.41,
+            "cosine": -0.075
+          },
+          {
+            "term": "a baby crying",
+            "z": 1.02,
+            "cosine": -0.039
+          }
+        ],
+        "quality": [
+          {
+            "term": "a warm sound",
+            "z": 1.75,
+            "cosine": 0.144
+          },
+          {
+            "term": "a distant sound",
+            "z": 1.56,
+            "cosine": 0.005
+          },
+          {
+            "term": "a quiet sound",
+            "z": 1.31,
+            "cosine": 0.005
+          }
+        ],
+        "production": [
+          {
+            "term": "a pure sine wave tone",
+            "z": 1.25,
+            "cosine": 0.055
+          },
+          {
+            "term": "a low quality recording with hiss",
+            "z": 0.64,
+            "cosine": -0.026
+          },
+          {
+            "term": "silence",
+            "z": 0.5,
+            "cosine": 0.03
+          }
+        ]
+      },
+      "audioset": [
+        {
+          "label": "Music",
+          "p": 0.938
+        },
+        {
+          "label": "Singing",
+          "p": 0.101
+        },
+        {
+          "label": "Soul music",
+          "p": 0.078
+        },
+        {
+          "label": "Rhythm and blues",
+          "p": 0.062
+        }
+      ],
+      "character": [],
+      "summary": "10.00 s busy, 2.0 onsets/s (attack 35 ms). Music (AudioSet Music 0.94). Unvalidated hints - genre: indie pop music (z +2.9); mood (wrong for ~1 in 5 tracks in a test): sad and melancholic music (z +3.1), romantic music (z +3.0). Sounds most like: birds singing in the morning (z +2.1), a bird chirping (z +2.1), an electrical hum (z +1.7) [weak reading]. Other readings: a sub bass drop (impacts, z +1.6). AudioSet: Music 0.94, Singing 0.10, Soul music 0.08. peak -2.0 dBFS, -14.6 LUFS, brightness 1.8 kHz, bandwidth 20.5 kHz, noise floor -26 dBFS, side/mid -10 dB."
+    }
+  }
+}

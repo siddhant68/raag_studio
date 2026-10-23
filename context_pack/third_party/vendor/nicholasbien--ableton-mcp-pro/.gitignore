@@ -1,0 +1,53 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+venv/
+ENV/
+uv.lock
+
+# Environment variables - sensitive data
+.env
+.env.*
+
+# Claude Code
+.claude/*
+!.claude/skills/
+.mcp.json
+transcripts/
+
+# IDE files
+.idea/
+.vscode/
+*.sublime-*
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Audio files
+*.mp3
+*.wav
+*.aif
+*.aiff
+
+# Temporary files
+*.bak
+*.tmp
+*.log
+
+# Session logs
+logs/
+
+# Ableton-specific
+*.als
+*.alc
+*.adg
+*.adv
+*.asd

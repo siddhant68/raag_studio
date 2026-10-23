@@ -1,0 +1,36 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.p-poss/dj-claude",
+  "description": "Live music engine for AI agents. Multi-agent jam sessions over HTTP, conductor mode, mix snapshots, 22 presets. No browser or API key needed.",
+  "title": "DJ Claude",
+  "version": "0.1.18",
+  "websiteUrl": "https://github.com/p-poss/dj-claude",
+  "repository": {
+    "url": "https://github.com/p-poss/dj-claude",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "npm",
+      "registryBaseUrl": "https://registry.npmjs.org",
+      "identifier": "dj-claude",
+      "version": "0.1.18",
+      "runtimeHint": "npx",
+      "transport": {
+        "type": "stdio"
+      }
+    },
+    {
+      "registryType": "npm",
+      "registryBaseUrl": "https://registry.npmjs.org",
+      "identifier": "dj-claude",
+      "version": "0.1.18",
+      "runtimeHint": "npx",
+      "command": "dj-claude-mcp-http",
+      "transport": {
+        "type": "streamable-http",
+        "url": "http://127.0.0.1:4321/mcp"
+      }
+    }
+  ]
+}

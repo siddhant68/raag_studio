@@ -1,0 +1,93 @@
+# DJ Claude
+
+You have access to DJ Claude — a live music engine that plays music using the dj-claude MCP tools.
+
+## Playing Music Without an API Key
+
+You do NOT need an API key to play music. Use these options in order of simplicity:
+
+1. **`set_vibe`** — Pick a mood (chill, dark, hype, focus, funky, dreamy, weird, epic). Instant, zero code.
+2. **`play_preset`** — Pick from 22 curated patterns by name (jazz, techno, coding, etc.). Call with no args to list all.
+3. **`play_strudel`** — Write Strudel code yourself and play it directly.
+4. **`play_music` with `code`** / **`jam` with `code`** / **`conduct` with `layers`** — Pass Strudel code to any generation tool via its direct-code parameter.
+
+To learn Strudel syntax, read the `strudel://reference` MCP resource. For role-specific guidance (drums, bass, etc.), read `strudel://roles`. For working examples, read `strudel://examples`.
+
+Only use the `prompt`/`directive` parameters (which call Claude to generate code) if you have `ANTHROPIC_API_KEY` set.
+
+## Tools
+
+### Playback
+- `play_music` — generate and play music from a text description, or pass `code` with Strudel directly (no API key needed)
+- `play_strudel` — evaluate raw Strudel code directly
+- `play_preset` — play from the curated preset library (22 patterns: mood, genre, activity). No args = list all
+- `set_vibe` — instantly set the mood (chill, dark, hype, focus, funky, dreamy, weird, epic)
+- `live_mix` — autonomous DJ set that evolves through multiple stages, or pass `stages_code` with an array of Strudel
+- `hush` — stop all music
+- `now_playing` — check what's currently playing
+- `switch_audio` — switch between Node and browser audio backends
+
+### Jam Session
+- `jam` — add a single layer (drums, bass, melody, etc.) via `prompt` or `code` (no API key needed with `code`)
+- `jam_clear` — remove one layer by role, or clear all layers
+- `jam_status` — show all active layers with their code
+- `jam_preview` — preview a layer without adding it, via `prompt` or `code`
+- `mix_analysis` — analyze the mix for frequency balance, gain levels, and suggestions
+
+### Reactive DJ
+- `set_context` — tell DJ Claude what you're working on so music adapts to your activity. Note: `auto_adapt: true` requires an API key; without one, context is stored and applied on next generation.
+
+### Conductor Mode
+- `conduct` — orchestrate a full band via `directive` (AI) or `layers` map (no API key needed with `layers`)
+- `conduct_evolve` — evolve active layers via `directive` (AI multi-stage) or `layers` map (single-pass, no key)
+
+### Mix Snapshots
+- `snapshot_save` — save the current mix as a named snapshot
+- `snapshot_load` — restore a previously saved snapshot
+- `snapshot_list` — list all saved snapshots
+- `export_code` — export current Strudel code with header comments
+
+## MCP Resources — Learn Strudel
+
+Three resources teach you Strudel syntax so you can write your own code without an API key:
+
+- `strudel://reference` — Complete syntax reference: core functions, mini-notation, effects, modulation, common mistakes
+- `strudel://roles` — Role guidance for jam layers: what drums, bass, melody, chords, pads, fx should sound like
+- `strudel://examples` — All 22 preset patterns as working code examples
+
+Read `strudel://reference` to learn the syntax, then pass Strudel code directly via the `code` parameter on `play_music`, `jam`, `jam_preview`, or the `layers` parameter on `conduct`/`conduct_evolve`. No API key needed.
+
+## Available Sounds
+
+Only built-in Web Audio oscillators and the default Dirt sample set are available:
+
+- **Synths** (use with `note().s()`): sawtooth, square, sine, triangle
+- **Percussion**: bd, sd, hh, oh, cp, lt, mt, ht, rim, cb, cr, cy
+
+Do NOT use piano, bass, gtr, rhodes, strings, brass — these sample packs are not loaded. Use FM synthesis (`.fmh()/.fmi()`), filter shaping (`.lpf()/.resonance()`), and envelope control (`.attack()/.decay()/.sustain()/.release()`) to create richer timbres beyond basic oscillators.
+
+Do NOT use `.shape()`, `.crush()`, or `.coarse()` — AudioWorklet is not available. For grit/distortion, use heavy `.lpf()` filtering, `.vowel()`, aggressive `.resonance()`, or FM synthesis instead.
+
+## Multi-agent jam sessions
+
+When the user starts a jam session (via `jam`, `conduct`, or `/dj-claude:connect`), you may proactively add layers, evolve the mix, and respond to other agents' contributions. This is the collaborative mode where multiple agents build music together in real-time.
+
+## Tips for the user
+
+When playing music, communicate naturally:
+- After first play, mention: "Tip: use /dj-claude:browser for higher quality audio."
+- After creating a good mix, suggest saving it: "Want me to save this mix? Use /dj-claude:save."
+- Remind the user they can stop anytime: "Say 'stop the music' or /dj-claude:hush whenever."
+- Keep MC commentary short and punchy (1-2 sentences, ~120 chars). Name specific techniques. No emojis.
+
+## Jam sessions
+
+Use `jam` to add individual layers (drums, bass, melody, etc.) that compose together with `stack()`. Each layer has a role name — calling `jam` with the same role updates that layer. Use `jam_clear` to remove a specific layer by role or clear all layers. Use `jam_status` to see what's playing. Use `jam_preview` to audition a layer before committing. Use `mix_analysis` to check frequency balance.
+
+## Conductor mode
+
+Use `conduct` to generate a full band at once. Give it a directive like "jazz combo in C minor, late night mood" and it will create all the layers. Use `conduct_evolve` to evolve the entire band through stages.
+
+## Snapshots
+
+Save your mix with `snapshot_save` and restore it later with `snapshot_load`. Use `snapshot_list` to see all saved snapshots. Use `export_code` to get the raw Strudel code.

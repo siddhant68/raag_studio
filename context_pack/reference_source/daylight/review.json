@@ -1,0 +1,2633 @@
+{
+  "takes": {
+    "take_01_24102601": {
+      "path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/daylight_20261024/takes/take_01_24102601/7b2b194a-fe3e-d80d-8738-15f86cd58124.wav",
+      "checks": {
+        "finite": true,
+        "duration": 132.0,
+        "peak_dbfs": -1.4999483823776245,
+        "clipped_samples": 0,
+        "channels": 2
+      },
+      "descriptions": {
+        "opening": {
+          "path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/daylight_20261024/takes/take_01_24102601/7b2b194a-fe3e-d80d-8738-15f86cd58124.wav",
+          "start": 5,
+          "end": 15,
+          "duration": 10.0,
+          "measurements": {
+            "duration": 10.0,
+            "peak_dbfs": -7.3,
+            "true_peak_dbtp": -7.3,
+            "rms_dbfs": -24.6,
+            "lufs": -22.0,
+            "lra_lu": 6.5,
+            "attack_ms": 7.0,
+            "brightness_hz": 667,
+            "bandwidth_hz": 12901,
+            "noise_floor_dbfs": -44.6,
+            "flatness": 0.0,
+            "harmonic_ratio": 0.986,
+            "f0_hz": 73.9,
+            "onset_count": 21,
+            "onsets_per_s": 2.1,
+            "width": "side/mid -2 dB",
+            "digital_silence_frac": 0.0002
+          },
+          "shape": "busy, 2.1 onsets/s, tonal, pitch ~74 Hz (D2) (attack 7 ms)",
+          "top_tags": [
+            {
+              "term": "a sustained glass harp tone",
+              "category": "chimes",
+              "z": 2.09,
+              "cosine": 0.159,
+              "verdict": "weak"
+            },
+            {
+              "term": "a music box melody",
+              "category": "chimes",
+              "z": 1.67,
+              "cosine": 0.213,
+              "verdict": "no match"
+            },
+            {
+              "term": "a finger squeaking on glass",
+              "category": "foley",
+              "z": 1.51,
+              "cosine": 0.113,
+              "verdict": "no match"
+            },
+            {
+              "term": "a celesta note",
+              "category": "chimes",
+              "z": 1.21,
+              "cosine": 0.198,
+              "verdict": "no match"
+            },
+            {
+              "term": "an airplane flying overhead",
+              "category": "ambience",
+              "z": 1.16,
+              "cosine": 0.108,
+              "verdict": "no match"
+            }
+          ],
+          "music_hints": [
+            {
+              "term": "sad and melancholic music",
+              "category": "music_mood",
+              "z": 4.34,
+              "cosine": 0.446
+            },
+            {
+              "term": "romantic music",
+              "category": "music_mood",
+              "z": 2.99,
+              "cosine": 0.374
+            },
+            {
+              "term": "dreamy and ethereal music",
+              "category": "music_mood",
+              "z": 2.92,
+              "cosine": 0.3
+            },
+            {
+              "term": "mysterious music",
+              "category": "music_mood",
+              "z": 2.77,
+              "cosine": 0.33
+            },
+            {
+              "term": "dark and tense music",
+              "category": "music_mood",
+              "z": 2.61,
+              "cosine": 0.298
+            }
+          ],
+          "tags": {
+            "transitions": [
+              {
+                "term": "a rising riser building tension",
+                "z": 0.74,
+                "cosine": 0.125
+              },
+              {
+                "term": "a reverse cymbal swell",
+                "z": -0.0,
+                "cosine": 0.049
+              },
+              {
+                "term": "a soft air whoosh",
+                "z": -0.02,
+                "cosine": 0.017
+              }
+            ],
+            "impacts": [
+              {
+                "term": "a big braam",
+                "z": 0.66,
+                "cosine": 0.105
+              },
+              {
+                "term": "a low rumble",
+                "z": 0.49,
+                "cosine": 0.047
+              },
+              {
+                "term": "a deep cinematic boom",
+                "z": 0.4,
+                "cosine": 0.039
+              }
+            ],
+            "ui": [
+              {
+                "term": "a phone vibration buzz",
+                "z": -0.2,
+                "cosine": -0.006
+              },
+              {
+                "term": "a success chime",
+                "z": -0.45,
+                "cosine": 0.062
+              },
+              {
+                "term": "a chat message pop",
+                "z": -0.53,
+                "cosine": 0.073
+              }
+            ],
+            "keyboard": [
+              {
+                "term": "a keyboard typing fast",
+                "z": -0.44,
+                "cosine": 0.021
+              },
+              {
+                "term": "slow typing with separate key presses",
+                "z": -0.46,
+                "cosine": 0.036
+              },
+              {
+                "term": "a deep thocky mechanical keyboard",
+                "z": -0.52,
+                "cosine": 0.049
+              }
+            ],
+            "foley": [
+              {
+                "term": "a finger squeaking on glass",
+                "z": 1.51,
+                "cosine": 0.113
+              },
+              {
+                "term": "a balloon squeak",
+                "z": 0.63,
+                "cosine": 0.055
+              },
+              {
+                "term": "a zipper",
+                "z": 0.54,
+                "cosine": 0.092
+              }
+            ],
+            "water": [
+              {
+                "term": "a stream flowing",
+                "z": 0.17,
+                "cosine": 0.072
+              },
+              {
+                "term": "being underwater",
+                "z": -0.17,
+                "cosine": 0.022
+              },
+              {
+                "term": "pouring water",
+                "z": -0.26,
+                "cosine": -0.012
+              }
+            ],
+            "nature": [
+              {
+                "term": "insects buzzing",
+                "z": 0.35,
+                "cosine": 0.05
+              },
+              {
+                "term": "a bee flying by",
+                "z": 0.08,
+                "cosine": 0.023
+              },
+              {
+                "term": "footsteps on grass",
+                "z": 0.06,
+                "cosine": -0.008
+              }
+            ],
+            "chimes": [
+              {
+                "term": "a sustained glass harp tone",
+                "z": 2.09,
+                "cosine": 0.159
+              },
+              {
+                "term": "a music box melody",
+                "z": 1.67,
+                "cosine": 0.213
+              },
+              {
+                "term": "a celesta note",
+                "z": 1.21,
+                "cosine": 0.198
+              }
+            ],
+            "ambience": [
+              {
+                "term": "an airplane flying overhead",
+                "z": 1.16,
+                "cosine": 0.108
+              },
+              {
+                "term": "birds singing in the morning",
+                "z": 1.1,
+                "cosine": 0.055
+              },
+              {
+                "term": "a forest ambience",
+                "z": 0.81,
+                "cosine": 0.092
+              }
+            ],
+            "everyday": [
+              {
+                "term": "a cat meowing",
+                "z": 1.12,
+                "cosine": 0.071
+              },
+              {
+                "term": "a rooster crowing",
+                "z": 0.91,
+                "cosine": 0.102
+              },
+              {
+                "term": "a cow mooing",
+                "z": 0.69,
+                "cosine": 0.036
+              }
+            ],
+            "music_genre": [
+              {
+                "term": "solo piano music",
+                "z": 2.47,
+                "cosine": 0.276
+              },
+              {
+                "term": "playful children's piano music",
+                "z": 2.41,
+                "cosine": 0.281
+              },
+              {
+                "term": "jazz music",
+                "z": 2.26,
+                "cosine": 0.232
+              }
+            ],
+            "music_mood": [
+              {
+                "term": "sad and melancholic music",
+                "z": 4.34,
+                "cosine": 0.446
+              },
+              {
+                "term": "romantic music",
+                "z": 2.99,
+                "cosine": 0.374
+              },
+              {
+                "term": "dreamy and ethereal music",
+                "z": 2.92,
+                "cosine": 0.3
+              }
+            ],
+            "instruments": [
+              {
+                "term": "a grand piano",
+                "z": 2.36,
+                "cosine": 0.247
+              },
+              {
+                "term": "strings ensemble",
+                "z": 2.23,
+                "cosine": 0.256
+              },
+              {
+                "term": "pizzicato strings",
+                "z": 1.77,
+                "cosine": 0.209
+              }
+            ],
+            "voice": [
+              {
+                "term": "a baby crying",
+                "z": 2.05,
+                "cosine": 0.138
+              },
+              {
+                "term": "singing vocals",
+                "z": 1.57,
+                "cosine": 0.142
+              },
+              {
+                "term": "a voice-over narration",
+                "z": 1.46,
+                "cosine": 0.121
+              }
+            ],
+            "quality": [
+              {
+                "term": "a warm sound",
+                "z": 1.65,
+                "cosine": 0.238
+              },
+              {
+                "term": "a soft sound",
+                "z": 0.65,
+                "cosine": 0.06
+              },
+              {
+                "term": "a distant sound",
+                "z": 0.51,
+                "cosine": 0.017
+              }
+            ],
+            "production": [
+              {
+                "term": "a professionally mixed and mastered music track",
+                "z": 1.2,
+                "cosine": 0.295
+              },
+              {
+                "term": "a pure sine wave tone",
+                "z": 0.59,
+                "cosine": 0.094
+              },
+              {
+                "term": "a low bitrate mp3 with artifacts",
+                "z": 0.1,
+                "cosine": 0.075
+              }
+            ]
+          },
+          "audioset": [
+            {
+              "label": "Music",
+              "p": 0.772
+            },
+            {
+              "label": "Sad music",
+              "p": 0.206
+            },
+            {
+              "label": "New-age music",
+              "p": 0.124
+            },
+            {
+              "label": "Musical instrument",
+              "p": 0.08
+            },
+            {
+              "label": "Cello",
+              "p": 0.068
+            }
+          ],
+          "character": [],
+          "summary": "10.00 s busy, 2.1 onsets/s, tonal, pitch ~74 Hz (D2) (attack 7 ms). Music (AudioSet Music 0.77). Unvalidated hints - genre: ; mood (wrong for ~1 in 5 tracks in a test): sad and melancholic music (z +4.3), romantic music (z +2.9). Sounds most like: a sustained glass harp tone (z +2.0), a music box melody (z +1.6), a finger squeaking on glass (z +1.5) [weak reading]. Other readings: an airplane flying overhead (ambience, z +1.1). AudioSet: Music 0.77, Sad music 0.21, New-age music 0.12. peak -7.3 dBFS, -22.0 LUFS, brightness 667 Hz, bandwidth 12.9 kHz, noise floor -45 dBFS, side/mid -2 dB."
+        },
+        "middle": {
+          "path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/daylight_20261024/takes/take_01_24102601/7b2b194a-fe3e-d80d-8738-15f86cd58124.wav",
+          "start": 42,
+          "end": 52,
+          "duration": 10.0,
+          "measurements": {
+            "duration": 10.0,
+            "peak_dbfs": -1.5,
+            "true_peak_dbtp": -1.4,
+            "rms_dbfs": -16.4,
+            "lufs": -15.0,
+            "lra_lu": 3.1,
+            "attack_ms": 5.0,
+            "brightness_hz": 1361,
+            "bandwidth_hz": 20480,
+            "noise_floor_dbfs": -29.8,
+            "flatness": 0.0003,
+            "harmonic_ratio": 0.687,
+            "onset_count": 33,
+            "onsets_per_s": 3.3,
+            "width": "side/mid -6 dB",
+            "digital_silence_frac": 0.0001
+          },
+          "shape": "busy, 3.3 onsets/s (attack 5 ms)",
+          "top_tags": [
+            {
+              "term": "a soft key release click",
+              "category": "keyboard",
+              "z": 1.47,
+              "cosine": 0.091,
+              "verdict": "no match"
+            },
+            {
+              "term": "a finger squeaking on glass",
+              "category": "foley",
+              "z": 1.29,
+              "cosine": 0.031,
+              "verdict": "no match"
+            },
+            {
+              "term": "a sub bass drop",
+              "category": "impacts",
+              "z": 1.13,
+              "cosine": 0.063,
+              "verdict": "no match"
+            },
+            {
+              "term": "a celesta note",
+              "category": "chimes",
+              "z": 0.93,
+              "cosine": 0.114,
+              "verdict": "no match"
+            },
+            {
+              "term": "a pen click",
+              "category": "foley",
+              "z": 0.86,
+              "cosine": 0.093,
+              "verdict": "no match"
+            }
+          ],
+          "music_hints": [
+            {
+              "term": "sad and melancholic music",
+              "category": "music_mood",
+              "z": 4.21,
+              "cosine": 0.337
+            },
+            {
+              "term": "romantic music",
+              "category": "music_mood",
+              "z": 3.79,
+              "cosine": 0.347
+            },
+            {
+              "term": "warm and cozy music",
+              "category": "music_mood",
+              "z": 3.29,
+              "cosine": 0.299
+            },
+            {
+              "term": "jazz music",
+              "category": "music_genre",
+              "z": 2.96,
+              "cosine": 0.206
+            },
+            {
+              "term": "calm and relaxing music",
+              "category": "music_mood",
+              "z": 2.92,
+              "cosine": 0.21
+            }
+          ],
+          "tags": {
+            "transitions": [
+              {
+                "term": "a reverse cymbal swell",
+                "z": 0.67,
+                "cosine": 0.047
+              },
+              {
+                "term": "a quick swipe",
+                "z": 0.66,
+                "cosine": 0.065
+              },
+              {
+                "term": "a soft air whoosh",
+                "z": 0.32,
+                "cosine": -0.009
+              }
+            ],
+            "impacts": [
+              {
+                "term": "a sub bass drop",
+                "z": 1.13,
+                "cosine": 0.063
+              },
+              {
+                "term": "a big drum hit",
+                "z": 0.22,
+                "cosine": -0.034
+              },
+              {
+                "term": "a low rumble",
+                "z": 0.16,
+                "cosine": -0.032
+              }
+            ],
+            "ui": [
+              {
+                "term": "a success chime",
+                "z": 0.78,
+                "cosine": 0.105
+              },
+              {
+                "term": "a mouse click",
+                "z": 0.6,
+                "cosine": 0.052
+              },
+              {
+                "term": "a phone vibration buzz",
+                "z": 0.22,
+                "cosine": -0.023
+              }
+            ],
+            "keyboard": [
+              {
+                "term": "a soft key release click",
+                "z": 1.47,
+                "cosine": 0.091
+              },
+              {
+                "term": "an enter key press",
+                "z": 0.28,
+                "cosine": 0.079
+              },
+              {
+                "term": "a single mechanical keyboard key press",
+                "z": -0.17,
+                "cosine": 0.016
+              }
+            ],
+            "foley": [
+              {
+                "term": "a finger squeaking on glass",
+                "z": 1.29,
+                "cosine": 0.031
+              },
+              {
+                "term": "a pen click",
+                "z": 0.86,
+                "cosine": 0.093
+              },
+              {
+                "term": "a mouth pop",
+                "z": 0.56,
+                "cosine": 0.064
+              }
+            ],
+            "water": [
+              {
+                "term": "a water drop",
+                "z": 0.26,
+                "cosine": 0.056
+              },
+              {
+                "term": "ice cubes in a glass",
+                "z": -0.27,
+                "cosine": -0.037
+              },
+              {
+                "term": "bubbles underwater",
+                "z": -0.36,
+                "cosine": -0.054
+              }
+            ],
+            "nature": [
+              {
+                "term": "footsteps on grass",
+                "z": 0.01,
+                "cosine": -0.062
+              },
+              {
+                "term": "leaves rustling",
+                "z": -0.27,
+                "cosine": -0.041
+              },
+              {
+                "term": "insects buzzing",
+                "z": -0.38,
+                "cosine": -0.055
+              }
+            ],
+            "chimes": [
+              {
+                "term": "a celesta note",
+                "z": 0.93,
+                "cosine": 0.114
+              },
+              {
+                "term": "a sustained glass harp tone",
+                "z": 0.73,
+                "cosine": -0.012
+              },
+              {
+                "term": "a magic sparkle chime",
+                "z": 0.65,
+                "cosine": 0.086
+              }
+            ],
+            "ambience": [
+              {
+                "term": "a busy cafe",
+                "z": 0.74,
+                "cosine": -0.082
+              },
+              {
+                "term": "a city street with traffic",
+                "z": 0.62,
+                "cosine": -0.056
+              },
+              {
+                "term": "a forest ambience",
+                "z": 0.56,
+                "cosine": 0.015
+              }
+            ],
+            "everyday": [
+              {
+                "term": "keys jingling",
+                "z": 0.61,
+                "cosine": 0.013
+              },
+              {
+                "term": "a heartbeat",
+                "z": 0.6,
+                "cosine": 0.029
+              },
+              {
+                "term": "a microwave beep",
+                "z": 0.54,
+                "cosine": 0.014
+              }
+            ],
+            "music_genre": [
+              {
+                "term": "jazz music",
+                "z": 2.96,
+                "cosine": 0.206
+              },
+              {
+                "term": "inspirational corporate background music",
+                "z": 2.62,
+                "cosine": 0.239
+              },
+              {
+                "term": "upbeat corporate pop music",
+                "z": 2.13,
+                "cosine": 0.232
+              }
+            ],
+            "music_mood": [
+              {
+                "term": "sad and melancholic music",
+                "z": 4.21,
+                "cosine": 0.337
+              },
+              {
+                "term": "romantic music",
+                "z": 3.79,
+                "cosine": 0.347
+              },
+              {
+                "term": "warm and cozy music",
+                "z": 3.29,
+                "cosine": 0.299
+              }
+            ],
+            "instruments": [
+              {
+                "term": "pizzicato strings",
+                "z": 2.26,
+                "cosine": 0.174
+              },
+              {
+                "term": "strings ensemble",
+                "z": 2.0,
+                "cosine": 0.165
+              },
+              {
+                "term": "an acoustic guitar",
+                "z": 1.47,
+                "cosine": 0.139
+              }
+            ],
+            "voice": [
+              {
+                "term": "a baby crying",
+                "z": 1.16,
+                "cosine": 0.001
+              },
+              {
+                "term": "singing vocals",
+                "z": 0.86,
+                "cosine": 0.024
+              },
+              {
+                "term": "a person breathing",
+                "z": 0.84,
+                "cosine": 0.009
+              }
+            ],
+            "quality": [
+              {
+                "term": "a warm sound",
+                "z": 1.76,
+                "cosine": 0.178
+              },
+              {
+                "term": "a satisfying sound",
+                "z": 1.35,
+                "cosine": 0.146
+              },
+              {
+                "term": "a bright sound",
+                "z": 0.83,
+                "cosine": 0.083
+              }
+            ],
+            "production": [
+              {
+                "term": "a pure sine wave tone",
+                "z": 0.87,
+                "cosine": 0.059
+              },
+              {
+                "term": "a professionally mixed and mastered music track",
+                "z": 0.37,
+                "cosine": 0.172
+              },
+              {
+                "term": "a low quality recording with hiss",
+                "z": 0.16,
+                "cosine": -0.032
+              }
+            ]
+          },
+          "audioset": [
+            {
+              "label": "Music",
+              "p": 0.901
+            },
+            {
+              "label": "Tender music",
+              "p": 0.161
+            },
+            {
+              "label": "Sad music",
+              "p": 0.158
+            },
+            {
+              "label": "Soul music",
+              "p": 0.143
+            },
+            {
+              "label": "Musical instrument",
+              "p": 0.108
+            }
+          ],
+          "character": [],
+          "summary": "10.00 s busy, 3.3 onsets/s (attack 5 ms). Music (AudioSet Music 0.90). Unvalidated hints - genre: jazz music (z +2.9); mood (wrong for ~1 in 5 tracks in a test): sad and melancholic music (z +4.2), romantic music (z +3.7). No sound-effect description stands out (closest: a soft key release click z +1.4, a finger squeaking on glass z +1.2; tentative). AudioSet: Music 0.90, Tender music 0.16, Sad music 0.16. peak -1.5 dBFS, -15.0 LUFS, brightness 1.4 kHz, bandwidth 20.5 kHz, noise floor -30 dBFS, side/mid -6 dB."
+        },
+        "late": {
+          "path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/daylight_20261024/takes/take_01_24102601/7b2b194a-fe3e-d80d-8738-15f86cd58124.wav",
+          "start": 98,
+          "end": 108,
+          "duration": 10.0,
+          "measurements": {
+            "duration": 10.0,
+            "peak_dbfs": -2.4,
+            "true_peak_dbtp": -2.4,
+            "rms_dbfs": -14.4,
+            "lufs": -12.8,
+            "lra_lu": 1.4,
+            "attack_ms": 0.0,
+            "brightness_hz": 1616,
+            "bandwidth_hz": 20480,
+            "noise_floor_dbfs": -18.8,
+            "flatness": 0.0002,
+            "harmonic_ratio": 0.836,
+            "f0_hz": 73.4,
+            "onset_count": 33,
+            "onsets_per_s": 3.3,
+            "width": "side/mid -10 dB",
+            "digital_silence_frac": 0.0
+          },
+          "shape": "busy, 3.3 onsets/s, tonal, pitch ~73 Hz (D2) (attack 0 ms)",
+          "top_tags": [
+            {
+              "term": "a sub bass drop",
+              "category": "impacts",
+              "z": 1.71,
+              "cosine": 0.137,
+              "verdict": "no match"
+            },
+            {
+              "term": "birds singing in the morning",
+              "category": "ambience",
+              "z": 1.55,
+              "cosine": 0.056,
+              "verdict": "no match"
+            },
+            {
+              "term": "people talking in the background",
+              "category": "ambience",
+              "z": 1.48,
+              "cosine": -0.012,
+              "verdict": "no match"
+            },
+            {
+              "term": "a quiet room tone",
+              "category": "ambience",
+              "z": 1.41,
+              "cosine": 0.057,
+              "verdict": "no match"
+            },
+            {
+              "term": "a vacuum cleaner",
+              "category": "everyday",
+              "z": 1.39,
+              "cosine": 0.088,
+              "verdict": "no match"
+            }
+          ],
+          "music_hints": [
+            {
+              "term": "indie pop music",
+              "category": "music_genre",
+              "z": 3.49,
+              "cosine": 0.351
+            },
+            {
+              "term": "warm and cozy music",
+              "category": "music_mood",
+              "z": 3.41,
+              "cosine": 0.353
+            },
+            {
+              "term": "calm and relaxing music",
+              "category": "music_mood",
+              "z": 2.94,
+              "cosine": 0.254
+            },
+            {
+              "term": "singing vocals",
+              "category": "voice",
+              "z": 2.88,
+              "cosine": 0.21
+            },
+            {
+              "term": "lo-fi hip hop beat",
+              "category": "music_genre",
+              "z": 2.82,
+              "cosine": 0.28
+            }
+          ],
+          "tags": {
+            "transitions": [
+              {
+                "term": "a soft air whoosh",
+                "z": 1.1,
+                "cosine": 0.076
+              },
+              {
+                "term": "an uplifter sweep",
+                "z": 0.57,
+                "cosine": 0.077
+              },
+              {
+                "term": "a downlifter falling sweep",
+                "z": -0.13,
+                "cosine": 0.009
+              }
+            ],
+            "impacts": [
+              {
+                "term": "a sub bass drop",
+                "z": 1.71,
+                "cosine": 0.137
+              },
+              {
+                "term": "a soft thump",
+                "z": 1.07,
+                "cosine": 0.046
+              },
+              {
+                "term": "a kick drum",
+                "z": 0.68,
+                "cosine": 0.033
+              }
+            ],
+            "ui": [
+              {
+                "term": "a soft UI button tap",
+                "z": 0.71,
+                "cosine": 0.063
+              },
+              {
+                "term": "a phone vibration buzz",
+                "z": 0.47,
+                "cosine": 0.018
+              },
+              {
+                "term": "a touchscreen tap",
+                "z": 0.35,
+                "cosine": 0.064
+              }
+            ],
+            "keyboard": [
+              {
+                "term": "a soft key release click",
+                "z": 0.32,
+                "cosine": 0.031
+              },
+              {
+                "term": "a single mechanical keyboard key press",
+                "z": -0.72,
+                "cosine": -0.009
+              },
+              {
+                "term": "a deep thocky mechanical keyboard",
+                "z": -0.72,
+                "cosine": 0.005
+              }
+            ],
+            "foley": [
+              {
+                "term": "footsteps on wood",
+                "z": 1.18,
+                "cosine": 0.038
+              },
+              {
+                "term": "a drawer closing",
+                "z": 0.51,
+                "cosine": 0.078
+              },
+              {
+                "term": "footsteps on gravel",
+                "z": 0.5,
+                "cosine": -0.043
+              }
+            ],
+            "water": [
+              {
+                "term": "a water drop",
+                "z": 0.64,
+                "cosine": 0.107
+              },
+              {
+                "term": "a dripping tap",
+                "z": -0.16,
+                "cosine": 0.019
+              },
+              {
+                "term": "pouring water",
+                "z": -0.26,
+                "cosine": -0.041
+              }
+            ],
+            "nature": [
+              {
+                "term": "footsteps on grass",
+                "z": 0.32,
+                "cosine": -0.018
+              },
+              {
+                "term": "an apple falling on grass",
+                "z": 0.07,
+                "cosine": 0.001
+              },
+              {
+                "term": "a bee flying by",
+                "z": -0.05,
+                "cosine": -0.018
+              }
+            ],
+            "chimes": [
+              {
+                "term": "a celesta note",
+                "z": 0.25,
+                "cosine": 0.088
+              },
+              {
+                "term": "a singing bowl",
+                "z": 0.01,
+                "cosine": -0.046
+              },
+              {
+                "term": "a music box melody",
+                "z": -0.18,
+                "cosine": 0.031
+              }
+            ],
+            "ambience": [
+              {
+                "term": "birds singing in the morning",
+                "z": 1.55,
+                "cosine": 0.056
+              },
+              {
+                "term": "people talking in the background",
+                "z": 1.48,
+                "cosine": -0.012
+              },
+              {
+                "term": "a quiet room tone",
+                "z": 1.41,
+                "cosine": 0.057
+              }
+            ],
+            "everyday": [
+              {
+                "term": "a vacuum cleaner",
+                "z": 1.39,
+                "cosine": 0.088
+              },
+              {
+                "term": "a bird chirping",
+                "z": 1.34,
+                "cosine": 0.048
+              },
+              {
+                "term": "a heartbeat",
+                "z": 1.33,
+                "cosine": 0.11
+              }
+            ],
+            "music_genre": [
+              {
+                "term": "indie pop music",
+                "z": 3.49,
+                "cosine": 0.351
+              },
+              {
+                "term": "lo-fi hip hop beat",
+                "z": 2.82,
+                "cosine": 0.28
+              },
+              {
+                "term": "upbeat corporate pop music",
+                "z": 2.25,
+                "cosine": 0.277
+              }
+            ],
+            "music_mood": [
+              {
+                "term": "warm and cozy music",
+                "z": 3.41,
+                "cosine": 0.353
+              },
+              {
+                "term": "calm and relaxing music",
+                "z": 2.94,
+                "cosine": 0.254
+              },
+              {
+                "term": "romantic music",
+                "z": 2.7,
+                "cosine": 0.31
+              }
+            ],
+            "instruments": [
+              {
+                "term": "a warm analog synth pad",
+                "z": 2.09,
+                "cosine": 0.171
+              },
+              {
+                "term": "a vocal chop",
+                "z": 1.35,
+                "cosine": 0.18
+              },
+              {
+                "term": "an electric piano",
+                "z": 1.28,
+                "cosine": 0.165
+              }
+            ],
+            "voice": [
+              {
+                "term": "singing vocals",
+                "z": 2.88,
+                "cosine": 0.21
+              },
+              {
+                "term": "a woman speaking",
+                "z": 1.58,
+                "cosine": 0.014
+              },
+              {
+                "term": "a crowd talking",
+                "z": 1.08,
+                "cosine": -0.044
+              }
+            ],
+            "quality": [
+              {
+                "term": "a warm sound",
+                "z": 2.48,
+                "cosine": 0.268
+              },
+              {
+                "term": "a distant sound",
+                "z": 1.17,
+                "cosine": 0.037
+              },
+              {
+                "term": "a quiet sound",
+                "z": 1.11,
+                "cosine": 0.049
+              }
+            ],
+            "production": [
+              {
+                "term": "a pure sine wave tone",
+                "z": 1.62,
+                "cosine": 0.144
+              },
+              {
+                "term": "a low quality recording with hiss",
+                "z": 0.85,
+                "cosine": 0.043
+              },
+              {
+                "term": "silence",
+                "z": 0.65,
+                "cosine": 0.094
+              }
+            ]
+          },
+          "audioset": [
+            {
+              "label": "Music",
+              "p": 0.926
+            },
+            {
+              "label": "Soul music",
+              "p": 0.37
+            },
+            {
+              "label": "Tender music",
+              "p": 0.102
+            },
+            {
+              "label": "Singing",
+              "p": 0.076
+            },
+            {
+              "label": "Rhythm and blues",
+              "p": 0.065
+            }
+          ],
+          "character": [],
+          "summary": "10.00 s busy, 3.3 onsets/s, tonal, pitch ~73 Hz (D2) (attack 0 ms). Music (AudioSet Music 0.93). Unvalidated hints - genre: indie pop music (z +3.4), lo-fi hip hop beat (z +2.8); mood (wrong for ~1 in 5 tracks in a test): warm and cozy music (z +3.4), calm and relaxing music (z +2.9). No sound-effect description stands out (closest: a sub bass drop z +1.7, birds singing in the morning z +1.5; tentative). AudioSet: Music 0.93, Soul music 0.37, Tender music 0.10. peak -2.4 dBFS, -12.8 LUFS, brightness 1.6 kHz, bandwidth 20.5 kHz, noise floor -19 dBFS, side/mid -10 dB."
+        }
+      },
+      "chorus_check": {
+        "summary": "7b2b194a-fe3e-d80d-8738-15f86cd58124.wav [30.000-55.000 s]: 'Melodic music with a choir singing wordless ooh and aah harmonies over piano, guitar, strings and a gentle drum beat.' -> strong (unvalidated: music / instrument / voice description) (z +3.3; would rank #3 among 322 vocabulary descriptions; cosine 0.21). Forced choice vs your alternatives: 'Melodic music with a choir singing wordless ooh and aah harmonies over piano, guitar, strings and a gentle drum beat.' 97%, 'Instrumental piano, guitar and strings with drums, without any singing.' 1%, 'A person speaking over background music.' 2%. It sounds most like: 'sad and melancholic music' (z +4.3), 'romantic music' (z +4.0), 'warm and cozy music' (z +3.3), 'calm and relaxing music' (z +3.0).",
+        "path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/daylight_20261024/takes/take_01_24102601/7b2b194a-fe3e-d80d-8738-15f86cd58124.wav",
+        "start": 30,
+        "end": 55,
+        "peak_dbfs": -1.5,
+        "query": "Melodic music with a choir singing wordless ooh and aah harmonies over piano, guitar, strings and a gentle drum beat.",
+        "cosine": 0.21,
+        "z": 3.39,
+        "percentile": 99.4,
+        "rank_in_vocab": 3,
+        "p_vs_alts": 0.973,
+        "verdict": "strong",
+        "validated": false,
+        "alts": [
+          {
+            "query": "Instrumental piano, guitar and strings with drums, without any singing.",
+            "p": 0.012,
+            "z": 1.47,
+            "cosine": 0.096
+          },
+          {
+            "query": "A person speaking over background music.",
+            "p": 0.015,
+            "z": 1.25,
+            "cosine": 0.102
+          }
+        ],
+        "results": [
+          {
+            "query": "Melodic music with a choir singing wordless ooh and aah harmonies over piano, guitar, strings and a gentle drum beat.",
+            "cosine": 0.21,
+            "z": 3.39,
+            "percentile": 99.4,
+            "rank_in_vocab": 3,
+            "vocab_size": 322,
+            "verdict": "strong",
+            "validated": false,
+            "p_vs_alts": 0.973,
+            "alts": [
+              {
+                "query": "Instrumental piano, guitar and strings with drums, without any singing.",
+                "p": 0.012,
+                "z": 1.47,
+                "cosine": 0.096
+              },
+              {
+                "query": "A person speaking over background music.",
+                "p": 0.015,
+                "z": 1.25,
+                "cosine": 0.102
+              }
+            ]
+          }
+        ],
+        "closest_vocab": [
+          {
+            "term": "sad and melancholic music",
+            "category": "music_mood",
+            "z": 4.32,
+            "cosine": 0.33
+          },
+          {
+            "term": "romantic music",
+            "category": "music_mood",
+            "z": 4.0,
+            "cosine": 0.345
+          },
+          {
+            "term": "warm and cozy music",
+            "category": "music_mood",
+            "z": 3.31,
+            "cosine": 0.282
+          },
+          {
+            "term": "calm and relaxing music",
+            "category": "music_mood",
+            "z": 3.04,
+            "cosine": 0.201
+          }
+        ],
+        "verdict_thresholds_z": {
+          "strong": 3.0,
+          "plausible": 2.5,
+          "weak": 2.0
+        },
+        "verdict_evidence": {
+          "strong": {
+            "z": ">= 3",
+            "lr": 1289,
+            "precision_library": 0.98,
+            "precision_even_odds": 1.0,
+            "lr_strict": 51,
+            "precision_library_strict": 0.61,
+            "recall_at_or_above": 0.51
+          },
+          "plausible": {
+            "z": "2.5 - 3",
+            "lr": 21,
+            "precision_library": 0.41,
+            "precision_even_odds": 0.95,
+            "lr_strict": 9.1,
+            "precision_library_strict": 0.22,
+            "recall_at_or_above": 0.63
+          },
+          "weak": {
+            "z": "2 - 2.5",
+            "lr": 12,
+            "precision_library": 0.28,
+            "precision_even_odds": 0.92,
+            "lr_strict": 6.6,
+            "precision_library_strict": 0.17,
+            "recall_at_or_above": 0.76
+          },
+          "no match": {
+            "z": "< 2",
+            "lr": 0.25,
+            "precision_library": 0.008,
+            "precision_even_odds": 0.2,
+            "lr_strict": 0.25,
+            "precision_library_strict": 0.008
+          }
+        }
+      }
+    },
+    "take_02_24102602": {
+      "path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/daylight_20261024/takes/take_02_24102602/904a9184-10b4-0f7b-d0d1-6d601eeb6e7b.wav",
+      "checks": {
+        "finite": true,
+        "duration": 132.0,
+        "peak_dbfs": -1.5002633333206177,
+        "clipped_samples": 0,
+        "channels": 2
+      },
+      "descriptions": {
+        "opening": {
+          "path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/daylight_20261024/takes/take_02_24102602/904a9184-10b4-0f7b-d0d1-6d601eeb6e7b.wav",
+          "start": 5,
+          "end": 15,
+          "duration": 10.0,
+          "measurements": {
+            "duration": 10.0,
+            "peak_dbfs": -3.9,
+            "true_peak_dbtp": -3.9,
+            "rms_dbfs": -19.1,
+            "lufs": -17.5,
+            "lra_lu": 6.0,
+            "attack_ms": 220.0,
+            "brightness_hz": 580,
+            "bandwidth_hz": 8127,
+            "noise_floor_dbfs": -28.7,
+            "flatness": 0.0,
+            "harmonic_ratio": 0.981,
+            "f0_hz": 73.6,
+            "onset_count": 29,
+            "onsets_per_s": 2.9,
+            "width": "side/mid -6 dB",
+            "digital_silence_frac": 0.0001
+          },
+          "shape": "busy, 2.9 onsets/s, tonal, pitch ~74 Hz (D2) (attack 220 ms)",
+          "top_tags": [
+            {
+              "term": "a sustained glass harp tone",
+              "category": "chimes",
+              "z": 1.59,
+              "cosine": 0.087,
+              "verdict": "no match"
+            },
+            {
+              "term": "a music box melody",
+              "category": "chimes",
+              "z": 1.55,
+              "cosine": 0.172,
+              "verdict": "no match"
+            },
+            {
+              "term": "a celesta note",
+              "category": "chimes",
+              "z": 1.41,
+              "cosine": 0.184,
+              "verdict": "no match"
+            },
+            {
+              "term": "a kalimba note",
+              "category": "chimes",
+              "z": 1.21,
+              "cosine": 0.123,
+              "verdict": "no match"
+            },
+            {
+              "term": "a finger squeaking on glass",
+              "category": "foley",
+              "z": 1.21,
+              "cosine": 0.059,
+              "verdict": "no match"
+            }
+          ],
+          "music_hints": [
+            {
+              "term": "sad and melancholic music",
+              "category": "music_mood",
+              "z": 4.18,
+              "cosine": 0.391
+            },
+            {
+              "term": "romantic music",
+              "category": "music_mood",
+              "z": 3.64,
+              "cosine": 0.388
+            },
+            {
+              "term": "acoustic guitar music",
+              "category": "music_genre",
+              "z": 3.14,
+              "cosine": 0.304
+            },
+            {
+              "term": "calm and relaxing music",
+              "category": "music_mood",
+              "z": 2.97,
+              "cosine": 0.26
+            },
+            {
+              "term": "warm and cozy music",
+              "category": "music_mood",
+              "z": 2.84,
+              "cosine": 0.312
+            }
+          ],
+          "tags": {
+            "transitions": [
+              {
+                "term": "a reverse cymbal swell",
+                "z": 1.03,
+                "cosine": 0.106
+              },
+              {
+                "term": "a quick swipe",
+                "z": 0.75,
+                "cosine": 0.102
+              },
+              {
+                "term": "a soft air whoosh",
+                "z": 0.28,
+                "cosine": 0.017
+              }
+            ],
+            "impacts": [
+              {
+                "term": "a low rumble",
+                "z": 0.49,
+                "cosine": 0.02
+              },
+              {
+                "term": "a big braam",
+                "z": 0.47,
+                "cosine": 0.064
+              },
+              {
+                "term": "a soft thump",
+                "z": 0.28,
+                "cosine": -0.01
+              }
+            ],
+            "ui": [
+              {
+                "term": "a success chime",
+                "z": 0.62,
+                "cosine": 0.124
+              },
+              {
+                "term": "a notification ding",
+                "z": 0.15,
+                "cosine": 0.041
+              },
+              {
+                "term": "a mouse click",
+                "z": 0.01,
+                "cosine": 0.036
+              }
+            ],
+            "keyboard": [
+              {
+                "term": "a soft key release click",
+                "z": 0.42,
+                "cosine": 0.045
+              },
+              {
+                "term": "an enter key press",
+                "z": -0.41,
+                "cosine": 0.053
+              },
+              {
+                "term": "a spacebar press",
+                "z": -0.74,
+                "cosine": 0.012
+              }
+            ],
+            "foley": [
+              {
+                "term": "a finger squeaking on glass",
+                "z": 1.21,
+                "cosine": 0.059
+              },
+              {
+                "term": "paper rustling",
+                "z": 0.85,
+                "cosine": 0.078
+              },
+              {
+                "term": "a metal scrape",
+                "z": 0.59,
+                "cosine": 0.015
+              }
+            ],
+            "water": [
+              {
+                "term": "pouring water",
+                "z": 0.15,
+                "cosine": -0.002
+              },
+              {
+                "term": "a stream flowing",
+                "z": 0.04,
+                "cosine": 0.038
+              },
+              {
+                "term": "a water drop",
+                "z": -0.03,
+                "cosine": 0.061
+              }
+            ],
+            "nature": [
+              {
+                "term": "footsteps on grass",
+                "z": 0.67,
+                "cosine": 0.016
+              },
+              {
+                "term": "leaves rustling",
+                "z": 0.65,
+                "cosine": 0.055
+              },
+              {
+                "term": "walking through dry leaves",
+                "z": 0.45,
+                "cosine": 0.024
+              }
+            ],
+            "chimes": [
+              {
+                "term": "a sustained glass harp tone",
+                "z": 1.59,
+                "cosine": 0.087
+              },
+              {
+                "term": "a music box melody",
+                "z": 1.55,
+                "cosine": 0.172
+              },
+              {
+                "term": "a celesta note",
+                "z": 1.41,
+                "cosine": 0.184
+              }
+            ],
+            "ambience": [
+              {
+                "term": "a forest ambience",
+                "z": 0.92,
+                "cosine": 0.073
+              },
+              {
+                "term": "birds singing in the morning",
+                "z": 0.9,
+                "cosine": 0.01
+              },
+              {
+                "term": "a quiet countryside morning",
+                "z": 0.85,
+                "cosine": 0.024
+              }
+            ],
+            "everyday": [
+              {
+                "term": "a bird chirping",
+                "z": 0.5,
+                "cosine": -0.012
+              },
+              {
+                "term": "a car driving past",
+                "z": 0.28,
+                "cosine": -0.014
+              },
+              {
+                "term": "keys jingling",
+                "z": 0.27,
+                "cosine": 0.016
+              }
+            ],
+            "music_genre": [
+              {
+                "term": "acoustic guitar music",
+                "z": 3.14,
+                "cosine": 0.304
+              },
+              {
+                "term": "jazz music",
+                "z": 2.42,
+                "cosine": 0.21
+              },
+              {
+                "term": "inspirational corporate background music",
+                "z": 2.09,
+                "cosine": 0.241
+              }
+            ],
+            "music_mood": [
+              {
+                "term": "sad and melancholic music",
+                "z": 4.18,
+                "cosine": 0.391
+              },
+              {
+                "term": "romantic music",
+                "z": 3.64,
+                "cosine": 0.388
+              },
+              {
+                "term": "calm and relaxing music",
+                "z": 2.97,
+                "cosine": 0.26
+              }
+            ],
+            "instruments": [
+              {
+                "term": "pizzicato strings",
+                "z": 2.78,
+                "cosine": 0.256
+              },
+              {
+                "term": "an acoustic guitar",
+                "z": 2.56,
+                "cosine": 0.262
+              },
+              {
+                "term": "a grand piano",
+                "z": 1.92,
+                "cosine": 0.178
+              }
+            ],
+            "voice": [
+              {
+                "term": "a voice-over narration",
+                "z": 0.82,
+                "cosine": 0.04
+              },
+              {
+                "term": "someone whispering",
+                "z": 0.36,
+                "cosine": -0.021
+              },
+              {
+                "term": "a man speaking",
+                "z": 0.31,
+                "cosine": -0.094
+              }
+            ],
+            "quality": [
+              {
+                "term": "a warm sound",
+                "z": 2.08,
+                "cosine": 0.24
+              },
+              {
+                "term": "a crisp sound",
+                "z": 1.32,
+                "cosine": 0.126
+              },
+              {
+                "term": "a satisfying sound",
+                "z": 1.06,
+                "cosine": 0.157
+              }
+            ],
+            "production": [
+              {
+                "term": "a field recording outdoors",
+                "z": 0.29,
+                "cosine": -0.003
+              },
+              {
+                "term": "silence",
+                "z": -0.04,
+                "cosine": 0.045
+              },
+              {
+                "term": "a pure sine wave tone",
+                "z": -0.13,
+                "cosine": 0.012
+              }
+            ]
+          },
+          "audioset": [
+            {
+              "label": "Music",
+              "p": 0.91
+            },
+            {
+              "label": "New-age music",
+              "p": 0.405
+            },
+            {
+              "label": "Tender music",
+              "p": 0.238
+            },
+            {
+              "label": "Sad music",
+              "p": 0.171
+            },
+            {
+              "label": "Background music",
+              "p": 0.137
+            }
+          ],
+          "character": [],
+          "summary": "10.00 s busy, 2.9 onsets/s, tonal, pitch ~74 Hz (D2) (attack 220 ms). Music (AudioSet Music 0.91). Unvalidated hints - genre: acoustic guitar music (z +3.1); mood (wrong for ~1 in 5 tracks in a test): sad and melancholic music (z +4.1), romantic music (z +3.6). No sound-effect description stands out (closest: a sustained glass harp tone z +1.5, a music box melody z +1.5; tentative). AudioSet: Music 0.91, New-age music 0.41, Tender music 0.24. peak -3.9 dBFS, -17.5 LUFS, brightness 580 Hz, bandwidth 8.1 kHz, noise floor -29 dBFS, side/mid -6 dB."
+        },
+        "middle": {
+          "path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/daylight_20261024/takes/take_02_24102602/904a9184-10b4-0f7b-d0d1-6d601eeb6e7b.wav",
+          "start": 42,
+          "end": 52,
+          "duration": 10.0,
+          "measurements": {
+            "duration": 10.0,
+            "peak_dbfs": -2.3,
+            "true_peak_dbtp": -2.1,
+            "rms_dbfs": -17.2,
+            "lufs": -15.9,
+            "lra_lu": 1.7,
+            "attack_ms": 0.0,
+            "brightness_hz": 893,
+            "bandwidth_hz": 16254,
+            "noise_floor_dbfs": -29.0,
+            "flatness": 0.0002,
+            "harmonic_ratio": 0.777,
+            "onset_count": 32,
+            "onsets_per_s": 3.2,
+            "width": "side/mid -8 dB",
+            "digital_silence_frac": 0.0001
+          },
+          "shape": "busy, 3.2 onsets/s (attack 0 ms)",
+          "top_tags": [
+            {
+              "term": "a quick swipe",
+              "category": "transitions",
+              "z": 1.34,
+              "cosine": 0.167,
+              "verdict": "no match"
+            },
+            {
+              "term": "a finger squeaking on glass",
+              "category": "foley",
+              "z": 1.12,
+              "cosine": 0.071,
+              "verdict": "no match"
+            },
+            {
+              "term": "birds singing in the morning",
+              "category": "ambience",
+              "z": 1.1,
+              "cosine": 0.045,
+              "verdict": "no match"
+            },
+            {
+              "term": "a mouth pop",
+              "category": "foley",
+              "z": 1.09,
+              "cosine": 0.154,
+              "verdict": "no match"
+            },
+            {
+              "term": "a soft air whoosh",
+              "category": "transitions",
+              "z": 0.87,
+              "cosine": 0.082,
+              "verdict": "no match"
+            }
+          ],
+          "music_hints": [
+            {
+              "term": "warm and cozy music",
+              "category": "music_mood",
+              "z": 3.63,
+              "cosine": 0.393
+            },
+            {
+              "term": "romantic music",
+              "category": "music_mood",
+              "z": 3.45,
+              "cosine": 0.391
+            },
+            {
+              "term": "calm and relaxing music",
+              "category": "music_mood",
+              "z": 3.33,
+              "cosine": 0.308
+            },
+            {
+              "term": "sad and melancholic music",
+              "category": "music_mood",
+              "z": 3.31,
+              "cosine": 0.341
+            },
+            {
+              "term": "upbeat corporate pop music",
+              "category": "music_genre",
+              "z": 2.99,
+              "cosine": 0.358
+            }
+          ],
+          "tags": {
+            "transitions": [
+              {
+                "term": "a quick swipe",
+                "z": 1.34,
+                "cosine": 0.167
+              },
+              {
+                "term": "a soft air whoosh",
+                "z": 0.87,
+                "cosine": 0.082
+              },
+              {
+                "term": "a short swish",
+                "z": 0.71,
+                "cosine": 0.134
+              }
+            ],
+            "impacts": [
+              {
+                "term": "a punchy impact hit",
+                "z": 0.52,
+                "cosine": 0.004
+              },
+              {
+                "term": "a soft thump",
+                "z": 0.52,
+                "cosine": 0.028
+              },
+              {
+                "term": "a kick drum",
+                "z": 0.3,
+                "cosine": 0.028
+              }
+            ],
+            "ui": [
+              {
+                "term": "a soft UI button tap",
+                "z": 0.6,
+                "cosine": 0.079
+              },
+              {
+                "term": "a success chime",
+                "z": 0.53,
+                "cosine": 0.136
+              },
+              {
+                "term": "a crisp interface click",
+                "z": 0.46,
+                "cosine": 0.122
+              }
+            ],
+            "keyboard": [
+              {
+                "term": "a soft key release click",
+                "z": 0.38,
+                "cosine": 0.061
+              },
+              {
+                "term": "an enter key press",
+                "z": -0.61,
+                "cosine": 0.057
+              },
+              {
+                "term": "a single mechanical keyboard key press",
+                "z": -1.15,
+                "cosine": -0.017
+              }
+            ],
+            "foley": [
+              {
+                "term": "a finger squeaking on glass",
+                "z": 1.12,
+                "cosine": 0.071
+              },
+              {
+                "term": "a mouth pop",
+                "z": 1.09,
+                "cosine": 0.154
+              },
+              {
+                "term": "a drawer closing",
+                "z": 0.64,
+                "cosine": 0.114
+              }
+            ],
+            "water": [
+              {
+                "term": "a water drop",
+                "z": 0.47,
+                "cosine": 0.12
+              },
+              {
+                "term": "a liquid bloop",
+                "z": -0.29,
+                "cosine": 0.05
+              },
+              {
+                "term": "ice cubes in a glass",
+                "z": -0.61,
+                "cosine": -0.02
+              }
+            ],
+            "nature": [
+              {
+                "term": "footsteps on grass",
+                "z": 0.05,
+                "cosine": -0.013
+              },
+              {
+                "term": "an apple falling on grass",
+                "z": 0.04,
+                "cosine": 0.025
+              },
+              {
+                "term": "insects buzzing",
+                "z": -0.25,
+                "cosine": -0.002
+              }
+            ],
+            "chimes": [
+              {
+                "term": "a celesta note",
+                "z": 0.35,
+                "cosine": 0.121
+              },
+              {
+                "term": "a music box melody",
+                "z": 0.3,
+                "cosine": 0.094
+              },
+              {
+                "term": "a magic sparkle chime",
+                "z": 0.26,
+                "cosine": 0.105
+              }
+            ],
+            "ambience": [
+              {
+                "term": "birds singing in the morning",
+                "z": 1.1,
+                "cosine": 0.045
+              },
+              {
+                "term": "a quiet room at night",
+                "z": 0.87,
+                "cosine": 0.038
+              },
+              {
+                "term": "people talking in the background",
+                "z": 0.82,
+                "cosine": -0.039
+              }
+            ],
+            "everyday": [
+              {
+                "term": "a bird chirping",
+                "z": 0.87,
+                "cosine": 0.036
+              },
+              {
+                "term": "a match being struck",
+                "z": 0.73,
+                "cosine": 0.052
+              },
+              {
+                "term": "a heartbeat",
+                "z": 0.6,
+                "cosine": 0.077
+              }
+            ],
+            "music_genre": [
+              {
+                "term": "upbeat corporate pop music",
+                "z": 2.99,
+                "cosine": 0.358
+              },
+              {
+                "term": "inspirational corporate background music",
+                "z": 2.96,
+                "cosine": 0.329
+              },
+              {
+                "term": "jazz music",
+                "z": 2.46,
+                "cosine": 0.232
+              }
+            ],
+            "music_mood": [
+              {
+                "term": "warm and cozy music",
+                "z": 3.63,
+                "cosine": 0.393
+              },
+              {
+                "term": "romantic music",
+                "z": 3.45,
+                "cosine": 0.391
+              },
+              {
+                "term": "calm and relaxing music",
+                "z": 3.33,
+                "cosine": 0.308
+              }
+            ],
+            "instruments": [
+              {
+                "term": "an acoustic guitar",
+                "z": 1.51,
+                "cosine": 0.198
+              },
+              {
+                "term": "pizzicato strings",
+                "z": 1.44,
+                "cosine": 0.17
+              },
+              {
+                "term": "a grand piano",
+                "z": 1.39,
+                "cosine": 0.156
+              }
+            ],
+            "voice": [
+              {
+                "term": "children laughing",
+                "z": 1.06,
+                "cosine": 0.01
+              },
+              {
+                "term": "people laughing",
+                "z": 1.03,
+                "cosine": -0.03
+              },
+              {
+                "term": "a woman speaking",
+                "z": 0.97,
+                "cosine": -0.01
+              }
+            ],
+            "quality": [
+              {
+                "term": "a warm sound",
+                "z": 2.36,
+                "cosine": 0.281
+              },
+              {
+                "term": "a bright sound",
+                "z": 0.97,
+                "cosine": 0.144
+              },
+              {
+                "term": "a satisfying sound",
+                "z": 0.93,
+                "cosine": 0.167
+              }
+            ],
+            "production": [
+              {
+                "term": "a low quality recording with hiss",
+                "z": 0.72,
+                "cosine": 0.059
+              },
+              {
+                "term": "a professionally mixed and mastered music track",
+                "z": 0.38,
+                "cosine": 0.221
+              },
+              {
+                "term": "a pure sine wave tone",
+                "z": 0.37,
+                "cosine": 0.07
+              }
+            ]
+          },
+          "audioset": [
+            {
+              "label": "Music",
+              "p": 0.89
+            },
+            {
+              "label": "Soul music",
+              "p": 0.206
+            },
+            {
+              "label": "Musical instrument",
+              "p": 0.081
+            },
+            {
+              "label": "Tender music",
+              "p": 0.076
+            },
+            {
+              "label": "Electric piano",
+              "p": 0.053
+            }
+          ],
+          "character": [],
+          "summary": "10.00 s busy, 3.2 onsets/s (attack 0 ms). Music (AudioSet Music 0.89). Unvalidated hints - genre: upbeat corporate pop music (z +2.9); mood (wrong for ~1 in 5 tracks in a test): warm and cozy music (z +3.6), romantic music (z +3.4). No sound-effect description stands out (closest: a quick swipe z +1.3, a finger squeaking on glass z +1.1; tentative). AudioSet: Music 0.89, Soul music 0.21, Musical instrument 0.08. peak -2.3 dBFS, -15.9 LUFS, brightness 893 Hz, bandwidth 16.3 kHz, noise floor -29 dBFS, side/mid -8 dB."
+        },
+        "late": {
+          "path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/daylight_20261024/takes/take_02_24102602/904a9184-10b4-0f7b-d0d1-6d601eeb6e7b.wav",
+          "start": 98,
+          "end": 108,
+          "duration": 10.0,
+          "measurements": {
+            "duration": 10.0,
+            "peak_dbfs": -3.4,
+            "true_peak_dbtp": -3.4,
+            "rms_dbfs": -16.4,
+            "lufs": -14.6,
+            "lra_lu": 4.4,
+            "attack_ms": 0.0,
+            "brightness_hz": 986,
+            "bandwidth_hz": 12901,
+            "noise_floor_dbfs": -22.1,
+            "flatness": 0.0,
+            "harmonic_ratio": 0.975,
+            "f0_hz": 73.5,
+            "onset_count": 18,
+            "onsets_per_s": 1.8,
+            "width": "side/mid -8 dB",
+            "digital_silence_frac": 0.0
+          },
+          "shape": "busy, 1.8 onsets/s, tonal, pitch ~74 Hz (D2) (attack 0 ms)",
+          "top_tags": [
+            {
+              "term": "a singing bowl",
+              "category": "chimes",
+              "z": 2.12,
+              "cosine": 0.082,
+              "verdict": "weak"
+            },
+            {
+              "term": "a sustained glass harp tone",
+              "category": "chimes",
+              "z": 1.88,
+              "cosine": 0.065,
+              "verdict": "no match"
+            },
+            {
+              "term": "a music box melody",
+              "category": "chimes",
+              "z": 1.76,
+              "cosine": 0.144,
+              "verdict": "no match"
+            },
+            {
+              "term": "church bells",
+              "category": "chimes",
+              "z": 1.34,
+              "cosine": 0.057,
+              "verdict": "no match"
+            },
+            {
+              "term": "a vacuum cleaner",
+              "category": "everyday",
+              "z": 1.29,
+              "cosine": 0.039,
+              "verdict": "no match"
+            }
+          ],
+          "music_hints": [
+            {
+              "term": "sad and melancholic music",
+              "category": "music_mood",
+              "z": 3.89,
+              "cosine": 0.33
+            },
+            {
+              "term": "romantic music",
+              "category": "music_mood",
+              "z": 3.39,
+              "cosine": 0.329
+            },
+            {
+              "term": "dreamy and ethereal music",
+              "category": "music_mood",
+              "z": 3.2,
+              "cosine": 0.244
+            },
+            {
+              "term": "warm and cozy music",
+              "category": "music_mood",
+              "z": 2.85,
+              "cosine": 0.272
+            },
+            {
+              "term": "singing vocals",
+              "category": "voice",
+              "z": 2.84,
+              "cosine": 0.169
+            }
+          ],
+          "tags": {
+            "transitions": [
+              {
+                "term": "a reverse cymbal swell",
+                "z": 1.06,
+                "cosine": 0.061
+              },
+              {
+                "term": "a rising riser building tension",
+                "z": 0.68,
+                "cosine": 0.045
+              },
+              {
+                "term": "a soft air whoosh",
+                "z": 0.26,
+                "cosine": -0.035
+              }
+            ],
+            "impacts": [
+              {
+                "term": "a sub bass drop",
+                "z": 0.75,
+                "cosine": 0.018
+              },
+              {
+                "term": "a low rumble",
+                "z": 0.49,
+                "cosine": -0.028
+              },
+              {
+                "term": "a big braam",
+                "z": 0.37,
+                "cosine": 0.006
+              }
+            ],
+            "ui": [
+              {
+                "term": "a success chime",
+                "z": 0.29,
+                "cosine": 0.048
+              },
+              {
+                "term": "a notification ding",
+                "z": -0.07,
+                "cosine": -0.027
+              },
+              {
+                "term": "a phone vibration buzz",
+                "z": -0.09,
+                "cosine": -0.071
+              }
+            ],
+            "keyboard": [
+              {
+                "term": "a soft key release click",
+                "z": -0.46,
+                "cosine": -0.077
+              },
+              {
+                "term": "slow typing with separate key presses",
+                "z": -0.6,
+                "cosine": -0.05
+              },
+              {
+                "term": "a single mechanical keyboard key press",
+                "z": -1.02,
+                "cosine": -0.08
+              }
+            ],
+            "foley": [
+              {
+                "term": "paper rustling",
+                "z": 0.93,
+                "cosine": 0.037
+              },
+              {
+                "term": "scissors cutting",
+                "z": 0.69,
+                "cosine": 0.024
+              },
+              {
+                "term": "footsteps on wood",
+                "z": 0.67,
+                "cosine": -0.045
+              }
+            ],
+            "water": [
+              {
+                "term": "bubbles underwater",
+                "z": 0.15,
+                "cosine": -0.041
+              },
+              {
+                "term": "ice cubes in a glass",
+                "z": 0.05,
+                "cosine": -0.038
+              },
+              {
+                "term": "being underwater",
+                "z": 0.04,
+                "cosine": -0.035
+              }
+            ],
+            "nature": [
+              {
+                "term": "footsteps on grass",
+                "z": 0.81,
+                "cosine": -0.021
+              },
+              {
+                "term": "leaves rustling",
+                "z": 0.36,
+                "cosine": -0.017
+              },
+              {
+                "term": "walking through dry leaves",
+                "z": 0.24,
+                "cosine": -0.042
+              }
+            ],
+            "chimes": [
+              {
+                "term": "a singing bowl",
+                "z": 2.12,
+                "cosine": 0.082
+              },
+              {
+                "term": "a sustained glass harp tone",
+                "z": 1.88,
+                "cosine": 0.065
+              },
+              {
+                "term": "a music box melody",
+                "z": 1.76,
+                "cosine": 0.144
+              }
+            ],
+            "ambience": [
+              {
+                "term": "birds singing in the morning",
+                "z": 1.24,
+                "cosine": -0.009
+              },
+              {
+                "term": "a quiet countryside morning",
+                "z": 1.06,
+                "cosine": -0.007
+              },
+              {
+                "term": "a quiet room tone",
+                "z": 0.8,
+                "cosine": -0.033
+              }
+            ],
+            "everyday": [
+              {
+                "term": "a vacuum cleaner",
+                "z": 1.29,
+                "cosine": 0.039
+              },
+              {
+                "term": "a cow mooing",
+                "z": 1.2,
+                "cosine": 0.002
+              },
+              {
+                "term": "a saw cutting wood",
+                "z": 1.1,
+                "cosine": 0.036
+              }
+            ],
+            "music_genre": [
+              {
+                "term": "indie pop music",
+                "z": 2.47,
+                "cosine": 0.232
+              },
+              {
+                "term": "jazz music",
+                "z": 2.43,
+                "cosine": 0.168
+              },
+              {
+                "term": "ambient synth pad music",
+                "z": 1.95,
+                "cosine": 0.115
+              }
+            ],
+            "music_mood": [
+              {
+                "term": "sad and melancholic music",
+                "z": 3.89,
+                "cosine": 0.33
+              },
+              {
+                "term": "romantic music",
+                "z": 3.39,
+                "cosine": 0.329
+              },
+              {
+                "term": "dreamy and ethereal music",
+                "z": 3.2,
+                "cosine": 0.244
+              }
+            ],
+            "instruments": [
+              {
+                "term": "a choir",
+                "z": 2.63,
+                "cosine": 0.146
+              },
+              {
+                "term": "a music box",
+                "z": 1.9,
+                "cosine": 0.171
+              },
+              {
+                "term": "pizzicato strings",
+                "z": 1.77,
+                "cosine": 0.132
+              }
+            ],
+            "voice": [
+              {
+                "term": "singing vocals",
+                "z": 2.84,
+                "cosine": 0.169
+              },
+              {
+                "term": "a baby crying",
+                "z": 1.05,
+                "cosine": -0.021
+              },
+              {
+                "term": "a person breathing",
+                "z": 0.73,
+                "cosine": -0.017
+              }
+            ],
+            "quality": [
+              {
+                "term": "a warm sound",
+                "z": 1.96,
+                "cosine": 0.187
+              },
+              {
+                "term": "a distant sound",
+                "z": 0.86,
+                "cosine": -0.03
+              },
+              {
+                "term": "a reverberant sound in a large hall",
+                "z": 0.83,
+                "cosine": -0.023
+              }
+            ],
+            "production": [
+              {
+                "term": "a pure sine wave tone",
+                "z": 0.68,
+                "cosine": 0.027
+              },
+              {
+                "term": "a low quality recording with hiss",
+                "z": 0.14,
+                "cosine": -0.056
+              },
+              {
+                "term": "silence",
+                "z": -0.25,
+                "cosine": -0.023
+              }
+            ]
+          },
+          "audioset": [
+            {
+              "label": "Music",
+              "p": 0.916
+            },
+            {
+              "label": "Tender music",
+              "p": 0.171
+            },
+            {
+              "label": "Lullaby",
+              "p": 0.091
+            },
+            {
+              "label": "New-age music",
+              "p": 0.075
+            },
+            {
+              "label": "Sad music",
+              "p": 0.071
+            }
+          ],
+          "character": [],
+          "summary": "10.00 s busy, 1.8 onsets/s, tonal, pitch ~74 Hz (D2) (attack 0 ms). Music (AudioSet Music 0.92). Unvalidated hints - genre: ; mood (wrong for ~1 in 5 tracks in a test): sad and melancholic music (z +3.8), romantic music (z +3.3). Sounds most like: a singing bowl (z +2.1), a sustained glass harp tone (z +1.8), a music box melody (z +1.7) [weak reading]. Other readings: a vacuum cleaner (everyday, z +1.2). AudioSet: Music 0.92, Tender music 0.17, Lullaby 0.09. peak -3.4 dBFS, -14.6 LUFS, brightness 986 Hz, bandwidth 12.9 kHz, noise floor -22 dBFS, side/mid -8 dB."
+        }
+      },
+      "chorus_check": {
+        "summary": "904a9184-10b4-0f7b-d0d1-6d601eeb6e7b.wav [30.000-55.000 s]: 'Melodic music with a choir singing wordless ooh and aah harmonies over piano, guitar, strings and a gentle drum beat.' -> strong (unvalidated: music / instrument / voice description) (z +3.4; would rank #4 among 322 vocabulary descriptions; cosine 0.24). Forced choice vs your alternatives: 'Melodic music with a choir singing wordless ooh and aah harmonies over piano, guitar, strings and a gentle drum beat.' 98%, 'Instrumental piano, guitar and strings with drums, without any singing.' 0%, 'A person speaking over background music.' 2%. It sounds most like: 'sad and melancholic music' (z +4.1), 'romantic music' (z +3.7), 'warm and cozy music' (z +3.7), 'calm and relaxing music' (z +3.1).",
+        "path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/daylight_20261024/takes/take_02_24102602/904a9184-10b4-0f7b-d0d1-6d601eeb6e7b.wav",
+        "start": 30,
+        "end": 55,
+        "peak_dbfs": -2.3,
+        "query": "Melodic music with a choir singing wordless ooh and aah harmonies over piano, guitar, strings and a gentle drum beat.",
+        "cosine": 0.24,
+        "z": 3.42,
+        "percentile": 99.1,
+        "rank_in_vocab": 4,
+        "p_vs_alts": 0.98,
+        "verdict": "strong",
+        "validated": false,
+        "alts": [
+          {
+            "query": "Instrumental piano, guitar and strings with drums, without any singing.",
+            "p": 0.005,
+            "z": 1.34,
+            "cosine": 0.105
+          },
+          {
+            "query": "A person speaking over background music.",
+            "p": 0.015,
+            "z": 1.39,
+            "cosine": 0.132
+          }
+        ],
+        "results": [
+          {
+            "query": "Melodic music with a choir singing wordless ooh and aah harmonies over piano, guitar, strings and a gentle drum beat.",
+            "cosine": 0.24,
+            "z": 3.42,
+            "percentile": 99.1,
+            "rank_in_vocab": 4,
+            "vocab_size": 322,
+            "verdict": "strong",
+            "validated": false,
+            "p_vs_alts": 0.98,
+            "alts": [
+              {
+                "query": "Instrumental piano, guitar and strings with drums, without any singing.",
+                "p": 0.005,
+                "z": 1.34,
+                "cosine": 0.105
+              },
+              {
+                "query": "A person speaking over background music.",
+                "p": 0.015,
+                "z": 1.39,
+                "cosine": 0.132
+              }
+            ]
+          }
+        ],
+        "closest_vocab": [
+          {
+            "term": "sad and melancholic music",
+            "category": "music_mood",
+            "z": 4.13,
+            "cosine": 0.346
+          },
+          {
+            "term": "romantic music",
+            "category": "music_mood",
+            "z": 3.79,
+            "cosine": 0.359
+          },
+          {
+            "term": "warm and cozy music",
+            "category": "music_mood",
+            "z": 3.73,
+            "cosine": 0.343
+          },
+          {
+            "term": "calm and relaxing music",
+            "category": "music_mood",
+            "z": 3.14,
+            "cosine": 0.235
+          }
+        ],
+        "verdict_thresholds_z": {
+          "strong": 3.0,
+          "plausible": 2.5,
+          "weak": 2.0
+        },
+        "verdict_evidence": {
+          "strong": {
+            "z": ">= 3",
+            "lr": 1289,
+            "precision_library": 0.98,
+            "precision_even_odds": 1.0,
+            "lr_strict": 51,
+            "precision_library_strict": 0.61,
+            "recall_at_or_above": 0.51
+          },
+          "plausible": {
+            "z": "2.5 - 3",
+            "lr": 21,
+            "precision_library": 0.41,
+            "precision_even_odds": 0.95,
+            "lr_strict": 9.1,
+            "precision_library_strict": 0.22,
+            "recall_at_or_above": 0.63
+          },
+          "weak": {
+            "z": "2 - 2.5",
+            "lr": 12,
+            "precision_library": 0.28,
+            "precision_even_odds": 0.92,
+            "lr_strict": 6.6,
+            "precision_library_strict": 0.17,
+            "recall_at_or_above": 0.76
+          },
+          "no match": {
+            "z": "< 2",
+            "lr": 0.25,
+            "precision_library": 0.008,
+            "precision_even_odds": 0.2,
+            "lr_strict": 0.25,
+            "precision_library_strict": 0.008
+          }
+        }
+      }
+    }
+  },
+  "limits": "Model tags are fallible and do not establish beauty, exact notes or listener preference."
+}

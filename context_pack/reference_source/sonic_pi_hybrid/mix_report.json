@@ -1,0 +1,28 @@
+{
+  "duration_seconds": 53.2263125,
+  "bpm": 76,
+  "key_requested": "D major",
+  "backing_source": "Actual Sonic Pi engine recording; no AI reorchestration.",
+  "recording_lead_removed_seconds": 0.7362708333333333,
+  "vocal_entry_seconds": 6.315791666666667,
+  "vocal_source": "ACE-Step vocal_01, then local HDemucs separation.",
+  "vocal_target_lufs": -18.5,
+  "backing_target_lufs": -23,
+  "standalone_backing_lufs": -15,
+  "duck_db": 2,
+  "clipped_samples": 0,
+  "peak_dbfs": -1.4910603761672974,
+  "normalization": {
+    "input_i": "-19.15",
+    "input_tp": "-5.08",
+    "input_lra": "6.90",
+    "input_thresh": "-29.44",
+    "output_i": "-14.98",
+    "output_tp": "-1.50",
+    "output_lra": "4.30",
+    "output_thresh": "-25.15",
+    "normalization_type": "dynamic",
+    "target_offset": "-0.02"
+  },
+  "limit": "Mixing and separation do not correct wrong consonants or regenerate individual syllables."
+}

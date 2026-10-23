@@ -1,0 +1,638 @@
+[
+  {
+    "bundled_path": "context_pack/third_party/vendor/ace-step--ace-step-skills/skills/acestep/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/ace-step--ace-step-skills/skills/acestep/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/ace-step--ace-step-skills/skills/acestep-docs/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/ace-step--ace-step-skills/skills/acestep-docs/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/ace-step--ace-step-skills/skills/acestep-lyrics-transcription/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/ace-step--ace-step-skills/skills/acestep-lyrics-transcription/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/ace-step--ace-step-skills/skills/acestep-simplemv/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/ace-step--ace-step-skills/skills/acestep-simplemv/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/ace-step--ace-step-skills/skills/acestep-songwriting/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/ace-step--ace-step-skills/skills/acestep-songwriting/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/ace-step--ace-step-skills/skills/acestep-thumbnail/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/ace-step--ace-step-skills/skills/acestep-thumbnail/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/about/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/about/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/album-art-director/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/album-art-director/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/album-conceptualizer/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/album-conceptualizer/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/album-dashboard/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/album-dashboard/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/album-ideas/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/album-ideas/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/clipboard/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/clipboard/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/cloud-uploader/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/cloud-uploader/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/configure/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/configure/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/document-hunter/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/document-hunter/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/explicit-checker/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/explicit-checker/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/genre-creator/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/genre-creator/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/health-check/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/health-check/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/help/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/help/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/import-art/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/import-art/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/import-audio/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/import-audio/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/import-track/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/import-track/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/lyric-refiner/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/lyric-refiner/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/lyric-reviewer/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/lyric-reviewer/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/lyric-writer/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/lyric-writer/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/mastering-engineer/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/mastering-engineer/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/mix-engineer/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/mix-engineer/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/new-album/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/new-album/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/next-step/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/next-step/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/plagiarism-checker/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/plagiarism-checker/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/pre-generation-check/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/pre-generation-check/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/promo-director/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/promo-director/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/promo-reviewer/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/promo-reviewer/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/promo-writer/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/promo-writer/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/promote-idea/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/promote-idea/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/pronunciation-specialist/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/pronunciation-specialist/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/release-director/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/release-director/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/rename/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/rename/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/researcher/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/researcher/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/researchers-biographical/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/researchers-biographical/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/researchers-financial/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/researchers-financial/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/researchers-gov/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/researchers-gov/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/researchers-historical/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/researchers-historical/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/researchers-journalism/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/researchers-journalism/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/researchers-legal/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/researchers-legal/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/researchers-primary-source/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/researchers-primary-source/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/researchers-security/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/researchers-security/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/researchers-tech/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/researchers-tech/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/researchers-verifier/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/researchers-verifier/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/resume/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/resume/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/session-start/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/session-start/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/setup/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/setup/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/sheet-music-publisher/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/sheet-music-publisher/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/suno-engineer/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/suno-engineer/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/test/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/test/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/tutorial/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/tutorial/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/validate-album/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/validate-album/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/verify-sources/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/verify-sources/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/bitwize-music-studio--claude-ai-music-skills/skills/voice-checker/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/bitwize-music-studio--claude-ai-music-skills/skills/voice-checker/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/glincker--ableton-skills/skills/arrangement-coach/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/glincker--ableton-skills/skills/arrangement-coach/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/glincker--ableton-skills/skills/chord-pro/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/glincker--ableton-skills/skills/chord-pro/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/glincker--ableton-skills/skills/groove-builder/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/glincker--ableton-skills/skills/groove-builder/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/glincker--ableton-skills/skills/mastering-prep/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/glincker--ableton-skills/skills/mastering-prep/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/glincker--ableton-skills/skills/midi-cleanup/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/glincker--ableton-skills/skills/midi-cleanup/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/glincker--ableton-skills/skills/mixer-doctor/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/glincker--ableton-skills/skills/mixer-doctor/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/glincker--ableton-skills/skills/producer-mode/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/glincker--ableton-skills/skills/producer-mode/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/glincker--ableton-skills/skills/reference-match/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/glincker--ableton-skills/skills/reference-match/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/glincker--ableton-skills/skills/sidechain-setup/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/glincker--ableton-skills/skills/sidechain-setup/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/glincker--ableton-skills/skills/sound-designer/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/glincker--ableton-skills/skills/sound-designer/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/glincker--ableton-skills/skills/tempo-coach/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/glincker--ableton-skills/skills/tempo-coach/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/glincker--ableton-skills/skills/vocal-chain/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/glincker--ableton-skills/skills/vocal-chain/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--lyric-writing-skills/plugins/lyric-writing/skills/lw-ai-tell-audit/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--lyric-writing-skills/plugins/lyric-writing/skills/lw-ai-tell-audit/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--lyric-writing-skills/plugins/lyric-writing/skills/lw-cantonese/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--lyric-writing-skills/plugins/lyric-writing/skills/lw-cantonese/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--lyric-writing-skills/plugins/lyric-writing/skills/lw-case-studies/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--lyric-writing-skills/plugins/lyric-writing/skills/lw-case-studies/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--lyric-writing-skills/plugins/lyric-writing/skills/lw-chinese-style/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--lyric-writing-skills/plugins/lyric-writing/skills/lw-chinese-style/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--lyric-writing-skills/plugins/lyric-writing/skills/lw-english/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--lyric-writing-skills/plugins/lyric-writing/skills/lw-english/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--lyric-writing-skills/plugins/lyric-writing/skills/lw-imagery/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--lyric-writing-skills/plugins/lyric-writing/skills/lw-imagery/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--lyric-writing-skills/plugins/lyric-writing/skills/lw-japanese/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--lyric-writing-skills/plugins/lyric-writing/skills/lw-japanese/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--lyric-writing-skills/plugins/lyric-writing/skills/lw-korean/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--lyric-writing-skills/plugins/lyric-writing/skills/lw-korean/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--lyric-writing-skills/plugins/lyric-writing/skills/lw-mandarin/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--lyric-writing-skills/plugins/lyric-writing/skills/lw-mandarin/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--lyric-writing-skills/plugins/lyric-writing/skills/lw-musical-theatre/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--lyric-writing-skills/plugins/lyric-writing/skills/lw-musical-theatre/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--lyric-writing-skills/plugins/lyric-writing/skills/lw-narrative/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--lyric-writing-skills/plugins/lyric-writing/skills/lw-narrative/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--lyric-writing-skills/plugins/lyric-writing/skills/lw-rap/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--lyric-writing-skills/plugins/lyric-writing/skills/lw-rap/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--lyric-writing-skills/plugins/lyric-writing/skills/lw-rhyme/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--lyric-writing-skills/plugins/lyric-writing/skills/lw-rhyme/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--lyric-writing-skills/plugins/lyric-writing/skills/lw-song-intent/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--lyric-writing-skills/plugins/lyric-writing/skills/lw-song-intent/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--lyric-writing-skills/plugins/lyric-writing/skills/lw-structure/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--lyric-writing-skills/plugins/lyric-writing/skills/lw-structure/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--lyric-writing-skills/plugins/lyric-writing/skills/lw-tone-check/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--lyric-writing-skills/plugins/lyric-writing/skills/lw-tone-check/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--lyric-writing-skills/plugins/lyric-writing/skills/lw-workflow/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--lyric-writing-skills/plugins/lyric-writing/skills/lw-workflow/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-ai-tell-audit/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-ai-tell-audit/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-arrangement-arch/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-arrangement-arch/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-case-studies/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-case-studies/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-counterpoint/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-counterpoint/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-development/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-development/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-form/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-form/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-harmony/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-harmony/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-melody/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-melody/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-mix-intent/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-mix-intent/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-modulation/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-modulation/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-orchestration/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-orchestration/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-progressions/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-progressions/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-render-compile/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-render-compile/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-rhythm-groove/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-rhythm-groove/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-rhythm-section/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-rhythm-section/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-sound-design/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-sound-design/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-style-chinese-pop/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-style-chinese-pop/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-style-cinematic/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-style-cinematic/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-style-citypop-rnb/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-style-citypop-rnb/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-style-edm/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-style-edm/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-style-hiphop/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-style-hiphop/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-style-jazz/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-style-jazz/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-style-jpop/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-style-jpop/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-style-latin/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-style-latin/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-style-rock-band/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-style-rock-band/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-symbolic-score/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-symbolic-score/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-texture-layering/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-texture-layering/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-vocal-direction/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-vocal-direction/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-workflow/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/jtydhr88--music-composition-skills/plugins/music-composition/skills/mc-workflow/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/nicholasbien--ableton-mcp-pro/.claude/skills/acid-bass/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/nicholasbien--ableton-mcp-pro/.claude/skills/acid-bass/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/nicholasbien--ableton-mcp-pro/.claude/skills/ambient/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/nicholasbien--ableton-mcp-pro/.claude/skills/ambient/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/nicholasbien--ableton-mcp-pro/.claude/skills/drum-swing/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/nicholasbien--ableton-mcp-pro/.claude/skills/drum-swing/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/nicholasbien--ableton-mcp-pro/.claude/skills/ethereal-pads/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/nicholasbien--ableton-mcp-pro/.claude/skills/ethereal-pads/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/nicholasbien--ableton-mcp-pro/.claude/skills/growl-bass/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/nicholasbien--ableton-mcp-pro/.claude/skills/growl-bass/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/nicholasbien--ableton-mcp-pro/.claude/skills/hardgroove-bass/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/nicholasbien--ableton-mcp-pro/.claude/skills/hardgroove-bass/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/nicholasbien--ableton-mcp-pro/.claude/skills/hardgroove-drums/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/nicholasbien--ableton-mcp-pro/.claude/skills/hardgroove-drums/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/nicholasbien--ableton-mcp-pro/.claude/skills/house-chords/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/nicholasbien--ableton-mcp-pro/.claude/skills/house-chords/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/nicholasbien--ableton-mcp-pro/.claude/skills/house-drums/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/nicholasbien--ableton-mcp-pro/.claude/skills/house-drums/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/nicholasbien--ableton-mcp-pro/.claude/skills/mix-check/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/nicholasbien--ableton-mcp-pro/.claude/skills/mix-check/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/nicholasbien--ableton-mcp-pro/.claude/skills/mixing-guide/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/nicholasbien--ableton-mcp-pro/.claude/skills/mixing-guide/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/nicholasbien--ableton-mcp-pro/.claude/skills/reese-bass/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/nicholasbien--ableton-mcp-pro/.claude/skills/reese-bass/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/nicholasbien--ableton-mcp-pro/.claude/skills/speed-garage/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/nicholasbien--ableton-mcp-pro/.claude/skills/speed-garage/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/nicholasbien--ableton-mcp-pro/.claude/skills/supersaw-chords/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/nicholasbien--ableton-mcp-pro/.claude/skills/supersaw-chords/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/nicholasbien--ableton-mcp-pro/.claude/skills/synthwave/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/nicholasbien--ableton-mcp-pro/.claude/skills/synthwave/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/nicholasbien--ableton-mcp-pro/.claude/skills/techno-bass/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/nicholasbien--ableton-mcp-pro/.claude/skills/techno-bass/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/nicholasbien--ableton-mcp-pro/.claude/skills/techno-drums/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/nicholasbien--ableton-mcp-pro/.claude/skills/techno-drums/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/nicholasbien--ableton-mcp-pro/.claude/skills/track-arrangement/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/nicholasbien--ableton-mcp-pro/.claude/skills/track-arrangement/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/nicholasbien--ableton-mcp-pro/.claude/skills/trance-bass/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/nicholasbien--ableton-mcp-pro/.claude/skills/trance-bass/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/nicholasbien--ableton-mcp-pro/.claude/skills/trance-melodies/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/nicholasbien--ableton-mcp-pro/.claude/skills/trance-melodies/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/nicholasbien--ableton-mcp-pro/.claude/skills/ukg-drums/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/nicholasbien--ableton-mcp-pro/.claude/skills/ukg-drums/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/p-poss--dj-claude/plugin/skills/analyze/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/p-poss--dj-claude/plugin/skills/analyze/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/p-poss--dj-claude/plugin/skills/browser/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/p-poss--dj-claude/plugin/skills/browser/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/p-poss--dj-claude/plugin/skills/conduct/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/p-poss--dj-claude/plugin/skills/conduct/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/p-poss--dj-claude/plugin/skills/connect/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/p-poss--dj-claude/plugin/skills/connect/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/p-poss--dj-claude/plugin/skills/context/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/p-poss--dj-claude/plugin/skills/context/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/p-poss--dj-claude/plugin/skills/export/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/p-poss--dj-claude/plugin/skills/export/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/p-poss--dj-claude/plugin/skills/hush/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/p-poss--dj-claude/plugin/skills/hush/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/p-poss--dj-claude/plugin/skills/jam/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/p-poss--dj-claude/plugin/skills/jam/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/p-poss--dj-claude/plugin/skills/jam-clear/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/p-poss--dj-claude/plugin/skills/jam-clear/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/p-poss--dj-claude/plugin/skills/jam-status/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/p-poss--dj-claude/plugin/skills/jam-status/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/p-poss--dj-claude/plugin/skills/list-saves/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/p-poss--dj-claude/plugin/skills/list-saves/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/p-poss--dj-claude/plugin/skills/live-mix/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/p-poss--dj-claude/plugin/skills/live-mix/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/p-poss--dj-claude/plugin/skills/load/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/p-poss--dj-claude/plugin/skills/load/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/p-poss--dj-claude/plugin/skills/now-playing/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/p-poss--dj-claude/plugin/skills/now-playing/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/p-poss--dj-claude/plugin/skills/play/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/p-poss--dj-claude/plugin/skills/play/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/p-poss--dj-claude/plugin/skills/play-preset/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/p-poss--dj-claude/plugin/skills/play-preset/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/p-poss--dj-claude/plugin/skills/preview/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/p-poss--dj-claude/plugin/skills/preview/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/p-poss--dj-claude/plugin/skills/save/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/p-poss--dj-claude/plugin/skills/save/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/p-poss--dj-claude/plugin/skills/strudel/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/p-poss--dj-claude/plugin/skills/strudel/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/p-poss--dj-claude/plugin/skills/vibe/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/p-poss--dj-claude/plugin/skills/vibe/SKILL.md"
+  },
+  {
+    "bundled_path": "context_pack/third_party/vendor/tsirysndr--mixxx-skills/skills/mixxx-ai-dj/SKILL.md",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/vendor/tsirysndr--mixxx-skills/skills/mixxx-ai-dj/SKILL.md"
+  }
+]

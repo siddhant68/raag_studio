@@ -1,0 +1,128 @@
+[
+  {
+    "type": "file",
+    "oid": "b54f9135e44c1e81047e8d05cb027af8bc039eed",
+    "size": 707,
+    "path": "Qwen3-Embedding-0.6B/added_tokens.json"
+  },
+  {
+    "type": "file",
+    "oid": "699ff8df401fe4788525e9c1f9b86a99eadd6230",
+    "size": 4116,
+    "path": "Qwen3-Embedding-0.6B/chat_template.jinja"
+  },
+  {
+    "type": "file",
+    "oid": "21bd712c76114dc22587c6eeb84ab64186c9d245",
+    "size": 1359,
+    "path": "Qwen3-Embedding-0.6B/config.json"
+  },
+  {
+    "type": "file",
+    "oid": "31349551d90c7606f325fe0f11bbb8bd5fa0d7c7",
+    "size": 1671853,
+    "path": "Qwen3-Embedding-0.6B/merges.txt"
+  },
+  {
+    "type": "file",
+    "oid": "9116264a405846ebfe4e95556b63b1ca07c892a0",
+    "size": 1191586416,
+    "lfs": {
+      "oid": "0437e45c94563b09e13cb7a64478fc406947a93cb34a7e05870fc8dcd48e23fd",
+      "size": 1191586416,
+      "pointerSize": 135
+    },
+    "xetHash": "50e3c282187ba05fed66edb58ffbba6f4ce258bd2d3dcda860b8dc125e041bab",
+    "path": "Qwen3-Embedding-0.6B/model.safetensors"
+  },
+  {
+    "type": "file",
+    "oid": "ac23c0aaa2434523c494330aeb79c58395378103",
+    "size": 613,
+    "path": "Qwen3-Embedding-0.6B/special_tokens_map.json"
+  },
+  {
+    "type": "file",
+    "oid": "18a4abbf4a408dc534006a455544dcc195f356d2",
+    "size": 11423705,
+    "lfs": {
+      "oid": "def76fb086971c7867b829c23a26261e38d9d74e02139253b38aeb9df8b4b50a",
+      "size": 11423705,
+      "pointerSize": 133
+    },
+    "xetHash": "e1c5ae75d50677cf0cce3ad0441fbf25396122838224b9473c03004e92077538",
+    "path": "Qwen3-Embedding-0.6B/tokenizer.json"
+  },
+  {
+    "type": "file",
+    "oid": "ddaf69808214a44fdd26d3785b66c1367c78277a",
+    "size": 5404,
+    "path": "Qwen3-Embedding-0.6B/tokenizer_config.json"
+  },
+  {
+    "type": "file",
+    "oid": "4783fe10ac3adce15ac8f358ef5462739852c569",
+    "size": 2776833,
+    "path": "Qwen3-Embedding-0.6B/vocab.json"
+  },
+  {
+    "type": "file",
+    "oid": "6a0b5c09a654614302947fd1d7041f7ed0764d8c",
+    "size": 1968,
+    "path": "acestep-v15-turbo/config.json"
+  },
+  {
+    "type": "file",
+    "oid": "965a1b73afb1c89d0959c7d80691e487fdfde505",
+    "size": 13130,
+    "path": "acestep-v15-turbo/configuration_acestep_v15.py"
+  },
+  {
+    "type": "file",
+    "oid": "dd5858cb03b6587350e2c4abc4fd55c0ae7dc39b",
+    "size": 4787825604,
+    "lfs": {
+      "oid": "3f6e0797fad420a39bd33979eb6e840e30989e34a3794e843d23b60ec6e422d7",
+      "size": 4787825604,
+      "pointerSize": 135
+    },
+    "xetHash": "077d06c5a16c9f9ff327389b66b0dd355fe3b8f7ad2777ef6767cbd9022d2a7c",
+    "path": "acestep-v15-turbo/model.safetensors"
+  },
+  {
+    "type": "file",
+    "oid": "fa1162a5a01cc45c7959f3c531e2a8272ca05104",
+    "size": 96036,
+    "path": "acestep-v15-turbo/modeling_acestep_v15_turbo.py"
+  },
+  {
+    "type": "file",
+    "oid": "6b1e0f254e47f4f23ec505313d05e1d9fd09ae3e",
+    "size": 3841215,
+    "lfs": {
+      "oid": "a778e9dd942f5e8b2c09c55370782d318834432b03dabbcdf70e6ed49ad6358b",
+      "size": 3841215,
+      "pointerSize": 132
+    },
+    "xetHash": "8a2ef60fef2b175d83e420a0eb76c696dcb428494347ecb5ca5866cb4bab09f4",
+    "path": "acestep-v15-turbo/silence_latent.pt"
+  },
+  {
+    "type": "file",
+    "oid": "f49eb7b261dde15ed29c0fa1e790251dcecbd280",
+    "size": 425,
+    "path": "vae/config.json"
+  },
+  {
+    "type": "file",
+    "oid": "1b5eb1b18009ae7ad96c3bda6412517b68ec2bc2",
+    "size": 337431388,
+    "lfs": {
+      "oid": "da17edb604c40deaf09e9b24974e590d1ca83a374070e5d0884cfa4bed9a99b0",
+      "size": 337431388,
+      "pointerSize": 134
+    },
+    "xetHash": "e8d754cd5cb69cf864a2d44a61b39bf61354ebac7fc70680bbfdb8ed49b1bc8b",
+    "path": "vae/diffusion_pytorch_model.safetensors"
+  }
+]

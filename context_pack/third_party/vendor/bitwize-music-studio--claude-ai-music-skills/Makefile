@@ -1,0 +1,66 @@
+# Development Makefile — local dev convenience (CI uses its own workflow)
+#
+# Quick start:
+#   make test        # create venv if needed, run tests with coverage
+#   make lint        # ruff + bandit + mypy
+#   make check       # lint + test (full pre-PR check)
+#   make clean       # remove venv and caches
+
+VENV := .venv
+PYTHON := $(VENV)/bin/python
+PIP := $(VENV)/bin/pip
+PYTEST := $(VENV)/bin/python -m pytest
+RUFF := $(VENV)/bin/ruff
+BANDIT := $(VENV)/bin/bandit
+MYPY := $(VENV)/bin/mypy
+
+# Phony targets (not files)
+.PHONY: test lint check clean help
+
+# Default target
+help:
+	@echo "Usage:"
+	@echo "  make test     Run tests with coverage (creates venv if needed)"
+	@echo "  make lint     Run ruff, bandit, and mypy"
+	@echo "  make check    Run lint + test (full pre-PR check)"
+	@echo "  make clean    Remove venv and caches"
+	@echo "  make venv     Create/update venv only"
+
+# Create venv and install deps (re-runs if requirements change)
+$(VENV)/bin/activate: requirements.txt requirements-test.txt
+	python3 -m venv $(VENV)
+	$(PIP) install --upgrade pip
+	$(PIP) install -r requirements.txt -r requirements-test.txt
+	touch $(VENV)/bin/activate
+
+venv: $(VENV)/bin/activate
+
+# Deliberately a LOWER bar than CI's 80. This runs on one OS, so it can never
+# execute the win32/darwin branches and can never reach the combined number the
+# `coverage` job in test.yml gates on. Raising it to 80 to "match CI" would make
+# local runs fail for a reason no local change can fix.
+test: $(VENV)/bin/activate
+	$(PYTEST) tests/ -v --tb=short -n auto \
+		--cov=tools --cov=servers \
+		--cov-report=term-missing \
+		--cov-fail-under=75
+
+lint: $(VENV)/bin/activate
+	# hooks/ is in scope: it auto-executes on every Write/Edit in every user
+	# session, so it gets the same lint gate as tools/ and servers/
+	$(RUFF) check tools/ servers/ hooks/
+	# PLW1514 (unspecified-encoding) is preview-only, so it runs as a
+	# dedicated scoped invocation instead of enabling preview repo-wide
+	$(RUFF) check tools/ servers/ hooks/ tests/ --select PLW1514 --preview
+	# -s B108: tmpfile paths (reviewed manually)
+	# -s B608: SQL string construction (all callsites use %s params; nosec
+	#         markers remain as documentation but bandit noise at -ll level
+	#         is suppressed here)
+	$(BANDIT) -r tools/ servers/ -ll -q -s B108,B608
+	$(MYPY)
+
+check: lint test
+
+clean:
+	rm -rf $(VENV) .pytest_cache coverage-html .mypy_cache
+	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true

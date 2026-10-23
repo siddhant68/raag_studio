@@ -1,0 +1,19 @@
+Sound bank forge_v2r6+fit1+pluck1: 201 sounds (183 forge, 3 plucks, 15 fitted from CC0 recordings). earshot looks healthy.
+python: 3.12.14
+earshot_home: /Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/tools/earshot-main/.cache
+threads: 3
+precision: bf16
+clap_model: laion/larger_clap_general
+ast_model: MIT/ast-finetuned-audioset-10-10-0.4593
+packages: {"numpy": "2.5.4", "scipy": "1.18.1", "soundfile": "0.14.0", "soxr": "1.1.0", "librosa": "1.0.0", "pyloudnorm": "0.2.0", "sklearn": "1.9.1", "PIL": "13.0.0", "matplotlib": "3.11.2", "torch": "2.14.0", "transformers": "5.20.2", "mcp": "MISSING (ImportError)", "requests": "2.34.2"}
+ffmpeg: /opt/homebrew/bin/ffmpeg
+ffprobe: /opt/homebrew/bin/ffprobe
+torch_cuda_used: False
+offline: EARSHOT_OFFLINE
+models: {"laion/larger_clap_general": {"revision": "16c8cc3159a3c8a31e8ff5ef1f66b0d9ab3667db", "cached": "cached", "loads": "16c8cc3159a3c8a31e8ff5ef1f66b0d9ab3667db", "weights": "model.safetensors", "snapshot": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/tools/earshot-main/.cache/hf/models--laion--larger_clap_general/snapshots/16c8cc3159a3c8a31e8ff5ef1f66b0d9ab3667db", "missing": []}, "MIT/ast-finetuned-audioset-10-10-0.4593": {"revision": "f826b80d28226b62986cc218e5cec390b1096902", "cached": "cached", "loads": "f826b80d28226b62986cc218e5cec390b1096902", "weights": "mod ...
+models_cached: {"laion/larger_clap_general": true, "MIT/ast-finetuned-audioset-10-10-0.4593": true}
+llm_keys_present: {"GEMINI_API_KEY": false, "GOOGLE_API_KEY": false}
+data_files: {"vocab.json": true, "vocab_stats.json": true, "realness_model.json": true, "launch_profile.json": true}
+bank: {"version": "forge_v2r6+fit1+pluck1", "sounds": 201, "types": {"forge": 186, "fit": 15}, "pluck": 3, "files": [{"file": "forge_v2.json", "entries": 183}, {"file": "fit.json", "entries": 15}, {"file": "pluck.json", "entries": 3}], "extra": []}
+problems: []
+notes: []

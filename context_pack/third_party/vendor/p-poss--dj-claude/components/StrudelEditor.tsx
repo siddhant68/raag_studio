@@ -1,0 +1,619 @@
+'use client';
+
+import { useEffect, useRef, useState, useMemo, memo, forwardRef, useImperativeHandle } from 'react';
+import { useTheme } from '@/context/ThemeContext';
+
+// Module-level flag to track if editor has been initialized (persists across remounts)
+let editorHasBeenInitialized = false;
+
+// Helper to convert hex to rgba
+function hexToRgba(hex: string, alpha: number) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+// Static CSS using CSS custom properties — never changes between renders
+const STRUDEL_STYLES = `
+  /* Strudel editor wrapper - dynamic theme styling */
+  .strudel-editor-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .strudel-editor-wrapper strudel-editor {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+  }
+  /* Force CodeMirror to fill container */
+  .strudel-editor-wrapper .cm-editor {
+    height: 100% !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background-color: transparent !important;
+  }
+  .strudel-editor-wrapper .cm-scroller {
+    overflow: auto !important;
+    height: 100% !important;
+    background-color: transparent !important;
+    /* Hide scrollbar visually but keep scroll functionality */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+  }
+  .strudel-editor-wrapper .cm-scroller::-webkit-scrollbar {
+    display: none; /* Chrome/Safari/Opera */
+  }
+  /* Theme-aware syntax styling */
+  .strudel-editor-wrapper .cm-content {
+    color: var(--strudel-text) !important;
+    caret-color: var(--strudel-text) !important;
+  }
+  .strudel-editor-wrapper .cm-cursor {
+    border-left-color: var(--strudel-text) !important;
+    border-left-width: 2px !important;
+  }
+  .strudel-editor-wrapper .cm-selectionBackground {
+    background-color: var(--strudel-text-30) !important;
+  }
+  .strudel-editor-wrapper .cm-gutters {
+    background-color: var(--strudel-text) !important;
+    border-right: none !important;
+    width: 32px !important;
+    min-width: 32px !important;
+  }
+  .strudel-editor-wrapper .cm-lineNumbers {
+    width: 32px !important;
+    min-width: 32px !important;
+  }
+  .strudel-editor-wrapper .cm-lineNumbers .cm-gutterElement {
+    color: transparent !important;
+    font-size: 0 !important;
+    width: 32px !important;
+    min-width: 32px !important;
+    position: relative !important;
+  }
+  .strudel-editor-wrapper .cm-lineNumbers .cm-gutterElement::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 9px;
+    height: 9px;
+    border-radius: 1px;
+    background: var(--strudel-bg);
+  }
+  /* Circle inner glow when CRT mode is enabled */
+  body.crt-screen .strudel-editor-wrapper .cm-lineNumbers .cm-gutterElement::before {
+    box-shadow:
+      inset 0 0 2px var(--strudel-text),
+      inset 0 0 4px var(--strudel-text),
+      inset 0 0 8px var(--strudel-text);
+  }
+  /* Glowing gutter when CRT mode is enabled */
+  body.crt-screen .strudel-editor-wrapper .cm-gutters {
+    box-shadow:
+      0 0 2px var(--strudel-text),
+      0 0 4px var(--strudel-text),
+      0 0 8px var(--strudel-text) !important;
+  }
+  /* Outer border glow when CRT mode is enabled - both outward and inward */
+  body.crt-screen .strudel-editor-wrapper {
+    box-shadow:
+      0 0 2px var(--strudel-text),
+      0 0 4px var(--strudel-text),
+      0 0 8px var(--strudel-text),
+      inset 0 0 2px var(--strudel-text),
+      inset 0 0 4px var(--strudel-text),
+      inset 0 0 8px var(--strudel-text) !important;
+  }
+  /* Keyboard hint glow when CRT mode is enabled */
+  body.crt-screen .keyboard-hint {
+    text-shadow:
+      0 0 2px var(--strudel-text),
+      0 0 4px var(--strudel-text),
+      0 0 8px var(--strudel-text);
+  }
+  .strudel-editor-wrapper .cm-activeLine {
+    background-color: var(--strudel-text-05) !important;
+  }
+  /* Override Strudel's CSS variables for theming */
+  .strudel-editor-wrapper {
+    --foreground: var(--strudel-text);
+    --background: var(--strudel-bg);
+  }
+  /* Strudel mini locations (active highlighting) */
+  .strudel-editor-wrapper .cm-strudel-highlight,
+  .strudel-editor-wrapper .cm-strudel-flash {
+    background-color: var(--strudel-text-20) !important;
+    box-shadow: 0 0 8px var(--strudel-text-40) !important;
+  }
+  /* Solid fill for highlighted spans (replaces outline) */
+  .strudel-editor-wrapper span[style*="outline"] {
+    border-radius: 1.5px !important;
+    outline: none !important;
+    background-color: var(--strudel-text) !important;
+  }
+  /* Glow for highlighted spans when CRT mode is enabled */
+  body.crt-screen .strudel-editor-wrapper span[style*="outline"] {
+    box-shadow:
+      0 0 2px var(--strudel-text),
+      0 0 4px var(--strudel-text),
+      0 0 8px var(--strudel-text) !important;
+  }
+  /* Code content glow when CRT mode is enabled */
+  body.crt-screen .strudel-editor-wrapper .cm-content {
+    text-shadow:
+      0 0 2px currentColor,
+      0 0 4px currentColor,
+      0 0 8px currentColor;
+  }
+  /* Slider glow when CRT mode is enabled */
+  body.crt-screen .strudel-editor-wrapper input[type="range"] {
+    color: #7C7C7C; /* Set color to match slider handle for currentColor */
+    filter: drop-shadow(0 0 2px currentColor) drop-shadow(0 0 4px currentColor);
+  }
+  /* Scope visualization glow when CRT mode is enabled */
+  body.crt-screen .strudel-editor-wrapper canvas {
+    filter:
+      drop-shadow(0 0 2px #FFFFFF)
+      drop-shadow(0 0 4px #FFFFFF);
+  }
+  /* Syntax highlighting - monochromatic theme shades */
+  .strudel-editor-wrapper .cm-string { color: var(--strudel-text) !important; }
+  .strudel-editor-wrapper .cm-number { color: var(--strudel-text) !important; }
+  .strudel-editor-wrapper .cm-keyword { color: var(--strudel-text) !important; }
+  .strudel-editor-wrapper .cm-comment { color: var(--strudel-text) !important; }
+  .strudel-editor-wrapper .cm-function { color: var(--strudel-text) !important; }
+  .strudel-editor-wrapper .cm-variableName { color: var(--strudel-text) !important; }
+  .strudel-editor-wrapper .cm-operator { color: var(--strudel-text) !important; }
+  .strudel-editor-wrapper .cm-punctuation { color: var(--strudel-text) !important; }
+  .strudel-editor-wrapper .cm-propertyName { color: var(--strudel-text) !important; }
+  .strudel-editor-wrapper .cm-bracket { color: var(--strudel-text) !important; }
+  /* Fade-in: start hidden, JS will animate in */
+  .strudel-editor-wrapper .cm-editor {
+    opacity: var(--editor-opacity, 0);
+    transition: var(--editor-transition, none);
+  }
+`;
+
+// Editor API interface
+export interface StrudelEditorAPI {
+  setCode: (code: string) => void;
+  evaluate: (code?: string) => Promise<void>;
+  start: () => void;
+  stop: () => void;
+  getCode: () => string;
+}
+
+interface StrudelEditorProps {
+  initialCode?: string;
+  onReady?: () => void;
+  onError?: (error: string) => void;
+}
+
+export const StrudelEditor = memo(forwardRef<StrudelEditorAPI, StrudelEditorProps>(
+  function StrudelEditor({ initialCode = '', onReady, onError }, ref) {
+    const { theme } = useTheme();
+    const containerRef = useRef<HTMLDivElement>(null);
+    const codeContentRef = useRef<HTMLDivElement>(null);
+    const editorElementRef = useRef<HTMLElement | null>(null);
+    const [isLoaded, setIsLoaded] = useState(false);
+    const [currentCode, setCurrentCode] = useState(initialCode);
+    const [scriptLoaded, setScriptLoaded] = useState(
+      typeof window !== 'undefined' &&
+      !!((window as any).StrudelEditor || document.querySelector('script[src*="strudel/repl"]'))
+    );
+
+    // Expose API to parent via ref
+    useImperativeHandle(ref, () => ({
+      setCode: (code: string) => {
+        setCurrentCode(code);
+        try {
+          const editorEl = editorElementRef.current as any;
+          const strudelMirror = editorEl?.editor;
+
+          if (!strudelMirror) {
+            return;
+          }
+
+          // Update CodeMirror EditorView - this is what shows the code visually
+          const cmView = strudelMirror?.editor;
+
+          if (cmView?.dispatch && cmView?.state?.doc !== undefined) {
+            const docLength = cmView.state.doc.length;
+            cmView.dispatch({
+              changes: {
+                from: 0,
+                to: docLength,
+                insert: code
+              }
+            });
+          }
+
+          // Update the repl state (code and activeCode)
+          const replState = strudelMirror?.repl?.state;
+          if (replState) {
+            replState.code = code;
+            replState.activeCode = code;
+          }
+
+          // Also call repl.setCode if available
+          if (strudelMirror?.repl?.setCode) {
+            strudelMirror.repl.setCode(code);
+          }
+
+          // Try setting via the element's code attribute
+          if (editorEl?.setAttribute) {
+            editorEl.setAttribute('code', code);
+          }
+
+          // Force CodeMirror to render by scrolling into view and focusing
+          // This fixes the "inView: false" issue
+          setTimeout(() => {
+            try {
+              // Scroll the editor DOM into view (skip if in iframe to prevent parent scroll)
+              if (cmView?.dom && window.self === window.top) {
+                cmView.dom.scrollIntoView({ behavior: 'instant', block: 'nearest' });
+              }
+
+              // Force a measure/layout pass
+              if (cmView?.requestMeasure) {
+                cmView.requestMeasure();
+              }
+
+              // Dispatch a no-op transaction to force re-render
+              if (cmView?.dispatch) {
+                cmView.dispatch({
+                  effects: []  // Empty effects array triggers update
+                });
+              }
+
+              // Also try scrolling the container
+              if (containerRef.current) {
+                containerRef.current.scrollTop = 0;
+              }
+
+            } catch {
+              // Force update errors are non-critical
+            }
+          }, 100);
+        } catch (err) {
+          console.error('setCode error:', err);
+        }
+      },
+      evaluate: async (codeToEval?: string) => {
+        try {
+          const editorEl = editorElementRef.current as any;
+          const strudelMirror = editorEl?.editor;
+
+          // Get code to evaluate - either passed in or from editor
+          const code = codeToEval ||
+                       strudelMirror?.repl?.state?.code ||
+                       '';
+
+          if (!code) {
+            throw new Error('No code to evaluate');
+          }
+
+          // Validate editor state before evaluating
+          const cmView = strudelMirror?.editor;
+          if (!cmView?.dom || !document.body.contains(cmView.dom)) {
+            if (cmView?.requestMeasure) {
+              cmView.requestMeasure();
+            }
+          }
+
+          // NOTE: We do NOT update the CodeMirror document here.
+          // The editor display is already set correctly via setCode() with the ASCII header.
+          // We only want to evaluate the code for audio, not touch the display.
+
+          // Try to resume audio context (should already be unlocked by DJInterface)
+          try {
+            // First try Strudel's audio context
+            if ((window as any).getAudioContext) {
+              const strudelCtx = (window as any).getAudioContext();
+              if (strudelCtx?.state === 'suspended') {
+                await strudelCtx.resume();
+              }
+            }
+            // Also try our pre-created context from unlockAudio()
+            const djCtx = (window as any).__djClaudeAudioContext;
+            if (djCtx?.state === 'suspended') {
+              await djCtx.resume();
+            }
+          } catch {
+            // Audio context resume errors are expected on some browsers
+          }
+
+          // Primary method: Use repl.evaluate directly
+          // This evaluates the code and starts audio playback
+          if (strudelMirror?.repl?.evaluate) {
+            // Update repl state only (NOT setCode - that would overwrite the editor display)
+            if (strudelMirror.repl.state) {
+              strudelMirror.repl.state.code = code;
+              strudelMirror.repl.state.activeCode = code;
+            }
+
+            try {
+              // Evaluate the code - this starts audio
+              await strudelMirror.repl.evaluate(code);
+              // Start the scheduler/playback
+              if (strudelMirror.repl.start) {
+                await strudelMirror.repl.start();
+              }
+              return;
+            } catch (evalErr: any) {
+              // Handle contentEditable error - Strudel tries to update DOM elements that don't exist
+              if (evalErr?.message?.includes('contentEditable') || evalErr?.message?.includes('null')) {
+                // Try using activateCode as fallback
+                if (strudelMirror?.activateCode) {
+                  await strudelMirror.activateCode({ code, shouldToggle: false });
+                  return;
+                }
+              }
+              throw evalErr;
+            }
+          }
+
+          // Fallback: Use StrudelMirror's activateCode if available
+          if (strudelMirror?.activateCode) {
+            await strudelMirror.activateCode({ code, shouldToggle: false });
+            return;
+          }
+
+          // Last resort: Try global evaluate from strudel
+          if (typeof (window as any).evaluate === 'function') {
+            await (window as any).evaluate(code);
+            return;
+          }
+
+          // Very last resort: try to use the repl's toggle to start
+          if (strudelMirror?.repl?.toggle) {
+            strudelMirror.repl.toggle();
+            return;
+          }
+
+          throw new Error('No evaluate method found');
+        } catch (err) {
+          console.error('evaluate error:', err);
+          onError?.(String(err));
+          throw err;
+        }
+      },
+      start: () => {
+        try {
+          const editorEl = editorElementRef.current as any;
+          if (editorEl?.editor?.start) {
+            editorEl.editor.start();
+          } else if (editorEl?.start) {
+            editorEl.start();
+          }
+        } catch (err) {
+          console.error('start error:', err);
+        }
+      },
+      stop: () => {
+        try {
+          const editorEl = editorElementRef.current as any;
+          if (editorEl?.editor?.stop) {
+            editorEl.editor.stop();
+          } else if (editorEl?.stop) {
+            editorEl.stop();
+          } else if (typeof (window as any).hush === 'function') {
+            (window as any).hush();
+          }
+        } catch (err) {
+          console.error('stop error:', err);
+        }
+      },
+      getCode: () => {
+        try {
+          const editorEl = editorElementRef.current as any;
+          return editorEl?.editor?.getCode?.() ||
+                 editorEl?.getCode?.() ||
+                 editorEl?.getAttribute?.('code') ||
+                 '';
+        } catch (err) {
+          console.error('getCode error:', err);
+          return '';
+        }
+      },
+    }), [onError]);
+
+    // Load the strudel-repl script
+    useEffect(() => {
+      if (typeof window === 'undefined') return;
+
+      // Check if already loaded
+      if ((window as any).StrudelEditor || document.querySelector('script[src*="strudel/repl"]')) {
+        setScriptLoaded(true);
+        return;
+      }
+
+      const script = document.createElement('script');
+      // Use latest version for best visualization support
+      // Note: Some versions have broken sample URLs, but visualizations are more important
+      script.src = 'https://unpkg.com/@strudel/repl@latest';
+      script.async = true;
+
+      script.onload = () => {
+        setScriptLoaded(true);
+      };
+
+      script.onerror = () => {
+        onError?.('Failed to load Strudel editor');
+      };
+
+      document.head.appendChild(script);
+    }, [onError]);
+
+    // Create the editor element once script is loaded
+    useEffect(() => {
+      if (!scriptLoaded || !containerRef.current || isLoaded) return;
+
+      // Wait for customElements to be defined
+      const waitForComponent = async () => {
+        // Check if strudel-editor is defined
+        if (customElements.get('strudel-editor')) {
+          createEditor();
+        } else {
+          // Wait and retry
+          await customElements.whenDefined('strudel-editor').catch(() => {
+            // Timeout fallback
+            setTimeout(createEditor, 500);
+          });
+          createEditor();
+        }
+      };
+
+      const createEditor = () => {
+        if (!containerRef.current || isLoaded) return;
+
+        try {
+          // Create the strudel-editor element
+          const editor = document.createElement('strudel-editor');
+
+          // Set initial code (placeholder text)
+          // Note: Do NOT use innerHTML - it creates a text layer that overlaps CodeMirror
+          editor.setAttribute('code', window.innerWidth < 768 ? '// Use the prompt area above!' : '// Write DJ Claude a prompt above to start coding music!');
+
+          // Style the editor
+          editor.style.display = 'block';
+          editor.style.width = '100%';
+          editor.style.height = '100%';
+          editor.style.minHeight = '400px';
+
+          // Clear container and append
+          containerRef.current!.innerHTML = '';
+          containerRef.current!.appendChild(editor);
+
+          editorElementRef.current = editor;
+          setIsLoaded(true);
+
+          // Brief delay for the web component to finish internal init
+          setTimeout(() => {
+            const el = editor as any;
+            const strudelMirror = el?.editor;
+
+            // Force the CodeMirror editor to be visible
+            const cmView = strudelMirror?.editor;
+            if (cmView) {
+              // Try to force visibility
+              if (cmView.dom) {
+                // Make sure the editor DOM is visible
+                cmView.dom.style.height = '100%';
+                cmView.dom.style.minHeight = '400px';
+                cmView.dom.style.display = 'block';
+
+                // Scroll into view (skip if in iframe to prevent parent scroll)
+                if (window.self === window.top) {
+                  cmView.dom.scrollIntoView({ behavior: 'instant', block: 'start' });
+                }
+              }
+
+              // Measure (but don't focus - let the prompt input keep focus)
+              setTimeout(() => {
+                if (cmView.requestMeasure) cmView.requestMeasure();
+
+                // Force a resize event which often fixes visibility
+                window.dispatchEvent(new Event('resize'));
+              }, 100);
+            }
+
+            // The canvas should be auto-managed by strudel-editor
+            const canvas = el?.querySelector?.('canvas') ||
+                          strudelMirror?.drawContext?.canvas ||
+                          containerRef.current?.querySelector('canvas');
+
+            if (canvas) {
+              canvas.style.display = 'block';
+            }
+
+            // Trigger fade-in of editor content via direct DOM manipulation (bypasses React re-renders)
+            if (!editorHasBeenInitialized) {
+              editorHasBeenInitialized = true;
+
+              // Set transition first, then opacity to trigger animation
+              if (containerRef.current) {
+                containerRef.current.style.setProperty('--editor-transition', 'opacity 0.4s ease-out');
+              }
+
+              // Use requestAnimationFrame to ensure transition is registered before opacity change
+              requestAnimationFrame(() => {
+                containerRef.current?.style.setProperty('--editor-opacity', '1');
+              });
+            } else {
+              // Already initialized, just ensure visible (no animation)
+              containerRef.current?.style.setProperty('--editor-opacity', '1');
+            }
+            // Re-set initial code after CodeMirror is ready (iOS may miss the attribute)
+            const placeholderCode = window.innerWidth < 768 ? '// DJ Claude — agentic beats' : '// DJ Claude — make a request above';
+            const cmView2 = (editor as any)?.editor?.editor;
+            if (cmView2?.dispatch) {
+              cmView2.dispatch({
+                changes: { from: 0, to: cmView2.state.doc.length, insert: placeholderCode }
+              });
+            }
+            onReady?.();
+          }, 150);
+        } catch (err) {
+          console.error('Error creating strudel-editor:', err);
+          onError?.(String(err));
+        }
+      };
+
+      waitForComponent();
+    }, [scriptLoaded, initialCode, isLoaded, onReady, onError]);
+
+    const wrapperStyle = useMemo(() => ({
+      '--strudel-text': theme.text,
+      '--strudel-bg': theme.background,
+      '--strudel-text-30': hexToRgba(theme.text, 0.3),
+      '--strudel-text-20': hexToRgba(theme.text, 0.2),
+      '--strudel-text-05': hexToRgba(theme.text, 0.05),
+      '--strudel-text-40': hexToRgba(theme.text, 0.4),
+      width: '100%',
+      height: '100%',
+      backgroundColor: 'transparent',
+      border: `1px solid ${theme.text}`,
+      borderRadius: '2px',
+      overflow: 'hidden',
+      position: 'relative',
+    } as React.CSSProperties), [theme]);
+
+    return (
+      <>
+        <style>{STRUDEL_STYLES}</style>
+        <div
+          ref={containerRef}
+          data-testid="strudel-editor"
+          data-code={currentCode}
+          className="strudel-editor-wrapper phosphor-glow"
+          style={wrapperStyle}
+          suppressHydrationWarning
+        />
+        <div
+          ref={codeContentRef}
+          data-testid="editor-code-content"
+          aria-hidden="true"
+          style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden' }}
+        >{currentCode}</div>
+      </>
+    );
+  }
+));

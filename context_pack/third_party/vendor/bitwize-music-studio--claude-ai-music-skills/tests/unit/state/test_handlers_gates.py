@@ -1,0 +1,1388 @@
+#!/usr/bin/env python3
+"""
+Unit tests for handlers/gates.py — pre-generation gate validation logic.
+
+Tests the 8 individual gates, per-track gate evaluation, and the
+run_pre_generation_gates MCP tool handler.
+
+Usage:
+    python -m pytest tests/unit/state/test_handlers_gates.py -v
+"""
+
+import asyncio
+import copy
+import importlib
+import importlib.util
+import json
+import re
+import sys
+import types
+from pathlib import Path
+from unittest.mock import MagicMock, patch
+
+import pytest
+
+# Ensure project root is on sys.path for imports
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+# ---------------------------------------------------------------------------
+# Mock MCP SDK if not installed
+# ---------------------------------------------------------------------------
+
+SERVER_PATH = PROJECT_ROOT / "servers" / "bitwize-music-server" / "server.py"
+
+try:
+    import mcp.server.fastmcp  # noqa: F401
+except ImportError:
+
+    class _FakeFastMCP:
+        def __init__(self, name="", **kwargs):
+            self.name = name
+            self._tools = {}
+
+        def tool(self):
+            def decorator(fn):
+                self._tools[fn.__name__] = fn
+                return fn
+            return decorator
+
+        def run(self, transport="stdio"):
+            pass
+
+    mcp_mod = types.ModuleType("mcp")
+    mcp_server_mod = types.ModuleType("mcp.server")
+    mcp_fastmcp_mod = types.ModuleType("mcp.server.fastmcp")
+    mcp_fastmcp_mod.FastMCP = _FakeFastMCP
+    mcp_mod.server = mcp_server_mod
+    mcp_server_mod.fastmcp = mcp_fastmcp_mod
+
+    sys.modules["mcp"] = mcp_mod
+    sys.modules["mcp.server"] = mcp_server_mod
+    sys.modules["mcp.server.fastmcp"] = mcp_fastmcp_mod
+
+
+def _import_server():
+    spec = importlib.util.spec_from_file_location("state_server_gates", SERVER_PATH)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+server = _import_server()
+
+from handlers import gates as _gates_mod
+from handlers import text_analysis as _text_analysis_mod
+from handlers import _shared as _shared_mod
+
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+def _run(coro):
+    """Run an async coroutine synchronously."""
+    return asyncio.run(coro)
+
+
+SAMPLE_STATE = {
+    "version": 2,
+    "config": {
+        "content_root": "/tmp/test-content",
+        "audio_root": "/tmp/test-audio",
+        "documents_root": "/tmp/test-docs",
+        "artist_name": "test-artist",
+    },
+    "albums": {
+        "test-album": {
+            "title": "Test Album",
+            "status": "In Progress",
+            "genre": "electronic",
+            "path": "/tmp/test-content/artists/test-artist/albums/electronic/test-album",
+            "track_count": 2,
+            "tracks": {
+                "01-first-track": {
+                    "title": "First Track",
+                    "status": "In Progress",
+                    "explicit": False,
+                    "has_suno_link": False,
+                    "sources_verified": "N/A",
+                    "path": "/tmp/tracks/01-first-track.md",
+                    "mtime": 1234567890.0,
+                },
+                "02-second-track": {
+                    "title": "Second Track",
+                    "status": "In Progress",
+                    "explicit": None,
+                    "has_suno_link": False,
+                    "sources_verified": "Pending",
+                    "path": "/tmp/tracks/02-second-track.md",
+                    "mtime": 1234567891.0,
+                },
+            },
+        },
+    },
+    "ideas": {"total": 0, "by_status": {}, "items": []},
+    "session": {
+        "last_album": None,
+        "last_track": None,
+        "last_phase": None,
+        "pending_actions": [],
+        "updated_at": None,
+    },
+}
+
+
+def _fresh_state():
+    return copy.deepcopy(SAMPLE_STATE)
+
+
+class MockStateCache:
+    def __init__(self, state=None):
+        self._state = state if state is not None else _fresh_state()
+
+    def get_state(self):
+        return self._state
+
+    def get_state_ref(self):
+        return self._state or {}
+
+    def rebuild(self):
+        return self._state
+
+
+# ---------------------------------------------------------------------------
+# Track file templates for testing
+# ---------------------------------------------------------------------------
+
+TRACK_FILE_COMPLETE = """\
+---
+title: First Track
+status: In Progress
+explicit: false
+---
+
+## Lyrics Box
+
+```
+[Verse 1]
+Walking down the road tonight
+Stars are shining bright
+Every step I take
+Keeps me wide awake
+```
+
+## Style Box
+
+```
+upbeat electronic pop, synth-driven, 120 BPM
+```
+
+## Pronunciation Notes
+
+| Word | Phonetic | Note |
+| --- | --- | --- |
+| — | — | — |
+
+## Streaming Lyrics
+
+```
+Walking down the road tonight
+Stars are shining bright
+Every step I take
+Keeps me wide awake
+```
+"""
+
+TRACK_FILE_EMPTY_LYRICS = """\
+---
+title: Second Track
+status: In Progress
+explicit: false
+---
+
+## Lyrics Box
+
+```
+```
+
+## Style Box
+
+```
+dark ambient electronic, 80 BPM
+```
+"""
+
+TRACK_FILE_WITH_TODO = """\
+---
+title: Second Track
+status: In Progress
+explicit: false
+---
+
+## Lyrics Box
+
+```
+[Verse 1]
+This is a line [TODO]
+Another line here
+```
+
+## Style Box
+
+```
+dark ambient electronic, 80 BPM
+```
+"""
+
+TRACK_FILE_WITH_PRONUNCIATION = """\
+---
+title: Track With Pronunciation
+status: In Progress
+explicit: false
+---
+
+## Lyrics Box
+
+```
+[Verse 1]
+The LEE-ver was pulled hard
+Walking down the road
+```
+
+## Style Box
+
+```
+rock ballad, 90 BPM
+```
+
+## Pronunciation Notes
+
+| Word | Phonetic | Note |
+| --- | --- | --- |
+| lever | LEE-ver | British pronunciation |
+"""
+
+TRACK_FILE_UNAPPLIED_PRONUNCIATION = """\
+---
+title: Track With Unapplied Pronunciation
+status: In Progress
+explicit: false
+---
+
+## Lyrics Box
+
+```
+[Verse 1]
+The lever was pulled hard
+Walking down the road
+```
+
+## Style Box
+
+```
+rock ballad, 90 BPM
+```
+
+## Pronunciation Notes
+
+| Word | Phonetic | Note |
+| --- | --- | --- |
+| lever | LEE-ver | British pronunciation |
+"""
+
+TRACK_FILE_WITH_HOMOGRAPH = """\
+---
+title: Track With Homograph
+status: In Progress
+explicit: false
+---
+
+## Lyrics Box
+
+```
+[Verse 1]
+I read the book last night
+Walking down the road
+```
+
+## Style Box
+
+```
+pop rock, 110 BPM
+```
+"""
+
+TRACK_FILE_LONG_LYRICS = """\
+---
+title: Track With Long Lyrics
+status: In Progress
+explicit: false
+---
+
+## Lyrics Box
+
+```
+[Verse 1]
+""" + "\n".join(f"Line number {i} with some extra words to pad it out more" for i in range(120)) + """
+```
+
+## Style Box
+
+```
+epic orchestral, 100 BPM
+```
+"""
+
+TRACK_FILE_EMPTY_STYLE = """\
+---
+title: Track Empty Style
+status: In Progress
+explicit: false
+---
+
+## Lyrics Box
+
+```
+[Verse 1]
+Walking down the road tonight
+Stars are shining bright
+```
+
+## Style Box
+
+```
+```
+"""
+
+
+# =============================================================================
+# Track file builder for Explicit-flag gate tests (#370)
+# =============================================================================
+
+
+def _make_track_file(*, table=None, fm_explicit=None):
+    """Build a gate-complete track file with a configurable Explicit field.
+
+    table: value for the `| **Explicit** | <value> |` table row, or None to omit.
+    fm_explicit: value for a frontmatter `explicit:` key, or None to omit.
+    """
+    fm_line = f"\nexplicit: {fm_explicit}" if fm_explicit is not None else ""
+    table_block = f"\n| **Explicit** | {table} |\n" if table is not None else "\n"
+    return (
+        "---\n"
+        "title: Track\n"
+        f"status: In Progress{fm_line}\n"
+        "---\n"
+        f"{table_block}"
+        "## Lyrics Box\n\n"
+        "```\n[Verse 1]\nWalking down the road tonight\nStars are shining bright\n```\n\n"
+        "## Style Box\n\n"
+        "```\nupbeat electronic pop, 120 BPM\n```\n\n"
+        "## Pronunciation Notes\n\n"
+        "| Word | Phonetic | Note |\n| --- | --- | --- |\n| — | — | — |\n"
+    )
+
+
+# =============================================================================
+# Tests for _check_pre_gen_gates_for_track
+# =============================================================================
+
+
+class TestGate1SourcesVerified:
+    """Gate 1: Sources Verified."""
+
+    def test_sources_pending_fails(self):
+        t_data = {"sources_verified": "Pending", "explicit": False}
+        blocking, warnings, gates = _gates_mod._check_pre_gen_gates_for_track(
+            t_data, TRACK_FILE_COMPLETE, blocklist=[],
+        )
+        source_gate = next(g for g in gates if g["gate"] == "Sources Verified")
+        assert source_gate["status"] == "FAIL"
+        assert source_gate["severity"] == "BLOCKING"
+        assert blocking >= 1
+
+    def test_sources_na_passes(self):
+        t_data = {"sources_verified": "N/A", "explicit": False}
+        blocking, warnings, gates = _gates_mod._check_pre_gen_gates_for_track(
+            t_data, TRACK_FILE_COMPLETE, blocklist=[],
+        )
+        source_gate = next(g for g in gates if g["gate"] == "Sources Verified")
+        assert source_gate["status"] == "PASS"
+
+    def test_sources_verified_passes(self):
+        t_data = {"sources_verified": "Verified (2025-05-01)", "explicit": False}
+        blocking, warnings, gates = _gates_mod._check_pre_gen_gates_for_track(
+            t_data, TRACK_FILE_COMPLETE, blocklist=[],
+        )
+        source_gate = next(g for g in gates if g["gate"] == "Sources Verified")
+        assert source_gate["status"] == "PASS"
+
+
+class TestGate2LyricsReviewed:
+    """Gate 2: Lyrics Reviewed."""
+
+    def test_empty_lyrics_fails(self):
+        t_data = {"sources_verified": "N/A", "explicit": False}
+        blocking, warnings, gates = _gates_mod._check_pre_gen_gates_for_track(
+            t_data, TRACK_FILE_EMPTY_LYRICS, blocklist=[],
+        )
+        lyrics_gate = next(g for g in gates if g["gate"] == "Lyrics Reviewed")
+        assert lyrics_gate["status"] == "FAIL"
+        assert "empty" in lyrics_gate["detail"].lower()
+
+    def test_todo_in_lyrics_fails(self):
+        t_data = {"sources_verified": "N/A", "explicit": False}
+        blocking, warnings, gates = _gates_mod._check_pre_gen_gates_for_track(
+            t_data, TRACK_FILE_WITH_TODO, blocklist=[],
+        )
+        lyrics_gate = next(g for g in gates if g["gate"] == "Lyrics Reviewed")
+        assert lyrics_gate["status"] == "FAIL"
+        assert "TODO" in lyrics_gate["detail"] or "PLACEHOLDER" in lyrics_gate["detail"]
+
+    def test_populated_lyrics_passes(self):
+        t_data = {"sources_verified": "N/A", "explicit": False}
+        blocking, warnings, gates = _gates_mod._check_pre_gen_gates_for_track(
+            t_data, TRACK_FILE_COMPLETE, blocklist=[],
+        )
+        lyrics_gate = next(g for g in gates if g["gate"] == "Lyrics Reviewed")
+        assert lyrics_gate["status"] == "PASS"
+
+    def test_no_file_text_fails(self):
+        t_data = {"sources_verified": "N/A", "explicit": False}
+        blocking, warnings, gates = _gates_mod._check_pre_gen_gates_for_track(
+            t_data, None, blocklist=[],
+        )
+        lyrics_gate = next(g for g in gates if g["gate"] == "Lyrics Reviewed")
+        assert lyrics_gate["status"] == "FAIL"
+
+
+class TestGate3PronunciationResolved:
+    """Gate 3: Pronunciation Resolved."""
+
+    def test_applied_pronunciation_passes(self):
+        t_data = {"sources_verified": "N/A", "explicit": False}
+        blocking, warnings, gates = _gates_mod._check_pre_gen_gates_for_track(
+            t_data, TRACK_FILE_WITH_PRONUNCIATION, blocklist=[],
+        )
+        pron_gate = next(g for g in gates if g["gate"] == "Pronunciation Resolved")
+        assert pron_gate["status"] == "PASS"
+        assert "1 entries applied" in pron_gate["detail"]
+
+    def test_unapplied_pronunciation_fails(self):
+        t_data = {"sources_verified": "N/A", "explicit": False}
+        blocking, warnings, gates = _gates_mod._check_pre_gen_gates_for_track(
+            t_data, TRACK_FILE_UNAPPLIED_PRONUNCIATION, blocklist=[],
+        )
+        pron_gate = next(g for g in gates if g["gate"] == "Pronunciation Resolved")
+        assert pron_gate["status"] == "FAIL"
+        assert "lever" in pron_gate["detail"]
+
+    def test_word_substring_row_still_blocks(self):
+        """A 'Wordsworth' row must not be dropped by the header filter (#384).
+
+        The old substring filter skipped any line containing 'Word', so the
+        BLOCKING gate false-passed with 'No pronunciation entries to check'.
+        """
+        track = (
+            "---\ntitle: Wordsworth Track\nstatus: In Progress\n---\n\n"
+            "## Lyrics Box\n\n```\nplain lyrics without the phonetic\n```\n\n"
+            "## Pronunciation Notes\n\n"
+            "| Word/Phrase | Pronunciation | Reason |\n"
+            "|-------------|---------------|--------|\n"
+            "| Wordsworth | WURDZ-wurth | poet name |\n"
+        )
+        t_data = {"sources_verified": "N/A", "explicit": False}
+        blocking, warnings, gates = _gates_mod._check_pre_gen_gates_for_track(
+            t_data, track, blocklist=[],
+        )
+        pron_gate = next(g for g in gates if g["gate"] == "Pronunciation Resolved")
+        assert pron_gate["status"] == "FAIL"
+        assert "Wordsworth" in pron_gate["detail"]
+
+    def test_no_pronunciation_entries_passes(self):
+        t_data = {"sources_verified": "N/A", "explicit": False}
+        blocking, warnings, gates = _gates_mod._check_pre_gen_gates_for_track(
+            t_data, TRACK_FILE_COMPLETE, blocklist=[],
+        )
+        pron_gate = next(g for g in gates if g["gate"] == "Pronunciation Resolved")
+        assert pron_gate["status"] == "PASS"
+        assert "No pronunciation entries" in pron_gate["detail"]
+
+    def test_no_file_text_skips(self):
+        t_data = {"sources_verified": "N/A", "explicit": False}
+        blocking, warnings, gates = _gates_mod._check_pre_gen_gates_for_track(
+            t_data, None, blocklist=[],
+        )
+        pron_gate = next(g for g in gates if g["gate"] == "Pronunciation Resolved")
+        assert pron_gate["status"] == "SKIP"
+
+
+class TestGate4ExplicitFlagSet:
+    """Gate 4: Explicit Flag Set.
+
+    The conscious Yes/No decision is re-derived from the raw track file, not the
+    cached `explicit` bool — which can't distinguish a deliberate "No" from the
+    unset template placeholder ("Yes / No"), so it could never block. (#370)
+    The t_data["explicit"] value is deliberately set to the *opposite* of the
+    file in these tests to prove the cache no longer drives the gate.
+    """
+
+    def _explicit_gate(self, file_text, cached_explicit=False):
+        t_data = {"sources_verified": "N/A", "explicit": cached_explicit}
+        _b, _w, gates = _gates_mod._check_pre_gen_gates_for_track(
+            t_data, file_text, blocklist=[],
+        )
+        return next(g for g in gates if g["gate"] == "Explicit Flag Set")
+
+    def test_template_placeholder_fails(self):
+        """The shipped '| Explicit | Yes / No |' placeholder is unset and must
+        block — the bug was that it silently passed as 'No'."""
+        gate = self._explicit_gate(_make_track_file(table="Yes / No"), cached_explicit=False)
+        assert gate["status"] == "FAIL"
+        assert gate["severity"] == "BLOCKING"
+
+    def test_table_no_passes(self):
+        gate = self._explicit_gate(_make_track_file(table="No"), cached_explicit=True)
+        assert gate["status"] == "PASS"
+        assert "No" in gate["detail"]
+
+    def test_table_yes_passes(self):
+        gate = self._explicit_gate(_make_track_file(table="Yes"), cached_explicit=False)
+        assert gate["status"] == "PASS"
+        assert "Yes" in gate["detail"]
+
+    def test_frontmatter_bool_passes(self):
+        # No table row; frontmatter explicit: false is a conscious decision.
+        gate = self._explicit_gate(_make_track_file(fm_explicit="false"), cached_explicit=True)
+        assert gate["status"] == "PASS"
+        assert "No" in gate["detail"]
+
+    def test_missing_field_fails(self):
+        """No Explicit table row and no frontmatter key — unset, must block."""
+        gate = self._explicit_gate(_make_track_file(), cached_explicit=False)
+        assert gate["status"] == "FAIL"
+        assert gate["severity"] == "BLOCKING"
+
+    def test_unreadable_file_fails_closed(self):
+        """A content-safety gate must block when the decision can't be
+        confirmed (file unreadable)."""
+        gate = self._explicit_gate(None, cached_explicit=False)
+        assert gate["status"] == "FAIL"
+        assert gate["severity"] == "BLOCKING"
+
+
+class TestGate5StylePromptComplete:
+    """Gate 5: Style Prompt Complete."""
+
+    def test_empty_style_fails(self):
+        t_data = {"sources_verified": "N/A", "explicit": False}
+        blocking, warnings, gates = _gates_mod._check_pre_gen_gates_for_track(
+            t_data, TRACK_FILE_EMPTY_STYLE, blocklist=[],
+        )
+        style_gate = next(g for g in gates if g["gate"] == "Style Prompt Complete")
+        assert style_gate["status"] == "FAIL"
+        assert "empty" in style_gate["detail"].lower()
+
+    def test_populated_style_passes(self):
+        t_data = {"sources_verified": "N/A", "explicit": False}
+        blocking, warnings, gates = _gates_mod._check_pre_gen_gates_for_track(
+            t_data, TRACK_FILE_COMPLETE, blocklist=[],
+        )
+        style_gate = next(g for g in gates if g["gate"] == "Style Prompt Complete")
+        assert style_gate["status"] == "PASS"
+
+
+class TestGate6ArtistNamesCleared:
+    """Gate 6: Artist Names Cleared."""
+
+    def test_no_blocklist_passes(self):
+        t_data = {"sources_verified": "N/A", "explicit": False}
+        blocking, warnings, gates = _gates_mod._check_pre_gen_gates_for_track(
+            t_data, TRACK_FILE_COMPLETE, blocklist=[],
+        )
+        artist_gate = next(g for g in gates if g["gate"] == "Artist Names Cleared")
+        assert artist_gate["status"] == "PASS"
+
+    def test_blocked_artist_in_style_fails(self):
+        """When a blocked artist name appears in the style prompt, gate fails."""
+        t_data = {"sources_verified": "N/A", "explicit": False}
+
+        # Build a track file with an artist name in the style box
+        file_text = """\
+## Lyrics Box
+
+```
+[Verse 1]
+Hello world
+```
+
+## Style Box
+
+```
+in the style of Drake, upbeat hip-hop
+```
+"""
+        # Set up the blocklist pattern cache manually
+        blocklist = [{"name": "Drake", "alternative": "moody rap", "genre": "hip-hop"}]
+        _text_analysis_mod._artist_blocklist_patterns = {
+            "Drake": re.compile(r'\bDrake\b', re.IGNORECASE),
+        }
+
+        blocking, warnings, gates = _gates_mod._check_pre_gen_gates_for_track(
+            t_data, file_text, blocklist=blocklist,
+        )
+        artist_gate = next(g for g in gates if g["gate"] == "Artist Names Cleared")
+        assert artist_gate["status"] == "FAIL"
+        assert "Drake" in artist_gate["detail"]
+
+    def test_no_blocked_artists_passes(self):
+        """When style prompt has no blocked names, gate passes."""
+        t_data = {"sources_verified": "N/A", "explicit": False}
+        blocklist = [{"name": "Drake", "alternative": "moody rap", "genre": "hip-hop"}]
+        _text_analysis_mod._artist_blocklist_patterns = {
+            "Drake": re.compile(r'\bDrake\b', re.IGNORECASE),
+        }
+
+        blocking, warnings, gates = _gates_mod._check_pre_gen_gates_for_track(
+            t_data, TRACK_FILE_COMPLETE, blocklist=blocklist,
+        )
+        artist_gate = next(g for g in gates if g["gate"] == "Artist Names Cleared")
+        assert artist_gate["status"] == "PASS"
+
+    def test_no_style_content_skips(self):
+        t_data = {"sources_verified": "N/A", "explicit": False}
+        blocking, warnings, gates = _gates_mod._check_pre_gen_gates_for_track(
+            t_data, TRACK_FILE_EMPTY_STYLE, blocklist=[],
+        )
+        artist_gate = next(g for g in gates if g["gate"] == "Artist Names Cleared")
+        assert artist_gate["status"] == "SKIP"
+
+
+class TestGate7HomographCheck:
+    """Gate 7: Homograph Check."""
+
+    def test_homograph_in_lyrics_fails(self):
+        t_data = {"sources_verified": "N/A", "explicit": False}
+        blocking, warnings, gates = _gates_mod._check_pre_gen_gates_for_track(
+            t_data, TRACK_FILE_WITH_HOMOGRAPH, blocklist=[],
+        )
+        homo_gate = next(g for g in gates if g["gate"] == "Homograph Check")
+        assert homo_gate["status"] == "FAIL"
+        assert "read" in homo_gate["detail"].lower()
+
+    def test_no_homographs_passes(self):
+        t_data = {"sources_verified": "N/A", "explicit": False}
+        blocking, warnings, gates = _gates_mod._check_pre_gen_gates_for_track(
+            t_data, TRACK_FILE_COMPLETE, blocklist=[],
+        )
+        homo_gate = next(g for g in gates if g["gate"] == "Homograph Check")
+        assert homo_gate["status"] == "PASS"
+
+    def test_no_lyrics_skips(self):
+        t_data = {"sources_verified": "N/A", "explicit": False}
+        blocking, warnings, gates = _gates_mod._check_pre_gen_gates_for_track(
+            t_data, TRACK_FILE_EMPTY_LYRICS, blocklist=[],
+        )
+        homo_gate = next(g for g in gates if g["gate"] == "Homograph Check")
+        assert homo_gate["status"] == "SKIP"
+
+
+class TestGate8LyricLength:
+    """Gate 8: Lyric Length."""
+
+    def test_under_limit_passes(self):
+        t_data = {"sources_verified": "N/A", "explicit": False}
+        blocking, warnings, gates = _gates_mod._check_pre_gen_gates_for_track(
+            t_data, TRACK_FILE_COMPLETE, blocklist=[],
+        )
+        length_gate = next(g for g in gates if g["gate"] == "Lyric Length")
+        assert length_gate["status"] == "PASS"
+
+    def test_over_limit_fails(self):
+        t_data = {"sources_verified": "N/A", "explicit": False}
+        blocking, warnings, gates = _gates_mod._check_pre_gen_gates_for_track(
+            t_data, TRACK_FILE_LONG_LYRICS, blocklist=[], max_lyric_words=100,
+        )
+        length_gate = next(g for g in gates if g["gate"] == "Lyric Length")
+        assert length_gate["status"] == "FAIL"
+        assert "limit" in length_gate["detail"].lower()
+
+    def test_custom_limit(self):
+        t_data = {"sources_verified": "N/A", "explicit": False}
+        blocking, warnings, gates = _gates_mod._check_pre_gen_gates_for_track(
+            t_data, TRACK_FILE_COMPLETE, blocklist=[], max_lyric_words=5,
+        )
+        length_gate = next(g for g in gates if g["gate"] == "Lyric Length")
+        assert length_gate["status"] == "FAIL"
+
+    def test_no_lyrics_skips(self):
+        t_data = {"sources_verified": "N/A", "explicit": False}
+        blocking, warnings, gates = _gates_mod._check_pre_gen_gates_for_track(
+            t_data, TRACK_FILE_EMPTY_LYRICS, blocklist=[],
+        )
+        length_gate = next(g for g in gates if g["gate"] == "Lyric Length")
+        assert length_gate["status"] == "SKIP"
+
+
+# =============================================================================
+# Tests for blocking count aggregation
+# =============================================================================
+
+
+class TestBlockingAggregation:
+    """Test that blocking counts are correct across all gates."""
+
+    def test_all_gates_pass_zero_blocking(self):
+        t_data = {"sources_verified": "N/A", "explicit": False}
+        blocking, warnings, gates = _gates_mod._check_pre_gen_gates_for_track(
+            t_data, TRACK_FILE_COMPLETE, blocklist=[],
+        )
+        assert blocking == 0
+
+    def test_multiple_failures_accumulate(self):
+        """Track with sources pending + unset explicit flag = at least 2 blocking."""
+        t_data = {"sources_verified": "Pending", "explicit": False}
+        # Placeholder Explicit field is unset, so the explicit gate also blocks.
+        blocking, warnings, gates = _gates_mod._check_pre_gen_gates_for_track(
+            t_data, _make_track_file(table="Yes / No"), blocklist=[],
+        )
+        assert blocking >= 2
+
+    def test_returns_eleven_gates(self):
+        t_data = {"sources_verified": "N/A", "explicit": False}
+        blocking, warnings, gates = _gates_mod._check_pre_gen_gates_for_track(
+            t_data, TRACK_FILE_COMPLETE, blocklist=[],
+        )
+        # 8 core gates + 3 advisory (Style Box Descriptor Count, Performance Cues, Generation Settings)
+        assert len(gates) == 11
+
+
+def _track_with(style, lyrics):
+    """Minimal gate-complete track file with a custom Style Box and Lyrics Box."""
+    return (
+        "---\ntitle: T\nstatus: In Progress\nexplicit: false\n---\n\n"
+        f"## Lyrics Box\n\n```\n{lyrics}\n```\n\n"
+        f"## Style Box\n\n```\n{style}\n```\n\n"
+        "## Pronunciation Notes\n\n| Word | Phonetic | Note |\n| --- | --- | --- |\n| — | — | — |\n"
+    )
+
+
+class TestStyleBoxDescriptorCount:
+    """Gate 5b: advisory Style Box descriptor budget — flags synonym-pile bloat (>12)."""
+
+    def test_over_twelve_descriptors_warns(self):
+        t_data = {"sources_verified": "N/A", "explicit": False}
+        style = ("imperious, commanding, regal, grand, theatrical, explosive, "
+                 "cinematic, bombastic, sweeping, ominous, brooding, relentless, thunderous")
+        _, warnings, gates = _gates_mod._check_pre_gen_gates_for_track(
+            t_data, _track_with(style, "[Verse 1 - cold]\nla la"), blocklist=[],
+        )
+        g = next(x for x in gates if x["gate"] == "Style Box Descriptor Count")
+        assert g["status"] == "WARN"
+        assert g["severity"] == "WARNING"
+        assert warnings >= 1
+
+    def test_within_budget_passes(self):
+        t_data = {"sources_verified": "N/A", "explicit": False}
+        style = "male baritone. alt rock, clean guitar, driving bass. modern production"
+        _, _, gates = _gates_mod._check_pre_gen_gates_for_track(
+            t_data, _track_with(style, "[Verse 1 - cold]\nla la"), blocklist=[],
+        )
+        g = next(x for x in gates if x["gate"] == "Style Box Descriptor Count")
+        assert g["status"] == "PASS"
+
+    def test_rich_box_within_budget_passes(self):
+        # ~10 focused descriptors is a normal, effective style box — must PASS,
+        # not the false positive the old >7 gate produced on most real style boxes
+        t_data = {"sources_verified": "N/A", "explicit": False}
+        style = ("gritty male baritone, weary delivery. doom metal, sludge, "
+                 "downtuned guitar, thick bass, pounding drums. cavernous production, "
+                 "analog warmth, lead vocal upfront")
+        _, _, gates = _gates_mod._check_pre_gen_gates_for_track(
+            t_data, _track_with(style, "[Verse 1 - cold]\nla la"), blocklist=[],
+        )
+        g = next(x for x in gates if x["gate"] == "Style Box Descriptor Count")
+        assert g["status"] == "PASS"
+
+    def test_sparse_box_passes_without_sweet_spot_label(self):
+        # <3 descriptors passes with an informational note, never the old "sweet spot" mislabel
+        t_data = {"sources_verified": "N/A", "explicit": False}
+        style = "dark synthwave, analog"
+        _, _, gates = _gates_mod._check_pre_gen_gates_for_track(
+            t_data, _track_with(style, "[Verse 1 - cold]\nla la"), blocklist=[],
+        )
+        g = next(x for x in gates if x["gate"] == "Style Box Descriptor Count")
+        assert g["status"] == "PASS"
+        assert "sweet spot" not in g["detail"]
+        assert "sparse" in g["detail"]
+
+    def test_counts_across_periods_and_commas(self):
+        # >12 descriptors split by BOTH periods and commas must be counted:
+        # commas-only would total 11 and wrongly PASS; period-splitting pushes it to WARN
+        t_data = {"sources_verified": "N/A", "explicit": False}
+        style = ("male baritone, passionate delivery, storytelling vocal, gritty tone. "
+                 "alt rock, clean guitar, driving bass, tight drums, warm keys. "
+                 "modern production, analog warmth, tape saturation, upfront vocals")
+        _, _, gates = _gates_mod._check_pre_gen_gates_for_track(
+            t_data, _track_with(style, "[Verse 1 - cold]\nla la"), blocklist=[],
+        )
+        g = next(x for x in gates if x["gate"] == "Style Box Descriptor Count")
+        assert g["status"] == "WARN"
+
+
+class TestPerformanceCuesGate:
+    """Advisory Performance Cues check on structure tags."""
+
+    def test_all_bare_tags_warn(self):
+        t_data = {"sources_verified": "N/A", "explicit": False}
+        lyrics = "[Verse 1]\nla la\n\n[Chorus]\nna na\n\n[Verse 2]\nla la"
+        _, warnings, gates = _gates_mod._check_pre_gen_gates_for_track(
+            t_data, _track_with("pop, synth, 120 BPM", lyrics), blocklist=[],
+        )
+        g = next(x for x in gates if x["gate"] == "Performance Cues")
+        assert g["status"] == "WARN"
+        assert warnings >= 1
+
+    def test_tags_with_cues_pass(self):
+        t_data = {"sources_verified": "N/A", "explicit": False}
+        lyrics = "[Verse 1 - cold regal]\nla la\n\n[Chorus - big anthemic]\nna na"
+        _, _, gates = _gates_mod._check_pre_gen_gates_for_track(
+            t_data, _track_with("pop, synth, 120 BPM", lyrics), blocklist=[],
+        )
+        g = next(x for x in gates if x["gate"] == "Performance Cues")
+        assert g["status"] == "PASS"
+
+    def test_single_bare_tag_does_not_warn(self):
+        t_data = {"sources_verified": "N/A", "explicit": False}
+        _, _, gates = _gates_mod._check_pre_gen_gates_for_track(
+            t_data, _track_with("pop, synth, 120 BPM", "[Verse 1]\nla la"), blocklist=[],
+        )
+        g = next(x for x in gates if x["gate"] == "Performance Cues")
+        assert g["status"] == "PASS"  # only 1 structure tag -> not flagged
+
+    def test_instrumental_track_skipped(self):
+        t_data = {"sources_verified": "N/A", "explicit": False}
+        f = ("---\ntitle: T\nstatus: In Progress\nexplicit: false\ninstrumental: true\n---\n\n"
+             "## Lyrics Box\n\n```\n[Intro]\n\n[Main Theme]\n\n[Bridge]\n\n[Outro]\n```\n\n"
+             "## Style Box\n\n```\ncinematic orchestral, strings, brass\n```\n")
+        _, _, gates = _gates_mod._check_pre_gen_gates_for_track(t_data, f, blocklist=[])
+        g = next(x for x in gates if x["gate"] == "Performance Cues")
+        assert g["status"] == "SKIP"  # instrumental -> cues optional, not warned
+
+
+# =============================================================================
+# Tests for run_pre_generation_gates (MCP tool handler)
+# =============================================================================
+
+
+class TestRunPreGenerationGates:
+    """Tests for the run_pre_generation_gates async handler."""
+
+    def setup_method(self):
+        self._orig_cache = _shared_mod.cache
+        self._mock_cache = MockStateCache()
+        _shared_mod.cache = self._mock_cache
+
+    def teardown_method(self):
+        _shared_mod.cache = self._orig_cache
+
+    def test_album_not_found(self):
+        result = json.loads(_run(_gates_mod.run_pre_generation_gates("nonexistent")))
+        assert result["found"] is False
+        assert "not found" in result["error"].lower()
+
+    def test_single_track_ready(self):
+        """A track with all gates passing returns READY verdict."""
+        with patch("pathlib.Path.read_text", return_value=TRACK_FILE_COMPLETE), \
+             patch.object(_text_analysis_mod, "_load_artist_blocklist", return_value=[]):
+            result = json.loads(_run(
+                _gates_mod.run_pre_generation_gates("test-album", "01-first-track")
+            ))
+        assert result["found"] is True
+        assert result["total_tracks"] == 1
+        assert result["tracks"][0]["verdict"] == "READY"
+        assert result["album_verdict"] == "READY"
+
+    def test_single_track_not_ready(self):
+        """A track with pending sources returns NOT READY."""
+        with patch("pathlib.Path.read_text", return_value=TRACK_FILE_COMPLETE), \
+             patch.object(_text_analysis_mod, "_load_artist_blocklist", return_value=[]):
+            result = json.loads(_run(
+                _gates_mod.run_pre_generation_gates("test-album", "02-second-track")
+            ))
+        assert result["found"] is True
+        assert result["tracks"][0]["verdict"] == "NOT READY"
+        assert result["total_blocking"] >= 1
+
+    def test_all_tracks_mixed_verdict(self):
+        """Album with mixed pass/fail tracks returns PARTIAL."""
+        with patch("pathlib.Path.read_text", return_value=TRACK_FILE_COMPLETE), \
+             patch.object(_text_analysis_mod, "_load_artist_blocklist", return_value=[]):
+            result = json.loads(_run(
+                _gates_mod.run_pre_generation_gates("test-album")
+            ))
+        assert result["found"] is True
+        assert result["total_tracks"] == 2
+        # Track 02 has sources_verified=Pending and explicit=None, so NOT READY
+        # Track 01 should be READY
+        verdicts = {t["track_slug"]: t["verdict"] for t in result["tracks"]}
+        assert verdicts["01-first-track"] == "READY"
+        assert verdicts["02-second-track"] == "NOT READY"
+        assert result["album_verdict"] == "PARTIAL"
+
+    def test_all_tracks_ready_verdict(self):
+        """Album where all tracks pass returns ALL READY."""
+        state = _fresh_state()
+        # Make both tracks pass all gates
+        for slug in state["albums"]["test-album"]["tracks"]:
+            state["albums"]["test-album"]["tracks"][slug]["sources_verified"] = "N/A"
+            state["albums"]["test-album"]["tracks"][slug]["explicit"] = False
+        self._mock_cache._state = state
+
+        with patch("pathlib.Path.read_text", return_value=TRACK_FILE_COMPLETE), \
+             patch.object(_text_analysis_mod, "_load_artist_blocklist", return_value=[]):
+            result = json.loads(_run(
+                _gates_mod.run_pre_generation_gates("test-album")
+            ))
+        assert result["album_verdict"] == "ALL READY"
+
+    def test_all_tracks_not_ready_verdict(self):
+        """Album where all tracks fail returns NOT READY."""
+        state = _fresh_state()
+        for slug in state["albums"]["test-album"]["tracks"]:
+            state["albums"]["test-album"]["tracks"][slug]["sources_verified"] = "Pending"
+            state["albums"]["test-album"]["tracks"][slug]["explicit"] = None
+        self._mock_cache._state = state
+
+        with patch("pathlib.Path.read_text", return_value=TRACK_FILE_COMPLETE), \
+             patch.object(_text_analysis_mod, "_load_artist_blocklist", return_value=[]):
+            result = json.loads(_run(
+                _gates_mod.run_pre_generation_gates("test-album")
+            ))
+        assert result["album_verdict"] == "NOT READY"
+
+    def test_track_not_found(self):
+        result = json.loads(_run(
+            _gates_mod.run_pre_generation_gates("test-album", "99-nonexistent")
+        ))
+        assert result["found"] is False
+
+    def test_configurable_max_lyric_words(self):
+        """max_lyric_words from config.generation is respected."""
+        state = _fresh_state()
+        state["config"]["generation"] = {"max_lyric_words": 5}
+        self._mock_cache._state = state
+
+        with patch("pathlib.Path.read_text", return_value=TRACK_FILE_COMPLETE), \
+             patch.object(_text_analysis_mod, "_load_artist_blocklist", return_value=[]):
+            result = json.loads(_run(
+                _gates_mod.run_pre_generation_gates("test-album", "01-first-track")
+            ))
+        # With max_lyric_words=5, the lyrics should exceed it
+        gates = result["tracks"][0]["gates"]
+        length_gate = next(g for g in gates if g["gate"] == "Lyric Length")
+        assert length_gate["status"] == "FAIL"
+
+
+# =============================================================================
+# Tests for check_streaming_lyrics
+# =============================================================================
+
+
+STREAMING_READY_FILE = """\
+---
+title: Test Track
+status: In Progress
+---
+
+## Lyrics Box
+
+```
+[Verse 1]
+Walking down the road tonight
+Stars are shining bright
+Every step I take
+Keeps me wide awake
+And the wind blows through the trees
+Rustling all the leaves
+Moonlight on the ground
+Not a single sound
+```
+
+## Streaming Lyrics
+
+```
+Walking down the road tonight
+Stars are shining bright
+Every step I take
+Keeps me wide awake
+And the wind blows through the trees
+Rustling all the leaves
+Moonlight on the ground
+Not a single sound
+```
+"""
+
+STREAMING_WITH_TAGS = """\
+---
+title: Tagged Track
+---
+
+## Streaming Lyrics
+
+```
+[Verse 1]
+Walking down the road tonight
+Stars are shining bright
+[Chorus]
+Every step I take
+Keeps me wide awake
+And the wind blows softly now
+Through the trees and how
+```
+"""
+
+STREAMING_UNCAPITALIZED = """\
+---
+title: Uncapped Track
+---
+
+## Streaming Lyrics
+
+```
+Walking down the road tonight
+stars are shining bright
+Every step I take
+keeps me wide awake
+And the wind blows softly now
+Through the trees and how
+```
+"""
+
+STREAMING_WITH_PUNCTUATION = """\
+---
+title: Punctuated Track
+---
+
+## Streaming Lyrics
+
+```
+Walking down the road tonight.
+Stars are shining bright,
+Every step I take;
+Keeps me wide awake
+And the wind blows softly now
+Through the trees and how
+```
+"""
+
+STREAMING_PLACEHOLDER = """\
+---
+title: Placeholder Track
+---
+
+## Streaming Lyrics
+
+```
+Plain lyrics here
+Capitalize first letter of each line
+No end punctuation
+```
+"""
+
+STREAMING_EMPTY = """\
+---
+title: Empty Streaming
+---
+
+## Streaming Lyrics
+
+```
+```
+"""
+
+STREAMING_MISSING_SECTION = """\
+---
+title: No Streaming Section
+---
+
+## Lyrics Box
+
+```
+Walking down the road tonight
+```
+"""
+
+STREAMING_FEW_WORDS = """\
+---
+title: Short Streaming
+---
+
+## Streaming Lyrics
+
+```
+Just a few words here
+```
+"""
+
+
+class TestCheckStreamingLyrics:
+    """Tests for the check_streaming_lyrics handler."""
+
+    def setup_method(self):
+        state = _fresh_state()
+        self._mock_cache = MockStateCache(state)
+        _shared_mod.cache = self._mock_cache
+
+    def test_ready_track_passes_all(self):
+        with patch("pathlib.Path.read_text", return_value=STREAMING_READY_FILE):
+            result = json.loads(_run(
+                _gates_mod.check_streaming_lyrics("test-album", "01-first-track")
+            ))
+        track = result["tracks"][0]
+        assert track["verdict"] == "READY"
+        assert track["blocking"] == 0
+        assert track["warnings"] == 0
+        statuses = [c["status"] for c in track["checks"]]
+        assert "FAIL" not in statuses
+
+    def test_section_tags_warned(self):
+        with patch("pathlib.Path.read_text", return_value=STREAMING_WITH_TAGS):
+            result = json.loads(_run(
+                _gates_mod.check_streaming_lyrics("test-album", "01-first-track")
+            ))
+        track = result["tracks"][0]
+        tag_check = next(c for c in track["checks"] if c["check"] == "No Section Tags")
+        assert tag_check["status"] == "WARN"
+        assert track["warnings"] >= 1
+
+    def test_uncapitalized_warned(self):
+        with patch("pathlib.Path.read_text", return_value=STREAMING_UNCAPITALIZED):
+            result = json.loads(_run(
+                _gates_mod.check_streaming_lyrics("test-album", "01-first-track")
+            ))
+        track = result["tracks"][0]
+        cap_check = next(c for c in track["checks"] if c["check"] == "Lines Capitalized")
+        assert cap_check["status"] == "WARN"
+
+    def test_end_punctuation_warned(self):
+        with patch("pathlib.Path.read_text", return_value=STREAMING_WITH_PUNCTUATION):
+            result = json.loads(_run(
+                _gates_mod.check_streaming_lyrics("test-album", "01-first-track")
+            ))
+        track = result["tracks"][0]
+        punct_check = next(c for c in track["checks"] if c["check"] == "No End Punctuation")
+        assert punct_check["status"] == "WARN"
+
+    def test_placeholder_blocked(self):
+        with patch("pathlib.Path.read_text", return_value=STREAMING_PLACEHOLDER):
+            result = json.loads(_run(
+                _gates_mod.check_streaming_lyrics("test-album", "01-first-track")
+            ))
+        track = result["tracks"][0]
+        placeholder_check = next(c for c in track["checks"] if c["check"] == "Not Placeholder")
+        assert placeholder_check["status"] == "FAIL"
+        assert track["blocking"] >= 1
+        assert track["verdict"] == "NOT READY"
+
+    def test_empty_content_blocked(self):
+        with patch("pathlib.Path.read_text", return_value=STREAMING_EMPTY):
+            result = json.loads(_run(
+                _gates_mod.check_streaming_lyrics("test-album", "01-first-track")
+            ))
+        track = result["tracks"][0]
+        empty_check = next(c for c in track["checks"] if c["check"] == "Not Empty")
+        assert empty_check["status"] == "FAIL"
+
+    def test_missing_section_blocked(self):
+        with patch("pathlib.Path.read_text", return_value=STREAMING_MISSING_SECTION):
+            result = json.loads(_run(
+                _gates_mod.check_streaming_lyrics("test-album", "01-first-track")
+            ))
+        track = result["tracks"][0]
+        section_check = next(c for c in track["checks"] if c["check"] == "Section Exists")
+        assert section_check["status"] == "FAIL"
+        assert track["verdict"] == "NOT READY"
+
+    def test_low_word_count_warned(self):
+        with patch("pathlib.Path.read_text", return_value=STREAMING_FEW_WORDS):
+            result = json.loads(_run(
+                _gates_mod.check_streaming_lyrics("test-album", "01-first-track")
+            ))
+        track = result["tracks"][0]
+        word_check = next(c for c in track["checks"] if c["check"] == "Word Count")
+        assert word_check["status"] == "WARN"
+
+    def test_all_tracks_checked_when_no_slug(self):
+        with patch("pathlib.Path.read_text", return_value=STREAMING_READY_FILE):
+            result = json.loads(_run(
+                _gates_mod.check_streaming_lyrics("test-album")
+            ))
+        assert result["total_tracks"] == 2
+        assert len(result["tracks"]) == 2
+
+    def test_all_ready_verdict(self):
+        with patch("pathlib.Path.read_text", return_value=STREAMING_READY_FILE):
+            result = json.loads(_run(
+                _gates_mod.check_streaming_lyrics("test-album")
+            ))
+        assert result["album_verdict"] == "ALL READY"
+
+    def test_not_ready_verdict_all_fail(self):
+        with patch("pathlib.Path.read_text", return_value=STREAMING_MISSING_SECTION):
+            result = json.loads(_run(
+                _gates_mod.check_streaming_lyrics("test-album")
+            ))
+        assert result["album_verdict"] == "NOT READY"
+
+    def test_album_not_found(self):
+        result = json.loads(_run(
+            _gates_mod.check_streaming_lyrics("nonexistent-album")
+        ))
+        assert result["found"] is False
+
+    def test_track_not_found(self):
+        result = json.loads(_run(
+            _gates_mod.check_streaming_lyrics("test-album", "99-missing")
+        ))
+        assert result["found"] is False
+
+    def test_word_count_vs_suno(self):
+        """Word count check compares to Suno lyrics when available."""
+        with patch("pathlib.Path.read_text", return_value=STREAMING_READY_FILE):
+            result = json.loads(_run(
+                _gates_mod.check_streaming_lyrics("test-album", "01-first-track")
+            ))
+        track = result["tracks"][0]
+        word_check = next(c for c in track["checks"] if c["check"] == "Word Count")
+        assert word_check["status"] == "PASS"
+        assert track["word_count"] > 0
+
+    def test_file_read_error_handled(self):
+        """OSError reading track file → FAIL for Section Exists."""
+        with patch("pathlib.Path.read_text", side_effect=OSError("disk error")):
+            result = json.loads(_run(
+                _gates_mod.check_streaming_lyrics("test-album", "01-first-track")
+            ))
+        track = result["tracks"][0]
+        section_check = next(c for c in track["checks"] if c["check"] == "Section Exists")
+        assert section_check["status"] == "FAIL"
+
+
+def _settings_block(model="v6", variety="Off", max_mode="On"):
+    return (
+        "### Generation Settings\n\n"
+        "| Setting | Value |\n|---------|-------|\n"
+        f"| **Model** | {model} |\n"
+        f"| **Variety** | {variety} |\n"
+        f"| **Max Mode** | {max_mode} |\n"
+        "| **Vocal Gender** | — |\n"
+        "| **Duration** | Auto |\n"
+        "| **Weirdness** | 50 |\n"
+        "| **Style Influence** | 50 |\n\n"
+    )
+
+
+def _track_with_settings(settings_block, target_duration=None, instrumental=False):
+    """Gate-complete track file with a Generation Settings section."""
+    fm_instr = "instrumental: true\n" if instrumental else ""
+    details = ""
+    if target_duration is not None:
+        details = f"## Track Details\n\n| Attribute | Detail |\n|---|---|\n| **Target Duration** | {target_duration} |\n\n"
+    return (
+        f"---\ntitle: T\nstatus: In Progress\nexplicit: false\n{fm_instr}---\n\n"
+        f"{details}"
+        "## Suno Inputs\n\n"
+        "### Style Box\n\n```\nupbeat electronic pop, 120 BPM\n```\n\n"
+        "### Exclude Styles\n\n```\n(none)\n```\n\n"
+        f"{settings_block}"
+        "### Lyrics Box\n\n```\n[Verse 1 - cold]\nla la\n\n[Chorus - big]\nla la\n```\n\n"
+        "## Pronunciation Notes\n\n| Word | Phonetic | Note |\n| --- | --- | --- |\n| — | — | — |\n"
+    )
+
+
+class TestGenerationSettingsGate:
+    """Advisory v6 gate: Variety must be Off, Model must be a catalog name."""
+
+    T = {"sources_verified": "N/A", "explicit": False}
+
+    def _gate(self, text):
+        blocking, warnings, gates = _gates_mod._check_pre_gen_gates_for_track(self.T, text, blocklist=[])
+        return blocking, warnings, next(g for g in gates if g["gate"] == "Generation Settings")
+
+    def test_missing_section_skips(self):
+        blocking, warnings, g = self._gate(_track_with("upbeat pop, 120 BPM", "[Verse 1 - cold]\nla la"))
+        assert g["status"] == "SKIP"
+        assert "Generation Settings" in g["detail"]
+        assert blocking == 0
+
+    def test_defaults_pass(self):
+        blocking, warnings, g = self._gate(_track_with_settings(_settings_block()))
+        assert g["status"] == "PASS"
+        assert g["detail"] == "Model v6, Variety Off, Max Mode On"
+        assert warnings == 0
+
+    def test_variety_normal_warns(self):
+        _, warnings, g = self._gate(_track_with_settings(_settings_block(variety="Normal")))
+        assert g["status"] == "WARN"
+        assert g["severity"] == "WARNING"
+        assert "Variety is 'Normal'" in g["detail"]
+        assert warnings == 1
+
+    def test_variety_zero_counts_as_off(self):
+        _, warnings, g = self._gate(_track_with_settings(_settings_block(variety="0")))
+        assert g["status"] == "PASS"
+
+    @pytest.mark.parametrize("model", ["", "—", "V5.5", "v7"])
+    def test_unknown_model_warns(self, model):
+        _, warnings, g = self._gate(_track_with_settings(_settings_block(model=model)))
+        assert g["status"] == "WARN"
+        assert "not recognized" in g["detail"]
+
+    @pytest.mark.parametrize("model", ["v6", "V6-WILD", "v6-mini", "Custom: bitwize-core"])
+    def test_catalog_models_pass(self, model):
+        _, _, g = self._gate(_track_with_settings(_settings_block(model=model)))
+        assert g["status"] == "PASS"
+
+    def test_bare_custom_prefix_warns(self):
+        _, _, g = self._gate(_track_with_settings(_settings_block(model="Custom:")))
+        assert g["status"] == "WARN"
+
+    def test_two_problems_one_warning(self):
+        _, warnings, g = self._gate(_track_with_settings(_settings_block(model="v7", variety="High")))
+        assert g["status"] == "WARN"
+        assert warnings == 1
+        assert "not recognized" in g["detail"] and "Variety is 'High'" in g["detail"]
+
+    def test_max_mode_off_long_target_notes(self):
+        _, warnings, g = self._gate(_track_with_settings(_settings_block(max_mode="Off"), target_duration="3:10"))
+        assert g["status"] == "PASS"
+        assert warnings == 0
+        assert "Max Mode off on a 3:10 target" in g["detail"]
+
+    def test_max_mode_off_short_target_silent(self):
+        _, _, g = self._gate(_track_with_settings(_settings_block(max_mode="Off"), target_duration="1:45"))
+        assert g["status"] == "PASS"
+        assert "Max Mode off on" not in g["detail"]
+
+    def test_max_mode_off_no_target_silent(self):
+        _, _, g = self._gate(_track_with_settings(_settings_block(max_mode="Off")))
+        assert g["detail"] == "Model v6, Variety Off, Max Mode Off"
+
+    def test_instrumental_not_skipped(self):
+        _, warnings, g = self._gate(_track_with_settings(_settings_block(variety="Normal"), instrumental=True))
+        assert g["status"] == "WARN"
+
+    def test_never_blocks(self):
+        blocking, _, _ = self._gate(_track_with_settings(_settings_block(model="v7", variety="Max")))
+        assert blocking == 0
+
+
+class TestGenerationSettingsHelpers:
+    @pytest.mark.parametrize("value,expected", [
+        ("3:10", 190), ("0:45", 45), ("3:30–5:00", 210), ("—", None), ("", None), (None, None), ("4 minutes", None),
+    ])
+    def test_parse_duration_seconds(self, value, expected):
+        assert _gates_mod._parse_duration_seconds(value) == expected

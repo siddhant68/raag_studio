@@ -1,0 +1,65 @@
+[
+  {
+    "repo": "jtydhr88/music-composition-skills",
+    "sha": "5d5d22803517ac5828a01218e775555920451dd9",
+    "branch": "main",
+    "license": "MIT",
+    "path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/archives/jtydhr88--music-composition-skills.zip",
+    "bytes": 740327
+  },
+  {
+    "repo": "jtydhr88/lyric-writing-skills",
+    "sha": "d2c3c780afeaaba0801c324fa2d3a9100277e8e1",
+    "branch": "main",
+    "license": "MIT",
+    "path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/archives/jtydhr88--lyric-writing-skills.zip",
+    "bytes": 484068
+  },
+  {
+    "repo": "ace-step/ace-step-skills",
+    "sha": "4cdd152ec9c2004f641edf218c5561b160f28acc",
+    "branch": "main",
+    "path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/archives/ace-step--ace-step-skills.zip",
+    "bytes": 176384
+  },
+  {
+    "repo": "glincker/ableton-skills",
+    "sha": "347cd7dc4c9b53a42fcc39b332b972c687cf9fdc",
+    "branch": "main",
+    "license": "MIT",
+    "path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/archives/glincker--ableton-skills.zip",
+    "bytes": 61030
+  },
+  {
+    "repo": "nicholasbien/ableton-mcp-pro",
+    "sha": "1a66f93f8a901c36122983c99b24ab01172bb812",
+    "branch": "main",
+    "license": "MIT",
+    "path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/archives/nicholasbien--ableton-mcp-pro.zip",
+    "bytes": 225218
+  },
+  {
+    "repo": "bitwize-music-studio/claude-ai-music-skills",
+    "sha": "597d928fb2c8316ee13159771405813174aa01de",
+    "branch": "main",
+    "license": "CC0-1.0",
+    "path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/archives/bitwize-music-studio--claude-ai-music-skills.zip",
+    "bytes": 5516453
+  },
+  {
+    "repo": "tsirysndr/mixxx-skills",
+    "sha": "3004afa7a97d9b2b74042e5f7d0b800e820add1d",
+    "branch": "main",
+    "license": "MIT",
+    "path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/archives/tsirysndr--mixxx-skills.zip",
+    "bytes": 8144
+  },
+  {
+    "repo": "p-poss/dj-claude",
+    "sha": "f127c06696faea310a3c5bb252e78137d06e3abc",
+    "branch": "main",
+    "license": "AGPL-3.0",
+    "path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/research/archives/p-poss--dj-claude.zip",
+    "bytes": 728111
+  }
+]

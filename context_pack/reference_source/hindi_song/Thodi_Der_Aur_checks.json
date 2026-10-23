@@ -1,0 +1,21 @@
+{
+  "selected_take": "take_01_22102611",
+  "native_audio": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/thodi_der_aur_20261022/takes/take_01_22102611/d9764b1d-29df-b8a5-0dbd-80115360720d.wav",
+  "duration_seconds": 152.0,
+  "sample_rate": 48000,
+  "channels": 2,
+  "clipped_samples": 0,
+  "peak_dbfs": -1.9399482011795044,
+  "normalization": {
+    "input_i": "-14.01",
+    "input_tp": "-1.50",
+    "input_lra": "8.70",
+    "input_thresh": "-24.43",
+    "output_i": "-14.46",
+    "output_tp": "-1.94",
+    "output_lra": "8.60",
+    "output_thresh": "-24.87",
+    "normalization_type": "linear",
+    "target_offset": "-0.04"
+  }
+}

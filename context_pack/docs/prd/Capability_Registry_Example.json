@@ -1,0 +1,27 @@
+{
+  "status": "PRD proposal; not implemented application configuration",
+  "ace_local_turbo": {
+    "available_in_previous_local_jobs": true,
+    "caption_character_budget": 512,
+    "lyrics_character_budget": 4096,
+    "separate_music_lm_installed": false,
+    "native_instrument_stems": false,
+    "exact_ensemble_count": false,
+    "exact_notes_from_text": false,
+    "whole_song_generation": "previously executed",
+    "repaint": "documented, pilot needed",
+    "independent_part_mixing": "needs usable extracted or native track",
+    "guidance_scale_control": "not meaningful on installed turbo checkpoint",
+    "language_validation": {
+      "hi": "liked complete song; diction concerns",
+      "en": "wordless voices only; lexical singing not evaluated"
+    }
+  },
+  "candidate_adapters": {
+    "eleven_music": "not integrated; account and feature entitlements required",
+    "stable_audio": "not integrated; website multitrack is not assumed API functionality",
+    "yue2": "not installed/validated here; score-first, runtime/licensing limits",
+    "suno": "product UX reference; no official public self-serve API integration verified",
+    "udio": "UX reference; current official download restriction"
+  }
+}

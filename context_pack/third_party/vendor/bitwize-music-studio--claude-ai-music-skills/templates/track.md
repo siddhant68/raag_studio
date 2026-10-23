@@ -1,0 +1,349 @@
+---
+title: "[Track Title]"
+track_number: 0
+instrumental: false
+explicit: false
+# Optional. Set only when this track's genre differs from the album's — it gives
+# the track its own lyrics word-count target (e.g. "hip-hop" on a pop album).
+# Omit and the track uses the album's. A musical descriptor, not a filing
+# location: unlike the album's genre it never forms part of a path.
+# genre: ""
+suno_url: ""
+sheet_music:
+  pdf: ""
+  musicxml: ""
+  midi: ""
+---
+
+# [Track Title]
+
+## Track Details
+
+| Attribute | Detail |
+|-----------|--------|
+| **Track #** | XX |
+| **Title** | [Track Title] |
+| **Album** | [Album Name](../README.md) |
+| **Status** | Not Started |
+| **Suno Link** | — |
+| **Stems** | No |
+| **Instrumental** | No |
+| **Explicit** | Yes / No |
+| **POV** | [Character/Perspective] |
+| **Role** | [Track's role in the album narrative] |
+| **Fade Out** | 5s |
+| **Target Duration** | — |
+| **Sources Verified** | ❌ Pending |
+
+<!--
+SOURCE VERIFICATION: Required for tracks with source material (quotes, real events, etc.)
+- ❌ Pending = Sources added, awaiting human verification
+- ✅ Verified (DATE) = Human has checked all URLs, quotes, dates, names
+- N/A = Track has no external source material
+
+Human must verify BEFORE track moves to production. See CLAUDE.md for verification workflow.
+-->
+
+<!-- SOURCE-BASED TRACKS: Include these sections if track is based on external source material (quotes, articles, etc.). Delete if not applicable. -->
+
+## Source
+
+[Source name](URL) (Rating/metadata if applicable)
+
+<!-- Add any additional context: archive URLs, related links, date retrieved, platform info, etc. -->
+
+## Original Quote
+
+```
+[Raw, verbatim source text here.
+
+CAPTURE EVERYTHING:
+- Full text, every line, every word
+- Surrounding context if available
+- NO summarizing
+- NO paraphrasing
+- NO trimming
+
+Space is not a constraint. Thoroughness is the priority.]
+```
+
+<!-- END SOURCE SECTIONS -->
+
+<!-- DOCUMENTARY/TRUE STORY TRACKS: Include this section for tracks based on real people/events. Delete if purely fictional. -->
+
+## Lyrical Approach
+
+### Voice & Perspective
+| Attribute | Selection |
+|-----------|-----------|
+| **Narrative Voice** | ☐ Third-person narrator / ☐ First-person character / ☐ Omniscient |
+| **Speaking AS real person?** | ☐ No - narrator voice only / ☐ Yes - clearly framed |
+
+### Factual Claims Checklist
+
+| Claim Type | In Lyrics? | Source Verified? | Notes |
+|------------|------------|------------------|-------|
+| Names of real people | ☐ Yes / ☐ No | ☐ | |
+| Specific dates/numbers | ☐ Yes / ☐ No | ☐ | |
+| Direct quotes | ☐ Yes / ☐ No | ☐ | |
+| Actions attributed to real people | ☐ Yes / ☐ No | ☐ | |
+| Legal outcomes (arrests, charges) | ☐ Yes / ☐ No | ☐ | |
+
+### Quotes & Attribution
+
+| Lyric Line | Type | Attribution | Source |
+|------------|------|-------------|--------|
+| "[quote/claim]" | Verbatim / Paraphrase / Narrator description | How framed in lyrics | Episode/doc/page |
+
+### Artistic Liberties Taken
+
+| Element | Liberty Taken | Justification |
+|---------|---------------|---------------|
+| [e.g., dialogue] | [what was changed/invented] | [why - flow, clarity, etc.] |
+
+### Legal Review
+
+- [ ] **No impersonation**: Lyrics don't pretend to BE a real person speaking (unless clearly framed as dramatization)
+- [ ] **Documented claims only**: All factual statements traceable to sources
+- [ ] **Fair comment**: Opinion/commentary clearly distinguished from fact
+- [ ] **No fabricated quotes**: Real people's words are either verbatim, clearly paraphrased, or described by narrator
+- [ ] **Public interest**: Subject matter involves public figures/events or matters of legitimate public concern
+
+**Legal Notes:**
+[Any specific concerns, mitigations, or notes about this track's approach]
+
+<!-- END DOCUMENTARY SECTIONS -->
+
+## Concept
+
+[Describe the track's narrative, themes, and purpose in the album. What story does this track tell? What emotions should it evoke?]
+
+<!-- CONCEPT/NARRATIVE ALBUMS: Include this section for concept, narrative, thematic, character study, or OST albums. Remove for standalone tracks or collection albums. -->
+
+## Cross-References
+
+### References TO This Track
+
+| From Track | Reference Type | Detail |
+|------------|---------------|--------|
+| — | — | — |
+
+### References FROM This Track
+
+| To Track | Reference Type | Lyric Line | Detail |
+|----------|---------------|------------|--------|
+| — | — | — | — |
+
+**Reference types:** `callback` (echoes earlier lyric/image), `motif` (recurring thematic element), `character` (same character reappears), `contrast` (deliberate inversion of earlier idea), `resolution` (resolves tension from earlier track)
+
+<!-- END CROSS-REFERENCES -->
+
+## Mood & Imagery
+
+[Key visuals, atmosphere, and sensory details that define this track]
+
+## Musical Direction
+
+- **Tempo**: [BPM estimate]
+- **Feel**: [Energy level, groove type]
+- **Instrumentation**: [Key instruments/sounds]
+
+<!-- SERVICE: suno -->
+<!-- COVER TRACKS: Include this block ONLY if this track is a Suno Cover (reimagines an existing
+     song or uploaded audio in a new style) and/or uses a saved Voice (Suno renamed Personas to
+     Voices; Pro/Premier). Delete the entire block for standard original-generation tracks — it is
+     optional and does not affect the normal writing flow. Full workflow and decision guidance:
+     reference/workflows/covers-and-personas.md -->
+
+## Cover / Voice Setup
+
+### Original Song Reference
+
+*What this cover reworks. Delete this subsection if the track is not a Cover.*
+
+| Attribute | Detail |
+|-----------|--------|
+| **Cover of** | [Original song, or the prior generation this reworks] |
+| **Source audio** | [Uploaded sample e.g. Splice / earlier Suno generation / — ] |
+| **Keeps** | [What carries over: topline melody, structure] |
+| **Reimagines** | [The new target genre/style the Cover shifts it into] |
+| **Audio Influence** | [Slider setting — higher hews closer to the source; shown only when audio is uploaded] |
+
+### Voice Selection
+
+*The saved Voice applied to this track. Delete this subsection if no Voice is used. Upgrade older Voices with "Upgrade Voice to v6" before generating.*
+
+| Attribute | Detail |
+|-----------|--------|
+| **Voice** | [Saved Voice name, or —] |
+| **Vocal identity** | [What it locks in, e.g. male baritone, gravelly, folk storyteller] |
+| **Saved from** | [The generation or recording this Voice was captured from] |
+
+When a Voice is applied, keep the Style Box below simple (one or two genres) and drop detailed vocal descriptors — the Voice carries the voice. Set **Max Mode On** (Suno's recommendation for Voices) and keep Audio Influence fairly high. Voices cannot be used on instrumental tracks.
+
+### Cover-Specific Style Guidance
+
+The Style Box for a Cover describes the NEW target style, not the original. Fill the Style Box under
+Suno Inputs below with the destination genre/mood, then note here what to preserve versus transform:
+
+- **Preserve**: [elements of the original to keep — e.g. topline melody, song structure]
+- **Transform**: [what the Cover changes — genre, instrumentation, tempo feel, production era]
+- **Layering**: [if stacking multiple Covers for genre-bending, note the order — see workflow guide]
+
+<!-- END COVER SECTIONS -->
+<!-- /SERVICE: suno -->
+
+<!-- SERVICE: suno -->
+## Suno Inputs
+
+### Style Box
+*Copy this into Suno's "Style of Music" field:*
+
+```
+[genre], [tempo/BPM], [mood], [vocal description], [instruments], [production notes]
+```
+
+### Exclude Styles
+*Paste into Suno's **Exclude Styles** field (Advanced Mode → More Options), not the Style Box. Bare elements, comma-separated — `drums, electric guitar` — never "no drums":*
+
+```
+[exclusions, if any]
+```
+
+### Generation Settings
+*Set these in Suno's Advanced Mode → More Options. Keep Variety Off so the Style Box above is used verbatim.*
+
+<!-- Allowed values — Model: v6 | v6-wild | v6-mini | Custom: <name>  (catalog: reference/suno/models.md)
+     Variety: Off | Normal | High | Extra | Max   (Off = "Exact style"; anything higher rewrites the Style Box)
+     Max Mode: On | Off   (2× credits; On for tracks over ~2:00, covers, Voices)
+     Vocal Gender: Male | Female | —   Duration: Auto | m:ss (10 s–6:00)   Weirdness / Style Influence: 0–100
+     Audio Influence lives in the Cover / Voice Setup block (it only appears when audio is attached). -->
+
+| Setting | Value |
+|---------|-------|
+| **Model** | v6 |
+| **Variety** | Off |
+| **Max Mode** | On |
+| **Vocal Gender** | — |
+| **Duration** | Auto |
+| **Weirdness** | 50 |
+| **Style Influence** | 50 |
+
+### Lyrics Box
+*Copy this into Suno's "Lyrics" field:*
+
+<!-- INSTRUMENTAL TRACKS: If instrumental: true, use only section tags (no sung lyrics).
+     Example: [Intro]\n\n[Main Theme]\n\n[Bridge]\n\n[Outro]\n\n[End]
+     Set "Instrumental: On" in Suno. -->
+
+<!-- VOCAL TRACKS: WARNING: Suno sings EVERYTHING literally including parenthetical directions.
+     NEVER use (whispered), (softly), (screaming), (spoken), (laughing), etc.
+     Use standalone metatags like [Whispered], or append per-section Performance Cues to the
+     section tag (e.g. [Verse 1 - cold regal]) — never parentheticals. -->
+
+```
+[Verse 1 - calm reflective]
+[Lyrics here...]
+
+[Chorus - big anthemic]
+[Lyrics here...]
+
+[Verse 2 - restless driving]
+[Lyrics here...]
+
+[Bridge - stripped intimate]
+[Lyrics here...]
+
+[Outro - resolved fading]
+[Lyrics here...]
+```
+<!-- /SERVICE: suno -->
+
+<!-- VOCAL TRACKS ONLY: Remove this section for instrumental tracks -->
+
+## Streaming Lyrics
+
+*For distributor submission (Spotify, Apple Music, etc.). No section tags, repeats written out, plain text.*
+
+```
+[Plain lyrics here - no [Verse], [Chorus] tags
+Capitalize first letter of each line
+No end punctuation
+Write out all repeats fully
+Blank lines between sections only]
+```
+
+<!-- END VOCAL ONLY -->
+
+## Production Notes
+
+- [Technical considerations]
+- [Vocal delivery notes]
+- [Sample ideas]
+<!-- SERVICE: suno -->
+- [Model-specific tips if applicable — see reference/suno/models.md]
+<!-- /SERVICE: suno -->
+
+<!-- VOCAL TRACKS ONLY: Remove these sections for instrumental tracks -->
+
+## Pronunciation Notes
+
+**This table is a mandatory checklist, not passive documentation.** Every entry below MUST be applied as phonetic spelling in the Suno Lyrics Box. Before finalizing: read each row, search the Suno lyrics for the standard spelling, and confirm the phonetic version is used.
+
+| Word/Phrase | Pronunciation | Reason |
+|-------------|---------------|--------|
+| — | — | — |
+
+<!-- SERVICE: suno -->
+## Phonetic Review Checklist
+
+**Review before generating on Suno:**
+
+- [ ] **Proper nouns scanned**: All names, places, brands identified
+- [ ] **Foreign names**: Spanish/non-English names use phonetic spelling
+- [ ] **Homographs checked**: No ambiguous words (live, lead, read, wind, tear)
+- [ ] **Acronyms**: Spelled out (F-B-I, G-P-S, not FBI, GPS)
+- [ ] **Numbers**: Year formats checked ('93 not ninety-three)
+- [ ] **Tech terms**: Linux → Lin-ucks, SQL → sequel, etc
+
+**Proper nouns in this track:**
+| Word | Current | Phonetic | Fixed? |
+|------|---------|----------|--------|
+| — | — | — | — |
+<!-- /SERVICE: suno -->
+
+<!-- END VOCAL ONLY -->
+
+## Generation Log
+
+Mark keepers with ✓ in the Rating column. Checkpoint verification looks for at least one ✓ per track.
+
+| # | Date | Model | Result | Notes | Rating |
+|---|------|-------|--------|-------|--------|
+| — | — | — | — | — | — |
+
+<!-- OPTIONAL: SoundCloud Waveform Art - Delete if not using this feature -->
+
+## Waveform Art
+
+### ChatGPT Prompt
+*Use this prompt with ChatGPT/DALL-E to generate waveform background art (2480x800px):*
+
+```
+Generate a wide cinematic image at 2480x800 pixels for use as a SoundCloud waveform background.
+
+[SCENE DESCRIPTION]
+
+Style: [style keywords]
+Color palette: [colors]
+Mood: [mood keywords]
+
+Important: The image will have an audio waveform overlaid on top, so avoid fine details in the center-middle area.
+```
+
+### Waveform Art Link
+| Generated | Link |
+|-----------|------|
+| — | — |
+
+<!-- END WAVEFORM ART -->

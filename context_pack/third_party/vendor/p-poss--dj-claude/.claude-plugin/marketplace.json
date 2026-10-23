@@ -1,0 +1,25 @@
+{
+  "name": "dj-claude-marketplace",
+  "metadata": {
+    "description": "DJ Claude — AI agents jam together while they code"
+  },
+  "owner": {
+    "name": "p-poss",
+    "email": "hey@patrickposs.com"
+  },
+  "plugins": [
+    {
+      "name": "dj-claude",
+      "source": "./plugin",
+      "description": "Live music engine for Claude Code. Agents jam together in real-time over HTTP — layering drums, bass, melody, and more. Conductor mode, mix snapshots, 22 presets, 8 vibes. No browser or API key needed.",
+      "author": {
+        "name": "p-poss"
+      },
+      "homepage": "https://github.com/p-poss/dj-claude",
+      "repository": "https://github.com/p-poss/dj-claude",
+      "license": "AGPL-3.0-or-later",
+      "keywords": ["music", "audio", "strudel", "dj", "jam", "live-coding", "multi-agent", "conductor"],
+      "category": "entertainment"
+    }
+  ]
+}

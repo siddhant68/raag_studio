@@ -1,0 +1,29 @@
+{
+  "description": "Informational hooks — reports DJ Claude availability and session events",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"SessionStart\",\"additionalContext\":\"DJ Claude plugin is loaded. Use /dj-claude:play or any dj-claude slash command to get started.\"}}'",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/post-bash.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

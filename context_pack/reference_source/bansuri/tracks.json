@@ -1,0 +1,23 @@
+[
+  {
+    "id": "yamuna_at_dawn",
+    "title": "Yamuna at Dawn",
+    "filename": "Yamuna_at_Dawn",
+    "seed": 24102631,
+    "duration": 168,
+    "bpm": 82,
+    "key": "D major",
+    "caption": "Indian cinematic instrumental, virtuoso Hindustani bansuri clearly foregrounded throughout. Silky bamboo tone, long expressive meend, delicate murki ornaments, fluid taans across octaves, sustained singing phrases and natural breaths. Memorable tender refrain. Tanpura drone, sparkling santoor, sparse sitar answers, warm cello, gentle tabla groove. Spacious flute opening, rhythmic development, intimate flute-cello bridge, soaring intricate flute finale, peaceful resolved ending. 82 BPM, D major. No vocals.",
+    "selected_native": "flute_focus"
+  },
+  {
+    "id": "moonlit_raas",
+    "title": "Moonlit Raas",
+    "filename": "Moonlit_Raas",
+    "seed": 24102632,
+    "duration": 144,
+    "bpm": 104,
+    "key": "G major",
+    "caption": "Joyful Indian acoustic fusion instrumental led by a virtuoso bamboo bansuri. Playful rhythmic flute phrases, graceful pitch glides, sparkling fast taans and trills, octave leaps resolving into a beautiful recurring melody. Tabla and ghatam groove, nimble santoor, plucked sitar, answering solo violin, soft round bass. Clear solo flute foreground; accompaniment leaves breathing space. Gentle opening, dancing refrain, quiet flute interlude, exhilarating melodic finale, graceful cadence. 104 BPM. No vocals."
+  }
+]

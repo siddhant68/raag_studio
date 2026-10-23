@@ -1,0 +1,109 @@
+'use client';
+
+import { createContext, useContext, ReactNode, useState, useCallback, useMemo } from 'react';
+
+// Theme color definitions
+export interface ThemeColors {
+  name: string;
+  background: string;
+  text: string;
+}
+
+// Fairlight CMI green phosphor CRT palette
+export const fairlightTheme: ThemeColors = {
+  name: 'Fairlight',
+  background: '#161B14',
+  text: '#00FF99',
+};
+
+// Anthropic brand palette
+export const anthropicTheme: ThemeColors = {
+  name: 'Anthropic',
+  background: '#262624',
+  text: '#E8704E',
+};
+
+// Gemini blue palette
+export const geminiTheme: ThemeColors = {
+  name: 'Gemini',
+  background: '#131314',
+  text: '#008BFF',
+};
+
+// OpenAI Codex palette
+export const codexTheme: ThemeColors = {
+  name: 'Codex',
+  background: '#1C1C1C',
+  text: '#FFFFFF',
+};
+
+// OpenClaw palette
+export const openclawTheme: ThemeColors = {
+  name: 'OpenClaw',
+  background: '#140C13',
+  text: '#FF3543',
+};
+
+// All themes in cycle order
+export const themes: ThemeColors[] = [
+  anthropicTheme,
+  geminiTheme,
+  codexTheme,
+  fairlightTheme,
+  openclawTheme,
+];
+
+interface ThemeContextType {
+  theme: ThemeColors;
+  themeName: string;
+  themeIndex: number;
+  cycleTheme: () => void;
+  selectTheme: (index: number) => void;
+  isSwapped: boolean;
+  toggleSwap: () => void;
+  setSwapped: (value: boolean) => void;
+}
+
+const ThemeContext = createContext<ThemeContextType | null>(null);
+
+export function ThemeProvider({ children }: { children: ReactNode }) {
+  const [themeIndex, setThemeIndex] = useState(0); // Default to Anthropic theme
+  const [isSwapped, setIsSwapped] = useState(false);
+  const baseTheme = themes[themeIndex];
+
+  const theme = baseTheme; // Colors handled by CSS filter invert on body
+
+  const cycleTheme = useCallback(() => {
+    setThemeIndex((prev) => (prev + 1) % themes.length);
+  }, []);
+
+  const selectTheme = useCallback((index: number) => {
+    setThemeIndex(index);
+  }, []);
+
+  const toggleSwap = useCallback(() => {
+    setIsSwapped((prev) => !prev);
+  }, []);
+
+  const setSwappedValue = useCallback((value: boolean) => {
+    setIsSwapped(value);
+  }, []);
+
+  const value = useMemo(() => ({
+    theme, themeName: theme.name, themeIndex, cycleTheme, selectTheme, isSwapped, toggleSwap, setSwapped: setSwappedValue,
+  }), [theme, themeIndex, cycleTheme, selectTheme, isSwapped, toggleSwap, setSwappedValue]);
+
+  return (
+    <ThemeContext.Provider value={value}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+
+export function useTheme() {
+  const context = useContext(ThemeContext);
+  if (!context) {
+    throw new Error('useTheme must be used within a ThemeProvider');
+  }
+  return context;
+}

@@ -1,0 +1,190 @@
+{
+  "audios": [
+    {
+      "path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/thodi_der_aur_20261022/takes/take_01_22102611/d9764b1d-29df-b8a5-0dbd-80115360720d.wav",
+      "tensor": {
+        "shape": [
+          2,
+          7296000
+        ],
+        "dtype": "torch.float32"
+      },
+      "key": "d9764b1d-29df-b8a5-0dbd-80115360720d",
+      "sample_rate": 48000,
+      "params": {
+        "task_type": "text2music",
+        "instruction": "Fill the audio semantic mask based on the given conditions:",
+        "reference_audio": null,
+        "src_audio": null,
+        "audio_codes": "",
+        "caption": "Hindi romantic acoustic pop ballad, 76 BPM, D major, 4/4. Warm expressive male lead singing clear Hindi, intimate low verses and a soaring memorable chorus. Fingerpicked steel-string guitar, felt piano, round bass, brushed drums and swelling strings. Tender longing, sunset warmth, an unspoken confession. Brief guitar intro, verse, rising prechorus, wide chorus, second verse, quiet bridge, fuller final chorus and gentle outro. Vocal forward, natural phrasing, polished spacious mix, no rap.",
+        "global_caption": "",
+        "lyrics": "[Intro]\n\n[Verse 1]\nतेरी चाय का आधा प्याला\nअब भी मेज़ पे रखा है\nखिड़की से जो धूप गिरी थी\nतेरे बालों में उलझी है\n\n[Pre-Chorus]\nजाने क्या है तेरी हँसी में\nकहने को कुछ याद नहीं\n\n[Chorus]\nथोड़ी देर और, यहीं ठहर\nतेरे होने से घर लगे ये शहर\nजो कहना था, वो कह न सका\nमेरी आँखों में देख ज़रा\nथोड़ी देर और, यहीं ठहर\n\n[Verse 2]\nतेरी उँगली मेरी हथेली पर\nचुपके से कुछ लिखती है\nबाहर सारी सड़कें भागें\nमेरी दुनिया बैठी है\n\n[Bridge]\nकल की बातें कल कर लेंगे\nआज तो बस ये शाम रहे\nकप में थोड़ी चाय बची है\nहोंठों पर तेरा नाम रहे\n\n[Chorus]\nथोड़ी देर और, यहीं ठहर\nतेरे होने से घर लगे ये शहर\nजो कहना था, वो कह न सका\nदिल की बात सुन ले ज़रा\nथोड़ी देर और, यहीं ठहर\n\n[Outro]\nथोड़ी देर और\nयहीं ठहर",
+        "instrumental": false,
+        "vocal_language": "hi",
+        "bpm": 76,
+        "keyscale": "D major",
+        "timesignature": "4",
+        "duration": 152,
+        "enable_normalization": true,
+        "normalization_db": -1.5,
+        "fade_in_duration": 0.04,
+        "fade_out_duration": 2.0,
+        "latent_shift": 0.0,
+        "latent_rescale": 1.0,
+        "inference_steps": 8,
+        "seed": 22102611,
+        "guidance_scale": 7.0,
+        "use_adg": false,
+        "cfg_interval_start": 0.0,
+        "cfg_interval_end": 1.0,
+        "shift": 1.0,
+        "infer_method": "ode",
+        "sampler_mode": "euler",
+        "velocity_norm_threshold": 0.0,
+        "velocity_ema_factor": 0.0,
+        "dcw_enabled": null,
+        "dcw_mode": "double",
+        "dcw_scaler": 0.05,
+        "dcw_high_scaler": 0.02,
+        "dcw_wavelet": "haar",
+        "timesteps": null,
+        "repainting_start": 0.0,
+        "repainting_end": -1,
+        "chunk_mask_mode": "auto",
+        "repaint_latent_crossfade_frames": 10,
+        "repaint_wav_crossfade_sec": 0.0,
+        "repaint_mode": "balanced",
+        "repaint_strength": 0.5,
+        "retake_seed": null,
+        "retake_variance": 0.0,
+        "flow_edit_morph": false,
+        "flow_edit_source_caption": "",
+        "flow_edit_source_lyrics": "",
+        "flow_edit_n_min": 0.0,
+        "flow_edit_n_max": 1.0,
+        "flow_edit_n_avg": 1,
+        "audio_cover_strength": 1.0,
+        "cover_noise_strength": 0.0,
+        "thinking": false,
+        "lm_temperature": 0.85,
+        "lm_cfg_scale": 2.0,
+        "lm_top_k": 0,
+        "lm_top_p": 0.9,
+        "lm_negative_prompt": "NO USER INPUT",
+        "use_cot_metas": false,
+        "use_cot_caption": false,
+        "use_cot_lyrics": false,
+        "use_cot_language": false,
+        "use_constrained_decoding": true,
+        "cot_bpm": null,
+        "cot_keyscale": "",
+        "cot_timesignature": "",
+        "cot_duration": null,
+        "cot_vocal_language": "unknown",
+        "cot_caption": "",
+        "cot_lyrics": "",
+        "lora_loaded": false,
+        "use_lora": false,
+        "lora_scale": 1.0,
+        "lora_weights_hash": "",
+        "audio_format": "wav"
+      }
+    }
+  ],
+  "status_message": "Generation completed successfully!",
+  "extra_outputs": {
+    "pred_latents": {
+      "shape": [
+        1,
+        3800,
+        64
+      ],
+      "dtype": "torch.float32"
+    },
+    "target_latents": {
+      "shape": [
+        1,
+        3800,
+        64
+      ],
+      "dtype": "torch.float32"
+    },
+    "src_latents": {
+      "shape": [
+        1,
+        3800,
+        64
+      ],
+      "dtype": "torch.float32"
+    },
+    "chunk_masks": {
+      "shape": [
+        1,
+        3800,
+        64
+      ],
+      "dtype": "torch.bool"
+    },
+    "latent_masks": {
+      "shape": [
+        1,
+        3800
+      ],
+      "dtype": "torch.int64"
+    },
+    "spans": [
+      [
+        "full",
+        0,
+        3800
+      ]
+    ],
+    "time_costs": {
+      "dit_diffusion_time_cost": 4.10690712928772,
+      "dit_diffusion_per_step_time_cost": 0.513363391160965,
+      "dit_total_time_cost": 16.9889132976532,
+      "dit_sampler_mode": "euler",
+      "dit_offload_time_cost": 0.0,
+      "dit_vae_decode_time_cost": 12.881279945373535,
+      "pipeline_total_time": 16.9889132976532
+    },
+    "seed_value": "22102611",
+    "retake_seed_value": "",
+    "retake_variance": 0.0,
+    "encoder_hidden_states": {
+      "shape": [
+        1,
+        771,
+        2048
+      ],
+      "dtype": "torch.float32"
+    },
+    "encoder_attention_mask": {
+      "shape": [
+        1,
+        771
+      ],
+      "dtype": "torch.bool"
+    },
+    "context_latents": {
+      "shape": [
+        1,
+        3800,
+        128
+      ],
+      "dtype": "torch.float32"
+    },
+    "lyric_token_idss": {
+      "shape": [
+        1,
+        607
+      ],
+      "dtype": "torch.int64"
+    },
+    "lm_metadata": null
+  },
+  "success": true,
+  "error": null,
+  "elapsed_seconds": 20.752474069595337
+}

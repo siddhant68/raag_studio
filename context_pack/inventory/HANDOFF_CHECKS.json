@@ -1,0 +1,32 @@
+{
+  "recipe_dry_runs": {
+    "yamuna": {
+      "seed": 24102633,
+      "mode": "dry-run",
+      "caption_characters": 509,
+      "no_generation_performed": true
+    },
+    "daylight": {
+      "seed": 24102601,
+      "mode": "dry-run",
+      "caption_characters": 504,
+      "no_generation_performed": true
+    },
+    "thodi": {
+      "seed": 22102611,
+      "mode": "dry-run",
+      "caption_characters": 493,
+      "no_generation_performed": true
+    },
+    "moonlit": {
+      "seed": 24102632,
+      "mode": "dry-run",
+      "caption_characters": 508,
+      "no_generation_performed": true
+    }
+  },
+  "audio_examples": 9,
+  "vendor_skill_files": 159,
+  "renderer_note": "Dry-run validated; the new helper actual generation branch was not exercised during handoff. Prior original scripts and recorded outputs are evidence of the installed engine workflow.",
+  "app_implemented": false
+}

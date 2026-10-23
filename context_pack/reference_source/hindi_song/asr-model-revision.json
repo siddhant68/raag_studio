@@ -1,0 +1,75 @@
+{
+  "_id": "65eba222d767680a0cf2c75e",
+  "id": "mlx-community/whisper-small-mlx",
+  "private": false,
+  "pipeline_tag": "automatic-speech-recognition",
+  "library_name": "mlx",
+  "tags": [
+    "mlx",
+    "whisper",
+    "automatic-speech-recognition",
+    "region:us"
+  ],
+  "downloads": 118897,
+  "likes": 5,
+  "modelId": "mlx-community/whisper-small-mlx",
+  "author": "mlx-community",
+  "sha": "45f3915923c7a79a5a5b5a7d909d39aeb0e5630e",
+  "lastModified": "2026-04-12T10:38:08.000Z",
+  "gated": false,
+  "disabled": false,
+  "model-index": null,
+  "config": {
+    "model_type": "whisper"
+  },
+  "cardData": {
+    "library_name": "mlx",
+    "pipeline_tag": "automatic-speech-recognition"
+  },
+  "siblings": [
+    {
+      "rfilename": ".gitattributes",
+      "blobId": "a6344aac8c09253b3b630fb776ae94478aa0275b",
+      "size": 1519
+    },
+    {
+      "rfilename": "README.md",
+      "blobId": "8996da18aab170971998d5fe7548a2cc1c50eefd",
+      "size": 343
+    },
+    {
+      "rfilename": "config.json",
+      "blobId": "df4c65c442a30e50034ee63422b31bde60c3d407",
+      "size": 266
+    },
+    {
+      "rfilename": "weights.npz",
+      "blobId": "c1f9e8aff52b130ba385bca87165a4948012648c",
+      "size": 481307592,
+      "lfs": {
+        "sha256": "55b6674c9b339702d486e2b1573839a66f8ec8f821ed2886993ef717a86b09f5",
+        "size": 481307592,
+        "pointerSize": 134
+      }
+    }
+  ],
+  "spaces": [
+    "langtech-innovation/WhisperLiveKitDiarization",
+    "Flux91/Swastik",
+    "AtPeak/realtime-stt-translation",
+    "AnyaSchen/whisper-websocket",
+    "langtech-innovation/WhisperLiveKit",
+    "vbrajon/whisperlivekit",
+    "Corvuscorvaly/WhisperLiveKit",
+    "V1deh/JARVIS",
+    "jackmouse/videoNote",
+    "yoannksb/de-translation",
+    "Baadar/baadar-ai",
+    "chanhojung777/Call2Text",
+    "midhun-2542/career-guidance-system",
+    "spinthoughts/eigyouonsei",
+    "Flux91/Swastik91"
+  ],
+  "createdAt": "2024-03-08T23:41:22.000Z",
+  "usedStorage": 481307592
+}

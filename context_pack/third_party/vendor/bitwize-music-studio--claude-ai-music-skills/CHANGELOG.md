@@ -1,0 +1,2516 @@
+# Changelog
+
+All notable changes to claude-ai-music-skills.
+
+This project uses [Conventional Commits](https://conventionalcommits.org/) and [Semantic Versioning](https://semver.org/).
+
+## [Unreleased]
+
+## [0.103.0] - 2026-10-13
+
+### Added
+- **Experimental: OpenAI Codex can discover the plugin alongside Claude Code** ([#571](https://github.com/bitwize-music-studio/claude-ai-music-skills/pull/571), contributed by @wufei-png) — the root `.codex-plugin/plugin.json` reuses the canonical `skills/` tree. Claude keeps `.mcp.json` on `${CLAUDE_PLUGIN_ROOT}`; Codex expands no variables there, so the Codex manifest inlines its own stdio spawn (`./mcp-launch` plus `"cwd": "."`, which Codex joins onto the plugin root), because a single command string cannot satisfy both hosts. A parity test keeps the two definitions in step: every server in `.mcp.json` must also be declared in the Codex manifest with the same launcher, arguments and environment, unless it is explicitly listed as Claude-only. The Codex entry sets `tool_timeout_sec` to four hours, because Codex otherwise cuts every tool call off at 300 s and `master_album` runs 3–5 min per track. It also declares `"hooks": {}`, because Codex would otherwise load the Claude-format `hooks/hooks.json` and ask every user to trust two hooks that cannot work there. This slice covers discovery and MCP only. Many skills still assume Claude Code (`${CLAUDE_PLUGIN_ROOT}` paths, Claude tool names), and `health_check`'s skill-registration check knows only Claude's plugin cache; [#548](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/548) tracks the rest.
+
+### Changed
+- **The rest of the Dependabot group PR [#575](https://github.com/bitwize-music-studio/claude-ai-music-skills/pull/575), besides `pypdf` (under Security): `mcp[cli]` 2.0.0 → 2.3.0, `ruff` 0.16.3 → 0.16.10, `mypy` 2.3.1 → 2.4.0, `types-PyYAML` 20260815 → 20260906, `reportlab` 5.0.0 → 5.0.1, `boto3` 1.43.72 → 1.43.108, `psycopg2-binary` 2.9.12 → 2.9.13, `playwright` 1.62.0 → 1.63.0** — unlike the last two group PRs, nothing had to be held back: every new version resolves on the 3.11 floor. `ruff` and `mypy` are the exactly-pinned gate tools ([#532](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/532)) whose verdict changes on unchanged code; 0.16.10 and 2.4.0 report no new findings across `tools/`, `servers/`, `hooks/`, the scoped `PLW1514` preview pass, or the 72 files mypy checks, win32 and darwin cross-checks included.
+  - **`mcp` 2.0.0 → 2.3.0.** 2.1.0 changed what a client sees when a tool handler raises unexpectedly: the exception is logged with its traceback, and the client gets only `Error executing tool <name>`. This server's tools return their errors as JSON payloads, and the path guards' `ValueError`s are caught where they are called, so only genuine crashes are affected. The tool-schema golden (`inputSchema` and `outputSchema` for all 91 tools) reproduces byte for byte on 2.3.0. Since 2.1.1 the SDK also ships `mcp/server/fastmcp.py` ([python-sdk#3388](https://github.com/modelcontextprotocol/python-sdk/pull/3388)), a stub that raises `ModuleNotFoundError` on import to point v1 code at the migration guide. At runtime that is indistinguishable from the module being absent, so `server.py`'s 1.x fallback and the readiness probes behave as before — but mypy reads the stub and reports `Module "mcp.server.fastmcp" has no attribute "FastMCP"` on any machine with 2.1.1 or later installed, which reddens the full-runtime `make check` while staying invisible to CI's Lint job (it installs only `requirements-test.txt`). The fallback import now carries `# type: ignore[attr-defined, unused-ignore]`: the error code covers 2.1.1+, and `unused-ignore` keeps the comment legal under `warn_unused_ignores` on 1.x, 2.0.0–2.1.0 and in CI's lint venv, where the line is clean, so `server.py` still type-checks identically on every SDK line.
+  - **`playwright` 1.62.0 → 1.63.0** moves to Chromium 153 (browser build 1243, from 151 / 1234). Browsers are downloaded separately from the pip package, so document-hunter users need to re-run `playwright install chromium` after updating the venv.
+
+### Security
+- **`pypdf` 6.16.1 → 6.19.0** — eight high-severity advisories published 2026-10-01, PYSEC-2026-4153 through PYSEC-2026-4160, with published fixes spread across 6.17.0, 6.18.0, 6.18.1 and 6.19.0. All eight are resource exhaustion on crafted PDFs: long runtimes or large memory use when parsing indirect objects, font data, `/ToUnicode` and FlateDecode streams, embedded files, appearance streams, and alphabetic or Roman page labels. Same pattern as 6.14.2 → 6.15.0 in 0.102.0: `pip-audit` in the Security Scan job fails on `develop`'s pins as they stood, so any PR into `develop` would have gone red, whatever it changed, until this moved. `pypdf` is used by `create_songbook.py` and `prepare_singles.py`, which read the user's own MuseScore exports, so practical exposure was low; 6.19.0 requires Python >=3.9, so the 3.11 floor is unaffected. Taken from the Dependabot group PR [#575](https://github.com/bitwize-music-studio/claude-ai-music-skills/pull/575).
+
+### Fixed
+- **`hooks/pre-commit` accepts the model tier aliases again** — since 0.92.0 every skill's `model:` is `opus`, `sonnet` or `haiku`, but the hook's frontmatter check still required a pinned `claude-<tier>-N-N` ID. It rejected all 53 skills and stopped before its remaining checks, so an installed hook failed every commit. It now uses the same rule as `tests/plugin/test_skills.py`: tier aliases plus `inherit` and `default`, with pinned IDs rejected. Its last check, the README test-count badge, also aborted the hook under `set -e`: the README no longer has a badge, so the `grep -P` extraction exited non-zero, and `\K` isn't supported by every grep. It now extracts both numbers with portable `sed` and skips cleanly when either is missing.
+- **Local `make check` no longer fails on numba's types** — `make` installs the full runtime, so mypy followed `numba`'s real type information and reported two errors in `tools/mixing/mix_tracks.py`'s optional-import guard that CI's Lint job, which installs only the test requirements, never sees. The pre-push gate could not pass on a clean `develop`. A `[[tool.mypy.overrides]]` entry now skips following `numba`, so every environment gets the same view. CLAUDE.md's pre-push note now says what `make` adds over CI's Lint job instead of claiming the two are identical.
+- **A state-indexer test no longer fails on Python 3.14** — `TestScanIdeasTOCTOU` simulated `IDEAS.md` disappearing between `exists()` and `stat()` by failing the second `Path.stat` call, on the assumption that `exists()` makes the first. Python 3.14's `exists()` no longer calls `stat()`, so the test failed on every run there, and with it `make check` on any machine whose `python3` is 3.14. CI runs 3.11 and never saw it. The test now deletes the file for real once it has been parsed.
+- **Windows CI no longer fails on a brief Chocolatey feed outage** — `choco install` can "succeed" without installing anything. When the community feed returns 504s, it prints "Chocolatey installed 0/0 packages" and exits 0. That happened on #577: Tests (windows-latest) then failed on a missing ffmpeg, the MuseScore integration job failed on a missing `MuseScore4.exe`, and both needed a manual re-run. Both install steps now retry up to three times, a minute apart, until the binaries the later steps use actually exist. If they never appear, the step fails with a clear `::error::`.
+- **`hooks/hooks.json` spells the brand in lowercase** — its description read "Bitwize Music plugin hooks…", the one spelling `/bitwize-music:test` flags. It now reads "bitwize-music plugin hooks…".
+
+## [0.102.0] - 2026-09-16
+
+### Added
+- **`reference/suno/100-expert-tips.md`, a community craft guide** ([#561](https://github.com/bitwize-music-studio/claude-ai-music-skills/pull/561), contributed by @cbrahms) — 100 tips on workflow, Style Box craft, lyric structure, vocals, distilling a sound without naming artists, sliders and Voices, spoken word and noise, post-production, the music-video process and rights, plus a v6 addendum and four copy-paste templates. Linked from the Suno reference README. Landed on develop after #563, so it was aligned with the v6 docs on the way in: Exclude Styles rather than inline "no X", Variety Off for engineered boxes (it is not a diversity knob), Personas → Voices, Audio Influence and slider ranges per `creative-sliders.md`, Suno's actual output loudness and the mastering targets, stems for balance rather than surgery (#553), and the Sep 3 rights rules; craft claims nobody has confirmed first-hand keep their "reported" wording. The operational docs win wherever a tip differs.
+- **Suno v6 support** ([#562](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/562)) — Suno replaced its model line with the v6 family (`v6`, `v6-wild`, `v6-mini`) on 2026-09-09 and retired every earlier model. The prompt surface did not change, but two new controls decide whether a prompt is used as written: **Variety** rewrites the Style Box at any setting above Off (Suno: "reduce the Variety slider to 0" to keep your tags), and **Max Mode** doubles credits for consistency over two minutes. The plugin now records the full generation setup per track — a `### Generation Settings` table (Model, Variety, Max Mode, Vocal Gender, Duration, Weirdness, Style Influence) in `templates/track.md` — and a new advisory pre-generation gate warns when Variety is anything but Off or the model isn't a catalog name (`v6`, `v6-wild`, `v6-mini`, `Custom: <name>`), with a note when Max Mode is off on a track targeting 2:30 or longer. `update_track_field` accepts `model`, `variety` and `max-mode`. The Suno docs are reorganised around the models Suno currently offers: a version-agnostic `reference/suno/best-practices.md` that opens with "The Current Models", and a `reference/suno/models.md` catalog (per-model tier, defaults, credits, when to use which, plus a "Made before v6" note for older songs, Voices and Custom Models); the old guide is removed — git history keeps it. The mastering and release docs carry the download regime in force since 2026-09-03 (Free 7 lifetime, Pro 20/month, Premier 60/month; one song = one download including stems; Studio exports uncapped at 32-bit float / 48 kHz), the paid-download commercial-rights rule, and an explicit "no polish or master step is watermark removal" line per Suno's ToS. The launch-week claims were sanity-checked on the maintainer's account before release (`reference/suno/CHANGELOG.md`, 2026-09-16 entry); community reports stay attributed as reports.
+- **A track can declare its own `genre:` in frontmatter, and `get_lyrics_stats` now resolves the word-count target per track** — the target came from `album.get("genre")`, which the indexer sets to the album's parent directory name, so it was always the directory the album was filed under. That is fine for a single-genre album and wrong for one that deliberately spans several: a sung-through musical, a soundtrack, a compilation. Every track on a `pop` album was judged against 150–250 words even where one of them was a four-minute rap verse. Resolution is now track genre → album genre → default, so declaring `genre: hip-hop` on that one track gets it judged at 300–500 while its neighbours keep the album's band. The per-track `genre` and `target` are reported on each row, and the `note` names the genre the target actually came from rather than the album's — previously it claimed the album genre even when the number came from elsewhere. The album-level `genre` and `target` in the summary keep their existing meaning.
+- Frontmatter `genre:` on a track is optional and absent by default; nothing changes for albums that do not use it. It is a **musical descriptor only** — the album's `genre` stays the parent directory name, because ~7 handler sites resolve album paths from it, so it has to keep matching the directory. `templates/track.md` carries the key commented out and `reference/state-schema.md` documents it on the track table. Both indexing paths carry it — the full scan and the incremental re-parse — held together by a parity test, since a field written by one path and dropped by the other is the drift [#523](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/523) fixed for `tracks_completed`.
+
+### Changed
+- **`reference/suno/v5-best-practices.md` and the `version-history/` migration guides are removed** ([#562](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/562)) — Suno retired every pre-v6 model on 2026-09-09, so per-old-model guidance has no reader; git history keeps the files. Every link, the `get_reference` docstring, `tests/plugin/test_references.py` and `skills/test/test-definitions.md` now point at `best-practices.md`; `models.md § Made before v6` holds the one operational note (Remaster/Cover old songs, upgrade Voices, Custom Models upgraded automatically). `skills/pre-generation-check/SKILL.md` also stops describing the Explicit gate as a warning; the MCP gate has blocked on an unset flag since #370. Post-launch findings (the 2026-09-11 sweep in `reference/suno/CHANGELOG.md`) are folded into `skills/suno-engineer/SKILL.md` — a genre-aware `v6-wild` first pass, several wild takes before judging, the Cover melody lock (Variety Off + Max Mode On) and four new Common Issues entries — and the Personas sections in `reference/suno/tips-and-tricks.md` and `reference/workflows/covers-and-personas.md` now say Voices, Suno's current name. The "one change per edit, with a preserve list" habit under § Replace Section in `reference/suno/tips-and-tricks.md` is adapted, with credit, from [#564](https://github.com/bitwize-music-studio/claude-ai-music-skills/pull/564) by @medinabestari.
+- **Suno-synthesized stems default to no noise reduction, and vocals / backing_vocals / full_mix default to no click removal** ([#553](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/553)) — Suno stems are synthesized, not recorded: spectral-gating noise reduction has no stationary noise floor to profile, so it instead subtracts quiet musical content (consonants, breath, sibilance decay), measured at −5.4 to −8.5 dB mid/presence loss on affected stems. A peak/RMS click detector fares no better on clean synthetic audio — it can't tell a consonant transient from a click; one vocal stem showed 35 "clicks" removed that were 35 damaged consonants. `noise_reduction` now defaults to 0 for every stem, in both the shipped presets and the code-level fallback each processor uses when a hand-built settings dict omits the key. `click_removal` now defaults to `false` for vocals, backing_vocals and the full-mix fallback — the no-stems fallback contains the vocals, so the detector gets the same synthetic consonants to misread — while other stems keep click removal on by default, preserving #323's behavior. Both remain available per stem via `{overrides}/mix-presets.yaml` for users importing recorded or otherwise non-Suno audio. Because turning declick off means a *genuine* click is no longer repaired, polish still runs the detector on stems where `click_removal` is off and reports `clicks_detected` with a note naming the override that switches repair on — so a real click surfaces at polish time rather than at `master_album`'s post-QC hard fail, which now also carries the remediation (enable `click_removal` for the stem, re-polish, re-master). The analyzer no longer re-enables noise reduction behind the default either: `noise_reduction` was on the analyzer override whitelist, which merges last, and `polish_audio` auto-runs the analyzer — whose `elevated_noise_floor` heuristic fires on ordinary sustained content — so the new default of 0, and an explicit user `noise_reduction: 0`, were overwritten on every run. The analyzer still detects and reports an elevated noise floor; acting on it is the user's call. Recommendations the whitelist drops are now reported in the polish result's `blocked` list and `summary.blocked_recommendations`, so a "recommended every run, never applied" loop is visible rather than silent.
+- **The MCP server runs on `mcp` 2.x, and still runs on 1.x** ([#537](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/537)) — `mcp` 2.0.0 moved `mcp.server.fastmcp`'s `FastMCP` to `mcp.server.mcpserver`'s `MCPServer` with no compat shim. `server.py` now imports whichever is present, preferring 2.x, and `requirements.txt` pins `mcp[cli]==2.0.0`. Supporting both is the point rather than a hedge: the plugin updates through the marketplace but the venv is updated by hand, so a hard cutover would have killed the server on every existing install the moment the plugin updated, with no action by the user. `check_venv_health` reports the pin drift and people upgrade on their own schedule. The install advice and all four readiness probes accept either line — a probe naming only one module calls a perfectly working install broken, which is the same false verdict in the opposite direction from the one #542 fixed.
+  - **The migration is smaller than it looked, and that was measured rather than assumed.** The concern on the issue was that `_shared.install_error_boundary` monkey-patches `mcp.tool` across all 91 tools and could keep working while silently changing every generated schema. It does not: both SDKs build schemas from the handler signature via `inspect.signature(fn, eval_str=True)`, every registration site is a bare `@mcp.tool()` with no keyword arguments, and `MCPServer` takes the same constructor name, `.tool()` decorator and `.run(transport="stdio")`. Dumped side by side, all 91 tools produce byte-identical `tools/list` wire schemas on 1.28.1 and 2.0.0, and a real stdio handshake returns the same protocol version and capabilities on both.
+  - **`serverInfo.version` now reports the plugin version on 2.x.** 1.x has no `version` parameter and hardcodes the SDK's own version — telling a client `1.28.1`, which describes the SDK rather than this server — while 2.x would otherwise default it to the empty string. It is passed only where it is accepted, so 1.x behaviour is unchanged.
+  - **A golden file locks the 91 generated schemas** (`tests/fixtures/tool_schemas.json`, checked by `tests/unit/state/test_tool_schema_parity.py`). This is the schema-parity check the issue asked for, and it keeps earning its place after the migration: drop the `@functools.wraps` out of the error boundary and every tool collapses to a single `async_wrapper` taking `(*args, **kwargs)` — handlers keep working, the rest of the suite stays green, and clients lose every parameter. That is [#443](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/443)'s failure mode, and nothing else in the suite sees it. Verified by mutation: removing the decorator turns the parity test red.
+  - **Tool descriptions are guarded structurally rather than locked in the golden.** They are the highest-leverage field the server publishes — 81 of the 91 carry their handler's full `Args:` block, ~50k characters in total, and that prose is what decides which of 91 tools gets picked; a bad input schema fails loudly at call time, a degraded description just causes quiet wrong-tool selection. But the two ways one can change are not symmetric. A human editing a docstring is already visible in that file's own diff, and locking it would force a regeneration roughly every five days at this repo's rate of handler churn — a golden that moves weekly stops being read, which would cost the *schema* half its whole point. An SDK changing how it derives descriptions — publishing only the summary line, stripping `Args:`, capping length — silently rewrites all 91 with no diff anywhere. Only the second needs a test, and it does not need the prose locked, just its shape asserted: every tool has a description, every parameterised tool still publishes an `Args:` block (with a one-entry allowlist for `master_album`, whose parameters are undocumented), and nothing is truncated. All three were mutation-tested against simulated SDK regressions. Descriptions are byte-identical on 1.28.1 and 2.0.0 today; this is what keeps that true.
+  - **A `MCP Server Boot (mcp 1.x fallback)` CI job covers the fallback branch.** Every other job installs `requirements.txt` and therefore only ever exercises 2.x, which would leave the 1.x path uncovered from the day it was written — the way compat shims rot. The job installs the pinned set, downgrades mcp alone to the 1.28.1 floor, fails loudly if the downgrade did not take, boots the server through the same `mcp-launch` launcher `.mcp.json` uses, and re-checks the schema golden. That last step is what holds the cross-SDK guarantee: the golden is generated on one line and must reproduce byte-for-byte on the other. Linux-only, since the variable under test is the SDK and not the OS.
+- **Dependency bumps that the grouped PR could not deliver: `ruff` 0.16.0 → 0.16.2, `boto3` 1.43.56 → 1.43.69, `playwright` 1.61.0 → 1.62.0** — these three were safe the whole time, but rode in a `pip-all` group PR alongside two upgrades that cannot land, so all three sat unmerged. Split out and verified on their own. `ruff` matters most of the three: it is one of the exactly-pinned gate tools from [#532](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/532), so its verdict changes on unchanged code — 0.16.2 was run against the full tree (`tools/`, `servers/`, `hooks/`, plus the scoped `PLW1514` preview pass) and reports no new findings.
+- **`librosa` 1.0+ is blocked in `.github/dependabot.yml`, on the same Python-floor grounds as `scipy` and `numpy`** — `librosa` 1.0.0 declares `Requires-Python >=3.12` and the plugin supports 3.11, so pip cannot resolve it at all: `No matching distribution found for librosa==1.0.0`. That is worse than a failing test. Every job that installs `requirements.txt` dies at the install step, `pip-audit` included, which is why the group PR carrying it failed 11 checks rather than the 6 that mcp alone accounts for. It joins the existing ignore block, whose comment now also records *why* this class of upgrade is blocked rather than merely which packages are affected.
+- **The lint/type-check toolchain is pinned exactly instead of floating** ([#532](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/532)) — `requirements.txt` pinned all 16 runtime deps with `==`, but every entry in `requirements-test.txt` used `>=`, so `ruff`, `mypy` and `bandit` resolved to whatever was newest on PyPI at the moment CI ran. Those three decide the Lint and Security Scan verdicts, and unlike a test runner they change their answer on unchanged code — a new rule or a widened check reddens a commit nobody touched, and re-running an old green build no longer reproduces it. The drift was already visible: the file read `ruff>=0.15.21` while CI had been installing `0.16.0`, which is why Dependabot closed #522 as redundant. `ruff`, `mypy` and `bandit` are now `==` pins (`cache: 'pip'` never mitigated this — it caches wheels, but pip still resolves to newest). The `pytest` stack stays on `>=`: it changes what runs, not what counts as a violation. A parametrized test in `tests/unit/shared/test_pinned_dependencies.py` keeps the three from silently loosening again.
+- **Dependency bumps split out of a second blocked group PR: `ruff` 0.16.2 → 0.16.3, `mypy` 2.3.0 → 2.3.1, `types-PyYAML` 20260724 → 20260815, `pypdf` 6.15.0 → 6.16.1, `boto3` 1.43.69 → 1.43.72** — the same shape as the `ruff` 0.16.0 → 0.16.2 split recorded above, and for the same reason: the `pip-all` group PR carrying them also carried `librosa` 1.0.0, which pip cannot resolve on the Python 3.11 floor, so all five sat behind an upgrade that takes down every job installing `requirements.txt`. `ruff` and `mypy` are the two that needed running rather than assuming — both are exactly-pinned gate tools ([#532](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/532)) whose verdict changes on unchanged code — and 0.16.3 / 2.3.1 report no new findings across `tools/`, `servers/`, `hooks/`, the scoped `PLW1514` preview pass, or the 72 files mypy checks. Unlike the 6.14.2 → 6.15.0 move below, `pypdf` 6.16.1 is **not** a security bump: no published advisory names 6.15.0 as affected, and the newest pypdf advisories are patched *in* 6.15.0; 6.16.1 is routine iteration-limit hardening, so it is recorded here rather than under Security.
+  - **The `librosa` ignore rule recorded above did not prevent this, and could not have.** Dependabot reads `.github/dependabot.yml` from the repository's **default branch** — `main` — while `target-branch: develop` only decides which branch's manifests are scanned and where the PR is opened. The rule landed on `develop` four days before the group PR was raised and is still not on `main`, so it had no effect. Any ignore rule added here is inert until a release carries it to `main`; the file now says so in a comment.
+
+- **Behavior change — `master_album`, `album_coherence_correct` and `polish_and_master_album` change their published input schemas, and an explicit `cut_highmid=0` / `cut_highs=0` now means the opposite of what it did** ([#556](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/556)) — recorded here as well as under Fixed because it is the one item in this release a consumer has to act on rather than merely benefit from. All three parameters go from `{"type": "number", "default": 0.0}` to `{"anyOf": [number, null], "default": null}`, and a caller that passed `0.0` to mean "use the genre preset" now gets the cut **disabled** instead. Omitting the parameter is unaffected and is the correct way to ask for the preset. Nothing in this repository passes `0` — every `cut_highmid`/`cut_highs` usage across `skills/`, `reference/` and `templates/` passes a negative value — so the exposure is external callers and replayed transcripts. See the full entry under Fixed for the sentinel rationale.
+
+### Security
+- **`pypdf` 6.14.2 → 6.15.0** — PYSEC-2026-3655 and PYSEC-2026-3656, both with 6.15.0 as the published fix. `pip-audit` in the Security Scan job started failing on unchanged code once the advisories landed, so every PR into `develop` was red until this moved. The bump was already sitting in the blocked Dependabot group PR [#541](https://github.com/bitwize-music-studio/claude-ai-music-skills/pull/541) — which is the concrete cost of the mcp 2.x problem below: an un-mergeable major in a `patterns: ["*"]` group does not just delay version churn, it holds security fixes behind it. `pypdf` is used by `create_songbook.py` and `prepare_singles.py`; 6.15.0 requires Python >=3.9, so the 3.11 floor is unaffected.
+
+### Fixed
+- **Exclude Styles values are bare elements, and the `style` clipboard type no longer appends them to the Style Box** — the suno-engineer skill, its genre tables, the track template and the clipboard skill all taught a `no drums, no autotune` format, while `reference/suno/best-practices.md` § Negative Prompting (and Suno's field) take the element itself. Worse, `format_for_clipboard(content_type="style")` appended the Exclude Styles section to the Style Box, so a bare-element list would have asked *for* the excluded things, and a `no …` list is ignored on v6 anyway. The `style` type now returns the Style Box alone, `exclude` is the field paste, and `all` / `suno` keep their labelled and keyed forms. Skill, genre tables, template, clipboard skill, voice-tags and tests now read `drums, autotune`.
+- **User mix-preset overrides filed under a capitalized genre key were silently discarded, and a quoted `click_removal: "false"` silently enabled click removal** ([#553](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/553)) — `load_mix_presets()` filed override genre blocks under the raw key from `{overrides}/mix-presets.yaml`, but every consumer resolves a genre with `genre.lower()` (`_get_stem_settings`, `_get_full_mix_settings`), so an override written as `Electronic:` rather than `electronic:` landed under a key nothing ever reads — the whole block, including a user's `click_removal: false`, was silently discarded and the shipped default applied instead, so the stem was declicked anyway. Override genre keys are now lowercased before the membership test and merge, so the write side and the read side agree. Separately, `_apply_click_removal` read the flag with a bare `settings.get('click_removal', False)`, and Python truthiness makes `bool("false")` `True` — so a quoted `"false"` (easy to write by accident, and some editors quote it for you) left click removal switched on. The gate now goes through the shared `tools.shared.config.coerce_yaml_bool` ([#388](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/388)) rather than a mix-local fork: it accepts PyYAML's YAML 1.1 boolean literals (`true`/`yes`/`on`/`1`, `false`/`no`/`off`/`0`) from a string, passes real bools and 0/1 numbers through, and warns rather than guessing "enabled" on anything it can't interpret. Numeric settings got the matching treatment — see "Quoted numeric values in a mix-preset override crashed polish" below.
+- **User mix-preset overrides could be written correctly and still do nothing** ([#553](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/553)) — three separate paths. (1) 22 genre sections carried a `noise_reduction: 0` entry that was a no-op against the shipped defaults (already 0) but not against a user's override: a `defaults:`-scope value merges *below* the genre section, so `defaults: vocals: noise_reduction: 0.5` was shadowed back to 0 on grunge, ambient, lo-fi, classical, shoegaze, opera and the rest — precisely the genres someone importing recorded audio reaches for. All 22 are deleted, along with the one stem block the deletion left empty. (2) `MIX_PRESETS` was an import-time snapshot and the MCP server is long-lived, so editing `{overrides}/mix-presets.yaml` mid-session had no effect until restart; both polish entry points re-read it now. (3) The #553 genre-key fix lowercased genre names but not stem names, so an override written as `Vocals:` landed under a key nothing reads — the same silent discard, one level down; both `defaults:` and genre sections are normalized now.
+- **Quoted numeric values in a mix-preset override crashed polish** ([#553](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/553)) — numeric settings were read straight out of the resolved dict and compared (`if nr_strength > 0`), so `noise_reduction: "0.5"` raised `TypeError: '>' not supported between instances of 'str' and 'int'` mid-run, and `click_peak_ratio` — the one read wrapped in `float(...)` — raised `ValueError` on a non-numeric string instead. New shared `parse_yaml_float`/`coerce_yaml_float` helpers give numeric reads the warn-and-default contract the boolean gate already had, applied at every numeric settings read in the per-stem and full-mix processors: an unreadable value warns, names the key, and falls back to the documented default rather than crashing or being guessed into effect. `analyze_mix_issues` reads `click_peak_ratio` through the same helper, so the analyzer and the de-clicker cannot disagree about an unparseable threshold — a quoted `click_peak_ratio: "20"` used to give the analyzer 20.0 and polish 15.0.
+- **`master_album`, `album_coherence_correct` and `polish_and_master_album` now take the same `cut_highmid`/`cut_highs` sentinel as `master_audio`** ([#556](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/556)) — all three defaulted both parameters to `0.0`, which `build_effective_preset` also read as its "not supplied" sentinel, so a genre's high-mid or high-shelf cut could not be disabled through any of them: the only way to master without the cut was to drop to `master_audio` a track at a time. The shared resolver now uses `None` for "not supplied" end to end — MCP tool signature → handler → `build_effective_preset` — so omitting a parameter applies the genre preset exactly as before, an explicit `0`/`0.0` disables that cut whatever the genre says, and any other value overrides the preset. Each cut resolves independently, so disabling the high-mid cut leaves a genre's high-shelf cut in place. The returned `settings` block reports the effective (post-resolution) values on every one of these tools rather than the preset's, and `album_coherence_correct` — which resolved the preset twice with different cut arguments, the exact split that let an echo drift from what was applied — now resolves it once and echoes `cut_highmid`/`cut_highs` alongside the genre. `master_audio` keeps the behavior it gained in [#553](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/553); the local disambiguation workaround its handler carried is gone, since the shared function now makes the distinction itself. The three MCP tools' input schemas change accordingly (`0.0` default → nullable, `null` default).
+- **User mastering-preset overrides filed under a capitalized genre key were silently discarded** ([#556](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/556)) — `load_genre_presets()` in `tools/mastering/master_tracks.py` filed override genre blocks under the raw key from `{overrides}/mastering-presets.yaml`, but every reader of `GENRE_PRESETS` resolves a genre with `genre.lower()` (this module's CLI, `qc_tracks.py`, `_album_stages.py`, and `mix_tracks.py`'s mastering click-threshold overlay), so a block written as `Electronic:` rather than `electronic:` landed under a key nothing ever reads and was silently discarded — the same bug [#553](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/553) fixed for `load_mix_presets()` on the mixing side. Override genre keys are now lowercased before the merge, mirroring the mixing-side fix; unlike `mix-presets.yaml`, a mastering-preset genre entry is a flat dict of fixed setting names with no nested stem-level keys, so only the genre key itself needed normalizing. Both loaders also now warn (naming both keys) when lowercasing makes two override genre keys collide — `Electronic:` and `electronic:` both present in the same file — while still merging them in the same deterministic document order as before.
+  - Both collision warnings are deduped through the same warn-once mechanism (#556 round 3). They were not, and both loaders are re-read per track — `load_mix_presets()` via `_refresh_mix_presets()` at each polish entry, `load_genre_presets()` at each mastering entry — so a single colliding pair produced 15-30+ copies of one line on a 12-track album run.
+- **A quoted `adm_aware_excitation: "false"` silently enabled the ADM-aware excitation recommendation** ([#556](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/556)) — `_resolve_analyzer_thresholds` in `handlers/processing/mixing.py` read the flag with a bare `bool(analyzer.get(...))`, and Python truthiness makes `bool("false")` `True`, the same class of bug [#388](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/388)/[#553](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/553) already fixed for other boolean gates. It now goes through the shared `coerce_yaml_bool`.
+- **An unrecognized `click_repair` value crashed the whole polish run instead of falling back** ([#556](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/556)) — `_apply_click_removal` handed `settings.get('click_repair', default_repair)` straight to `remove_clicks`, which raises `ValueError` on anything other than `"linear"`/`"cubic"`; a typo'd preset value took the stem, and everything after it, down mid-run. It now validates first and falls back to the chain's own `default_repair` with a warning, the same warn-and-default contract every other unreadable setting already has.
+- **A persistently bad override value warned on every read instead of once** ([#556](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/556)) — `coerce_yaml_bool`/`coerce_yaml_float` (`tools/shared/config.py`) logged the same warning text on every call, so one bad genre-scoped setting produced the identical line once per stem per track across an album. Each distinct `(setting, bad value)` pair now warns once per process; a *different* bad value for the same setting still warns, and the warning text itself is unchanged. `_apply_click_removal`'s own `click_repair` warn-and-default fallback (above) logged directly and missed this same dedup when it was added — it now goes through the identical `(context, value)` mechanism.
+  - **Round 3 corrections to the same mechanism.** Three reads were left behind by the first pass and one dedup key was wrong. `analyzer.dark_high_mid_ratio` and `analyzer.harsh_high_mid_ratio` sat on a bare `float()` directly above the boolean that *was* hardened, so `dark_high_mid_ratio: low` still raised out of `analyze_mix_issues` — the call this release put on `polish_album`'s stage 1 and `polish_audio`'s auto-run; both now go through `coerce_yaml_float`. `excitation_db_when_dark` was read straight out of `MIX_PRESETS["defaults"][stem]`, which both crashed on an unreadable value and made the genre-scoped form of the key (`genres.<g>.<stem>.excitation_db_when_dark`) unreachable anywhere — this being its only read in the codebase; it now resolves through the same `_get_stem_settings`/`_get_full_mix_settings` path every sibling analyzer setting uses, so a genre override applies and the analyzer cannot reach a different value than polish. The warn-once key for `click_repair` omitted the `default_repair` the message prints, and that default differs per stem (drums and percussion get `cubic`, the other eleven chains `linear`), so whichever stem ran first consumed the single slot and a line reading "using default 'linear'" could describe a run that repaired drums with cubic interpolation; the key now includes it, as do `coerce_yaml_bool`/`coerce_yaml_float`, whose messages interpolate a default their keys likewise ignored. Finally, the warning context is now qualified with the preset block it came from (`electronic.vocals.noise_reduction` rather than bare `noise_reduction`), so the surviving line names the section to go fix — and a second broken block sharing a key and value is no longer suppressed as a duplicate.
+- **Genre-scoped mix overrides now apply without passing `genre` explicitly, and `polish_album`'s analyze and polish stages can no longer disagree about which genre they're using** ([#556](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/556)) — `polish_album`'s stage-1 call into `analyze_mix_issues` dropped the `genre` argument entirely, so an explicit `polish_album(album, genre="hip-hop")` resolved stage 1's analyzer settings (e.g. `click_peak_ratio`) against the defaults while stage 2's polish resolved them against `hip-hop` — the two stages of one run disagreeing about the same setting. That call now forwards `genre`. Separately, `polish_audio`, `polish_album` and `analyze_mix_issues` now default an omitted `genre` from the album's own genre, read from the state cache — the same authoritative source `_resolve_audio_dir` already reads to build the album's path. An explicit `genre` argument always wins; a derivation failure (album missing from state, no genre recorded) falls back to the previous no-genre behavior rather than erroring. `polish_album` resolves the genre once and forwards the identical value to both stages, so a plain `polish_audio(album_slug)` or `polish_album(album_slug)` call applies that album's genre-scoped overrides automatically. All three tools now report the genre they resolved (`settings.genre`, `stages.polish.genre`, `album_summary.genre` plus `album_summary.genre_source`), so a derivation is visible in the response rather than only in a log line.
+  - **Derivation is scoped to POLISH; the mastering side is unchanged.** An earlier cut of this work also handed the derived genre to `polish_and_master_album`'s master phase, which quietly changed what a plain `polish_and_master_album(album_slug)` produces: a genre preset carries `target_lufs` and EQ cuts, so an album filed under `post-rock` went from -14.0 LUFS with no EQ to -16.0 LUFS with a -1.5 dB high-mid cut, purely from omitting an argument that had never been required — and since `genre=""` is indistinguishable from omission, there was no way left to ask for genre-less mastering at all. [#556](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/556) §3 asked for inference so that *mix* overrides apply without the argument; it did not ask for mastering LUFS/EQ to change. The master phase therefore keeps its "trust exactly what's given" contract and receives a genre only when the caller passed one. `master_album` and `master_audio` never derived and still don't.
+  - **An unrecognized genre is judged against BOTH preset sets, not just the mix one.** The two preset files are independent and very differently sized — ~407 mastering genres against ~73 mix genres, with ~334 real mastering genres (idm, dark-cabaret, synth-pop, post-punk) carrying no mix section — so "absent from mix-presets.yaml" does not mean "not a genre". An explicit genre now hard-errors only when **neither** set knows it (a typo), and the error lists the union rather than implying the 73 mix genres are all that exist; a genre the mastering set recognizes takes the same informational path a derived one does, since the mix chain resolves it gracefully via shipped per-stem defaults plus the mastering-preset click overlay. Previously `polish_and_master_album(slug, genre="idm")` failed where `polish_and_master_album(slug)` succeeded on the very same album, while `skills/mix-engineer/SKILL.md` told Claude to pass the genre explicitly.
+  - **`GENRE_PRESETS` is refreshed at the mastering entry points**, mirroring what `_refresh_mix_presets()` has done for the mix side since [#553](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/553). It was an import-time snapshot in a long-lived server, so a genre added to `{overrides}/mastering-presets.yaml` mid-session was visible to every `load_genre_presets()` caller but not to `qc_track`'s `_resolve_click_thresholds`, which reads the snapshot — a guard validating against the fresh loader passed while the code it guarded still raised `ValueError: Unknown genre`, aborting the master phase after polish had already rewritten `polished/`. `qc_track` now refreshes at its entry, so the validating and raising sides read the same data.
+- **`master_audio(cut_highmid=0)` / `cut_highs=0` could not disable a genre preset's EQ cut** ([#553](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/553)) — both parameters defaulted to `0.0`, which `build_effective_preset` also treats as its "not supplied" sentinel, so an explicit 0 meant to turn off a genre's high-mid/high-shelf cut was indistinguishable from omitting the parameter and the preset's cut always won; a null test proved it — −91 dB residual (dither only), meaning the EQ never ran. The returned `settings` block also echoed the shadowed preset value in both cases, hiding the bug from callers. `cut_highmid`/`cut_highs` now default to `None` ("use the genre preset") end-to-end through the MCP signature; an explicit `0`/`0.0` disables the cut regardless of genre, and the response's `settings` block now echoes the effective, post-resolution value actually handed to `master_track` rather than the preset's. `master_album`, `album_coherence_correct`, and `polish_and_master_album` shared the same underlying sentinel bug via their own `cut_highmid`/`cut_highs` parameters — fixed alongside the shared `build_effective_preset` migration, in the [#556](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/556) entry above. The MCP tool-schema golden (`tests/fixtures/tool_schemas.json`) was regenerated for the new `None` defaults.
+- **Digitally silent stems no longer run through the full polish chain** ([#553](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/553)) — Suno's Auto Split returns every requested stem category even when the source has no audio for it, and those "empty" stems come back around −55 dBFS peak rather than exact digital silence. Running the full per-stem chain on that noise floor wasted cycles, and worse, the de-clicker mistook noise-floor transients for clicks — roughly 600 false positives observed on one silent percussion stem. A silence gate on `mix_track_stems`'s per-stem dispatch skips the entire processing chain for any stem peaking below the threshold and passes it through to the remix bit-identical, with the all-zeros edge guarded so `log10` is never called on zero. Each stem's report carries `skipped_empty` (`true`/`false`) and, for skipped stems, `peak_dbfs` rounded to 0.1. The threshold is the per-stem setting `silence_gate_dbfs`, defaulting to `SILENT_STEM_PEAK_DBFS` (−40 dBFS) and overridable at `defaults:` or genre scope like any other setting — lower it (e.g. −80) to let a genuinely quiet stem through, raise it to discard more. Stem settings are resolved before the gate so the gate can read it, and `analyze_mix_issues` reads the same value through a shared resolver and re-reads the override file at its own entry the way polish does, so the two halves of one `polish_album` run cannot disagree about which stems exist even after a mid-session override edit. A gated stem reports as `skipped_empty` with no click counts and no recommendations; it is not rolled up into the track's `issues` or `album_summary.common_issues`, since an empty stem category is what Auto Split returns for content the track does not have rather than a defect. A stem containing NaN is no longer laundered into that skip either — `np.max(np.abs(data))` on it is NaN and `NaN > 0.0` is False, so a corrupt stem took the zero-peak path and was reported as a clean pass-through; a non-finite peak is now named in the log and the stem runs the normal chain so the NaN surfaces in the metrics.
+- **Suno stem-extraction documentation overstated the extraction mechanism as fact** ([#553](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/553)) — `reference/suno/v5-best-practices.md` § Stem Extraction claimed Suno "generatively regenerates" each stem rather than frequency-carving the mix. Web verification found the evidence mixed: Suno's own blog makes that claim for all three split modes, but independent write-ups describe Auto Split specifically as classic frequency/spectral-mask separation, with the regenerative framing applying most clearly to Advanced Split — consistent with first-hand field evidence from a misdiagnosed polish session (bleed/crosstalk, embedded shared reverb, separation artifacts, and near-silent ~−55 dBFS placeholder stems for categories with no source content). The section now attributes the regeneration claim to Suno rather than asserting it as fact, and anchors mix-polish guidance on the observed Auto Split behavior instead. `skills/mix-engineer/SKILL.md`'s "Stems First" principle gained a caveat that stems suit balance moves (level, pan, broad tone) but not surgical work (de-essing, de-clicking, narrow EQ) — bleed makes a stem edit audible in everything that leaked into it — plus a "solo the named element first" diagnostic rule for complaints that name a specific element. `SKILL.md` and `mix-presets.md` also had stale noise-reduction guidance corrected throughout: per-stem chain descriptions, Verify/Before-Handoff checklist lines, and the artifact table still described the pre-#553 defaults (0.5/0.3 strengths, "enabled on drums, available on all stems") as current behavior, contradicting the "Common Mistakes" guidance in the same files; override examples now carry an explicit "recorded/imported audio only" comment so they don't read as routine choices for Suno stems. `mix-presets.md`'s click-detector description was stale in a way that gave backwards advice: it described the pre-#323 "amplitude spike > 6σ" detector and told users to "raise threshold to 8-10" to make it less aggressive — 8-10 is *below* the real detector's `click_peak_ratio` default of 15.0, so following it made the detector *more* aggressive. Both files now describe the windowed peak/RMS detector as it is, and the override advice runs the right direction (raise above 15 for fewer flags). `SKILL.md`'s analyzer-reporting example also implied polish would act on an elevated noise floor, which it no longer does.
+- **A nightly that hangs, gets cancelled, or dies in an install step now says so — and says which job** ([#549](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/549)) — on 2026-08-19 two ubuntu nightly legs stalled inside `apt-get update` with zero output and burned the full 90-minute job budget. That one incident exposed a chain of CI problems rather than a single one, and this closes all of them.
+  - **The notification gate no longer files bogus issues on a cancelled run.** It ran under `always()`, so a human hitting cancel — or `concurrency: cancel-in-progress` superseding the nightly with a newer one — filed a nightly-failure issue. The issue title is the dedupe key, so that phantom then occupied the slot and every subsequent *real* failure arrived as a comment on it. The gate is now `!cancelled() && (contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled'))`, which distinguishes the two senses of "cancelled" that matter here: a JOB killed by its own `timeout-minutes` concludes `cancelled` without the RUN being cancelled, so `cancelled()` stays false and the hang case — the one this gate was written for — still pages, while run-level cancellations are suppressed.
+  - **`playwright-smoke` was missing from the gate's `needs:` entirely**, so a chromium download stall or a browser-launch regression could not page at all. It is now watched alongside `deep-test`, `mcp-e2e` and `wsl2-suite`.
+  - **The issue body names every job's result.** It previously asserted "Nightly failed: <url>" with no attribution — not which of the jobs, and not whether it *failed* or was killed by its timeout, which are different problems with different fixes. The body now carries `deep-test: … , mcp-e2e: … , wsl2-suite: … , playwright-smoke: …` alongside the run URL and says "concluded abnormally" rather than claiming a test failure. The title stays byte-stable, because it is the dedupe key.
+  - **Every unbounded network install is capped, not just the apt ones.** The first pass keyed on the literal string `sudo apt-get`; the hazard is any step that talks to a third-party mirror or CDN and can stall with no output. `brew`/`choco` ffmpeg (10 min), `choco musescore` (15), `playwright install --with-deps chromium` (10 — a ~150MB CDN download plus an apt transaction run *inside* playwright, which the workflow cannot pass options to), nightly's uncached pip installs (15), the `curl … install.sh | bash` CLI installer (10), and the setup-wsl distro download (15) now all carry step timeouts. Two job caps moved so the new step caps are not inert — a step cap at or near the job cap fires at the same moment as the job's and attributes nothing: integration.yml's musescore job 20 → 30, test.yml's plugin-install-smoke 10 → 15. `notify-failure` itself picked up a 5-minute cap; it had been on the 360-minute default.
+  - **The WSL2 suite was the fifth apt site and the last unhardened one.** Workflow and job env do not cross the WSL boundary, so it now spells the retry/timeout options out inline, with a comment recording why the copy exists. It deliberately gets no step cap: that single step installs *and* runs the full ~11.5-minute suite, so any cap tight enough to catch an install stall would kill legitimate test runs.
+  - **`APT_OPTS` is defined once per workflow file** instead of hand-pasted into each apt step across three files, where the copies had already drifted (one `update -qq` and one not, one install with `--no-install-recommends` and one without). Hoisting is safe for *this* variable in a way it explicitly is not for `PYTHONUTF8` — `APT_OPTS` is inert outside an apt command line, while `PYTHONUTF8` changes how every Python process decodes text, which is why `mcp-e2e` and `mcp-boot` must keep running without it. Both comments now say which is which.
+  - **`-qq` came off the hardened `apt-get update` calls.** It suppresses the per-mirror `Get:`/`Hit:` lines, which are the only evidence of *which* mirror a run was stalled on — so the quiet flag was deleting precisely the log a timeout-killed step needs to be diagnosable. A step cap that produces an unattributable failure is half a fix.
+  - **The mcp 1.x fallback job no longer installs ffmpeg.** It never used it: `health_check` — the only tool that job's boot check calls — runs venv, skill-registration and slug-collision checks with no ffmpeg probe anywhere; its pytest targets touch no audio code; and the twin `mcp-boot` job drives the identical handshake with no ffmpeg step and is green on all three OSes. The step bought nothing and added one more mirror that could stall the job.
+  - **A latent `ValueError` in the state lock's backoff loop.** `_acquire_lock_with_timeout` reads the clock twice per iteration — once for the `>= deadline` guard, once to size the sleep — and if the deadline passes in between (a descheduled process, a GC pause, a loaded runner) the remaining budget is negative and `time.sleep()` rejects it. Lock contention would then surface to `read_state`/`write_state` as a raw `ValueError` where every caller is written to expect `TimeoutError`. Clamped with `max(0.0, …)`, covered by a test that forces the window with a scripted clock rather than racing it.
+  - **A race in the lock-backoff test itself**, which is what made the 2026-08-17 nightly red: the releasing thread set its `released` flag *after* unlocking, so the contender could acquire and reach its `released.is_set()` assert before that thread was scheduled again. Flag-then-unlock closes it. The releaser also had no `try/finally` — an assert inside a thread never reaches pytest, so a timed-out wait left the file locked forever, hanging the contender and (on Windows) failing tmp_path teardown on the open handle: one slow runner, three unrelated failures. Cleanup now runs on every exit path, and the releaser's wait budget matches the contender's 30 s so it can no longer give up first and manufacture the timeout it exists to prevent.
+- **A Windows drive-relative segment no longer slips through the album-path guard** ([#538](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/538)) — `_album_dir`'s lexical pass rejected a segment that was `..` or carried `/`, `\` or a null byte, which covers every shape of absolute path but one. `D:evil` holds none of those characters, so it passed — and `pathlib` then discards everything to the left of a drive, so `genre="D:evil"` returned `D:evil\al`: outside the root, with no error raised. UNC paths (`\\server\share`) were already caught, because they carry backslashes; a bare drive prefix was not. That matters because #534 passes `confine=False` at every call site except `resolve_path`, to keep symlinked album directories working — at those sites the lexical pass is the *only* guard, with no resolved check behind it to catch the escape. Not a live vulnerability, and worth saying plainly: `genre` is a real directory name and NTFS forbids `:`, `subdir` is a caller literal, the album slug is already covered (`_normalize_slug` strips `:` on Windows), and `artist` is the user's own `config.yaml` — self-harm, not an attack. It is a hole in a guarantee the helper's docstring makes and its `test_rejects_an_absolute_segment_rather_than_relativizing_it` test is named for: that test's `/etc`, `/` and `\windows` cases were all caught by the separator check, and the drive-letter form — the one shape of absolute segment that actually got through — was untested. The guard now also rejects a `PureWindowsPath(...).drive`, evaluated on every platform rather than only on Windows, so which runner sees the input does not decide whether the guarantee holds. It recognises a drive prefix (one character followed by `:`), not a colon, so `AC:DC` stays the legal POSIX directory name it always was.
+  - The lexical guard is now a single `_reject_unsafe_segments` helper, and the two truncations of the same layout — `_albums_dir` and `_genre_dir` — call it too. Both interpolated their segments straight in; `_albums_dir` deliberately, on the documented grounds that `artist` is trusted config. That is true, and it is also the same component `_album_dir` guards, so which of the two helpers a caller happened to reach for decided whether the guard applied — the failure mode #529 was opened about. No call site changes behaviour, since both are reached only from config values; a bad value now returns the structured JSON error the MCP boundary produces rather than a wrong path.
+  - **`PATH_ESCAPES_ROOT` now reads `Path escapes root directory`** rather than `Resolved path escapes root directory`. #534 made it the message for lexical rejections too, where nothing has been resolved, so the first word described one of the ways to trigger it and misdescribed the rest. User-visible wording only — it surfaces through the MCP error boundary, and nothing branches on the string.
+- **mcp 2.x can no longer reach the plugin through Dependabot, the printed install advice, or the readiness probe** ([#537](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/537)) — `mcp` 2.0.0 restructured `mcp.server.fastmcp`'s `FastMCP` into `mcp.server.mcpserver`'s `MCPServer` and shipped no compat shim, so `server.py`'s single `from mcp` import raises and the server exits 1 before it registers a tool. `requirements.txt` pins `mcp[cli]==1.28.1`, so no correctly-installed user was ever affected — but three unpinned paths led straight to 2.x anyway:
+  - **The weekly `pip-all` group PR.** Three of them ([#536](https://github.com/bitwize-music-studio/claude-ai-music-skills/pull/536), [#540](https://github.com/bitwize-music-studio/claude-ai-music-skills/pull/540), [#541](https://github.com/bitwize-music-studio/claude-ai-music-skills/pull/541)) failed Tests and MCP Server Boot on all three runners, and since the group is `patterns: ["*"]`, one un-mergeable major held every unrelated bump hostage with it — #541 was carrying ruff, pypdf, boto3 and playwright updates that had nothing to do with mcp. `.github/dependabot.yml` ignored mcp majors as a stopgap, scoped to the major so 1.x patches kept flowing. That ignore came back out in the same release, once the 2.0 migration below landed and made the major mergeable.
+  - **The install advice printed by the ImportError handler itself.** Five strings across `server.py` and the server README read `mcp[cli]>=1.2.0` or a bare `pipx install mcp`, all of which resolve to 2.0.0 today. Two of them are printed *by the handler that fires when the import fails* — so someone whose server would not start followed the instructions on screen, installed the one version that cannot start, and got the same message back. A setup loop, shown precisely when the user is already stuck. All five are now bounded `<2`, with the floor moved to the version actually pinned and tested rather than the `>=1.2.0` the server has carried since the MCP server first shipped.
+  - **The session-start readiness probe.** `python3 -c "import mcp"` succeeds on 2.x — the removed module is the *submodule* — so the gate `CLAUDE.md` says must halt the session reported `✅ MCP ready` on exactly the install where the server was dead, while the server's own stderr said `ERROR: MCP SDK not installed`. All four probes (`CLAUDE.md`, `skills/session-start`, `skills/setup`, `reference/workflows/error-recovery.md`) now import `mcp.server.fastmcp`, which is what `server.py` imports, and report `MCP unusable` rather than `MCP missing` — the remedy is the same `/bitwize-music:setup mcp` either way, but "missing" is wrong about a package that is installed.
+
+  Each of the three paths is now held by a test in `tests/unit/shared/test_pinned_dependencies.py` — the dependabot ignore, the five capped install strings, and all four probe files. A fourth test asserts the SDK on the box still exposes `mcp.server.fastmcp`, and it runs in a **subprocess** on purpose: 24 test modules install a fake `mcp.server.fastmcp` into `sys.modules` when the real one is missing, so an in-process import would find the stub and pass on precisely the install the test exists to catch.
+
+  Those 24 modules had the same false-green bug as the probes, and it made the suite undiagnosable rather than merely wrong: each gated its stub on bare `try: import mcp`, which succeeds on 2.x, so no stub was installed, `server.py` ran its real ImportError handler during collection, and its `sys.exit(1)` aborted pytest with an INTERNALERROR before a single test ran. Their guards now import the submodule too, so a 2.x install degrades to one readable failure naming the cause instead of a stack trace and `no tests ran`. The 2.0 migration itself remains open under #537.
+- **The `README.md` model table no longer names pinned model versions** — 0.92.0 moved every skill's `model:` frontmatter to tier aliases (`opus`/`sonnet`/`haiku`) that auto-track the frontier model, and made pinned `claude-*` IDs a validation error, but the Multi-Model Orchestration table still advertised "Opus 4.8 / Sonnet 4.6 / Haiku 4.5" — the exact form the plugin now rejects, and a claim that goes stale on someone else's release schedule. It shows the alias each tier declares instead. `reference/SKILL_INDEX.md` carried the same drift one worse — its headings named *different* stale versions ("Opus 4.6", "Sonnet 4.5"), so the two docs disagreed with each other as well as with the code, and its Haiku heading claimed 17 skills over a list of 16. Both files now name the alias; the counts are 7 / 30 / 16, summing to the 53 skills, which is what both bullet lists already contained.
+- **The album directory shape is written down once, and the callers that built it by hand now get the traversal guard** — `#529` removed `tools/shared/paths.py` on the grounds that it was the *unguarded* variant of path resolution and "the obvious helper for a contributor to reach for", leaving `handlers/core.py:resolve_path` as the single implementation. That diagnosis was right, but the duplication it was meant to prevent was already there and survived the removal: `Path(root) / "artists" / artist / "albums" / genre / slug` and its two truncations appeared at fifteen sites across six handler modules. The reason is structural rather than carelessness — `resolve_path` is an `async` MCP tool that returns a JSON string, so no library code can call it, and every caller that needed a path had no option but to respell it. Only `resolve_path` applied `_normalize_slug` and a confinement check; the rest interpolated straight in, which is the same weakness `#529` deleted a file over. The guarded core is now `handlers/_shared._album_dir`, living beside `_normalize_slug` and `_is_path_confined` so the helper a caller reaches for is the one that carries the guards, with `_genre_dir`/`_albums_dir` for the two truncations callers wanted. Still one implementation — just a callable one.
+  - Two guards, not one, and they are not the same guard. A **lexical** pass always runs: it rejects a `..` or separator-carrying `artist`, `genre` or `subdir` *before* the layout is rendered, and rejects an absolute segment outright rather than silently relativizing it into a confined-but-wrong path. A **resolved** confinement check (`resolved.is_relative_to(root)`) is separate, because it is not a traversal guard — it also rejects a symlinked album directory, which is a *supported* layout (`test_symlinked_audio_dir_passes`). Only `resolve_path` ever applied it, so each call site passes the `confine` value matching what it did before centralising: `True` at `resolve_path`, `False` at the sites that operate on an album directory which already exists (`_resolve_audio_dir`, `update_album_status`, `migrate_audio_layout`, `rename_album`, `validate_album_structure`). It defaults to `True` so a *new* caller who forgets fails closed and loudly.
+  - **`resolve_path`'s output is unchanged except for one deliberate tightening:** a `genre` of `..` used to return `…/albums/../al`, and is now rejected with the same `Path escapes root directory` error every other escape returns. Every other input, including `genre="/etc"`, returns exactly what it did before.
+  - `_album_dir` raises, so each call site catches it and reports the failure the way its own contract says: `_resolve_audio_dir` returns its `(error_json, None)` tuple rather than raising past the twenty-two call sites that branch on it; `update_album_status` adds a `release_issues` entry rather than collapsing the aggregated gate into one opaque error; and `migrate_audio_layout` records a per-album skip, so one unresolvable album cannot discard the report of files it has already physically moved into `originals/`.
+- **`tracks_completed` no longer flips between two different numbers depending on which code path last ran** ([#523](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/523)) — `reference/state-schema.md` defines the field as "Number of tracks with completed status", but only the incremental track-change path counted the track files. A full rebuild (`scan_albums`) and the incremental README-changed branch both counted the album README's `## Tracklist` table instead. Since `update_track_field` rewrites a track file without touching that table, the two drifted the moment a track's status changed: `rebuild_state()` — the documented remedy for a stale cache — discarded the correct count and reinstated the README's stale one, and editing only the README silently reset it. This also made `list_albums` and `get_album_progress` disagree about the same album, and made the CLI print a README-derived numerator over an actual-file denominator (a finished album could render as `[0/12 tracks]`). All three sites now derive the count from the track files through a single `_count_completed_tracks` helper. `parse_album_readme` still reports what the README table claims, but nothing feeds it into state.
+- **A corrupt `ideas` or `skills` section in state.json no longer crashes `python -m tools.state update`** ([#525](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/525)) — `incremental_update` type-guards its top-level state sections so a wrong-typed one returns `None` and the caller falls back to a full rebuild (the `#393` contract), but the guard only covered `config` and `albums`. The function also does `state['ideas'].get('file_mtime')` and `state['skills'].get('skills_root')`, so a non-mapping value in either raised `AttributeError` straight past `cmd_update`'s `is None` fallback and aborted the CLI with a traceback — the exact failure the guard exists to prevent. All four sections are now guarded; both are re-derived from disk on a rebuild, so falling back loses nothing.
+- **`.gitignore` no longer lists `TESTING.md` as a build artifact** ([#526](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/526)) — the entry sat in the "Build artifacts" block between `*.egg-info/` and `.coverage`, but `TESTING.md` is a tracked contributor doc referenced from `skills/test/test-definitions.md`. The rule was inert (`.gitignore` does not affect already-tracked files) but would have silently dropped the doc for anyone who ran `git rm --cached` or re-added it after a delete.
+
+### Removed
+- **`tools/shared/paths.py` — the unused path-resolver utility** ([#524](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/524)) — the module had no production callers; its only importer anywhere in the repo was its own test file, and `git log -S` shows the sole commit ever referencing it was the one that added those tests, so it was never wired in. It also lacked the guards its live counterpart has: `handlers/core.py:resolve_path` applies `_normalize_slug` and an `is_relative_to` confinement check, while this module interpolated `artist`/`genre`/`album` straight into the path and never re-resolved, so a `..` component escaped the content root. Not exploitable — nothing called it — but it was the obvious helper for a contributor to reach for, and picking it up would have silently dropped the confinement guard. `handlers/core.py:resolve_path` covers the need; keeping one implementation is what stops the two from drifting. `tools/state/indexer.py:resolve_path` (a different, single-argument function) is unaffected.
+
+## [0.101.0] - 2026-07-21
+
+### Fixed
+- **MuseScore PDF-export integration test no longer flakes on windows-latest** — MuseScore 4's first launch on a clean Windows profile initializes its AppData tree (settings + crashpad `logs/dumps` dirs), and the very first CLI invocation races that init, so the export intermittently (~1 in 2) failed with a crashpad `GetFileAttributes ...\logs\dumps\attachments\...: cannot find` error. The Windows leg now warms MuseScore up once (pre-creating the crashpad dir and running a throwaway convert, tolerating failure) so the profile is initialized before the real test, with a bounded retry (3 attempts) as belt-and-braces — a persistent failure across all attempts still fails the job, so only the first-launch race is absorbed, not a real regression. Linux behaviour is unchanged (single-shot).
+- **The skipped Python Floor Check nightly job now shows a readable name** — when nightly runs without a `check-python-floor` input (the cron schedule, or a plain dispatch) the floor-check job is skipped, and GitHub does not expand an empty `${{ inputs.check-python-floor }}` template on a skipped job, so the Actions run page displayed the raw template string as the job name. It now falls back to `not requested`. No behaviour change.
+
+## [0.100.0] - 2026-07-21
+
+### Fixed
+- **Fixed a shared-tempdir race in the transcribe cleanup test** — `test_temp_dir_cleaned_up_on_failure` globbed the system temp dir for `test-album-transcribe-*` and asserted zero, but three transcribe tests share `album_slug="test-album"`, so under `pytest -n auto` a concurrent worker's in-flight dir tripped the assertion (a false failure — same class as the #494 flake). The test now spies on `mkdtemp` and asserts on the exact path its own run created, which is immune to other workers' identically-prefixed dirs, and additionally asserts a temp dir was created (previously the assertion passed vacuously if none was). Product code is unchanged — `mkdtemp` already makes unique dirs and cleans up its own.
+- **The test harness no longer relies on `PYTHONUTF8` for correct text encoding** — the product code was swept clean of encoding-less text I/O (#18 and the `hooks/` gate in #24), but the CI ruff PLW1514 (unspecified-encoding) check was scoped to `tools/ servers/ hooks/` only, so nothing enforced it in `tests/`. An audit against the gate found 36 genuine sites across 10 files — text-mode `open()`, `Path.read_text()`, `Path.write_text()`, and `NamedTemporaryFile(mode="w")` calls with no `encoding=` — that fall back to `locale.getpreferredencoding(False)`, which is UTF-8 on macOS/Linux but **cp1252** on a stock Windows box. Two of them in `test_parsers.py` write the `✅`/`❌` status glyphs through a `NamedTemporaryFile`, so on a cp1252 console those tests would raise `UnicodeEncodeError` on the write itself — green today only because CI sets `PYTHONUTF8=1` job-wide, an ambient variable the harness should not silently depend on. Every flagged site now passes `encoding="utf-8"` (binary `"rb"`/`"wb"` opens are untouched, and PLW1514 does not flag them anyway), so the harness is correct on its own. To keep the gap closed, `tests/` is added to the PLW1514 invocation in both the `Makefile` `lint` target and the CI Lint job — belt-and-suspenders, matching the product-code sweep. The plain `ruff check tools/ servers/ hooks/` invocation is deliberately left unchanged, since the repo's full ruleset is not yet clean on `tests/`. Concentration: `test_lock_backoff.py` (9), `test_parsers.py` (8), `test_indexer.py` (5), `test_config.py` and `test_server_integration.py` (3 each), `test_consistency.py`, `test_create_songbook.py`, and `test_server.py` (2 each), `test_migrations.py` and `shared/test_config.py` (1 each). Tests and tooling only — no product behavior changed.
+- **macOS AAC validation silently never used afconvert** — `adm_validation._afconvert_encode_decode()` probed for afconvert with `subprocess.run(["afconvert", "--help"], check=True)`, but `afconvert --help` exits 2 on macOS (a usage convention), so `check=True` always raised `CalledProcessError` and the function fell back to the ffmpeg `aac` encoder **on every macOS machine** — the intended Apple-encoder path for inter-sample-clip validation was dead code that no one had run. Found by the new macOS afconvert CI job (below), which is exactly what it's for. The probe is now a presence check (`shutil.which("afconvert")`); the binary's `--help` exit code is irrelevant, and the real encode step already falls back on timeout / non-zero rc.
+- **Clipboard is documented as working on native Windows** — it always did; the docs just said otherwise. The skill's detection chain branches on `clip.exe` and labelled that branch "WSL", which read as though native Windows were unsupported, so the compatibility matrix listed it as *unverified*. `clip.exe` is a built-in Windows utility in System32 and is reachable both from WSL via interop and from a native-Windows shell. Verified on a windows-latest runner: Git Bash is present, the chain selects the `clip.exe` branch, it resolves at `/c/Windows/system32/clip.exe`, and a copy round-trips via `Get-Clipboard`; PowerShell's `Set-Clipboard` round-trips too, giving a native fallback if a bash is ever unavailable. Labelling only — no behaviour change, and the POSIX branches are untouched.
+- **Pinned dependencies and the document-hunter browser are now covered** — `playwright`, `pypdf`, `reportlab`, `mutagen` and `noisereduce` are exact pins in `requirements.txt`, but every test touching them used `pytest.importorskip`, which turns a missing or broken wheel into a *green skip* — the precise regression worth catching, silently hidden. A new test asserts each one imports, so a platform losing a wheel fails loudly (this matters most on the nightly 3.12/3.13 legs, which exist to prove wheel availability). Separately, document-hunter is a skill with no product Python, so its behaviour is not mechanically testable — but the browser it depends on is: a gated Chromium smoke test (launch headless, render a `data:` URL, assert the DOM) now runs nightly on all three OSes, since browser download and launch are the parts that differ per platform. `pip install playwright` does not install a browser, so the import check alone proved nothing about whether one was usable. Nightly rather than PR CI because Chromium is ~150MB per leg.
+- **Platform docs now reflect native Windows accurately** — the compatibility matrix's overview row claimed the ffmpeg pipeline *including promo video* was "CI-tested on windows-latest". That was false: all 62 promo-video tests mock `subprocess`, so no real render is guarded on any OS — and promo video was in fact completely broken on native Windows until the filtergraph escaping fix, which is proof it was never CI-tested. Separately, none of the five per-feature tables had a **Windows (native)** column at all, so a now-supported tier was invisible in the detail. Every table gains that column with honest values (including `Untested` for Playwright and `unverified` for the clipboard skill, which is a bash snippet), promo video is marked verified-by-hand rather than continuously guarded, and the README's stale test count is corrected to 4,412.
+- **Promo video now renders on Windows** — the `drawtext` filtergraph interpolated paths raw: `fontfile=` was emitted completely unquoted and `textfile=` was hand-quoted but unescaped. On Windows that produced `fontfile=C:\Windows\Fonts\arialbd.ttf`, where `:` is ffmpeg's own option separator and `\` is a filtergraph escape character — ffmpeg rejected the whole graph with `No option name near ...`, so **every promo video and album sampler clip failed on Windows**, regardless of the font fix that preceded it. Paths bound into a filtergraph now go through `escape_filter_path()`, which converts to forward slashes, escapes the colon, and single-quotes the result. The required form was established empirically on a real windows-latest runner by rendering one frame per candidate escaping — quoting alone is *not* sufficient, because the graph splits options on `:` before processing quotes. POSIX filtergraphs are unchanged apart from the added quotes (verified by a real local render).
+- **Track frontmatter validation now actually runs on Windows** — `hooks/validate_track.py` decided whether a Write/Edit touched a track file with `"/tracks/" in file_path`, a forward-slash-only substring test. Claude Code hands hooks the platform's *native* path, so on Windows every path arrives backslash-separated (`C:\Users\me\…\my-album\tracks\01-opener.md`), the test was always False, `validate()` returned `[]`, and **the hook silently validated nothing on a core-tier platform** — a Windows user could save a track with a missing `title`, a missing `track_number`, or a bogus `status` like `Almost Done` and get a clean exit 0 every time, with the broken frontmatter only surfacing later as a track invisible to the state cache. This is the same silent-no-op failure class as the Python 3.9 import crash fixed in #492: that fix made the hook *run*, this one makes it do its job. Detection now folds backslashes to forward slashes and matches `tracks` as a whole path *segment*, which fixes Windows paths, UNC shares, mixed separators (`C:/foo\tracks/01-x.md` — Claude Code and user config can both produce these), and relative paths like `tracks/01-x.md` that the substring form also rejected. Segment matching preserves the one thing the old substring test got right: a directory merely *named* something containing "tracks" (`soundtracks/`, `tracksnotadir/`, `tracks-old/`) still does not match, and the `.md` requirement is unchanged. `pathlib` was deliberately not used — `PurePosixPath` does not split backslashes at all and `PureWindowsPath` behaves identically to the two-line string form while costing an import on a hook that executes on every Write/Edit in every session. The trade-off is that a POSIX file whose *name* legally contains a backslash could be split at it; the failure mode there is a harmless extra frontmatter check, not a missed one. macOS/Linux detection is otherwise unchanged.
+- **Promo-video text rendering now finds a font on Windows** — `tools/shared/fonts.py` probed five hardcoded candidates, all of them Linux or macOS paths (`/usr/share/fonts/…`, `/System/Library/Fonts/…`), so `find_font()` returned `None` on every Windows host. Its three callers — `generate_promo_video`, `generate_album_sampler`, and the MCP server's video handler — feed that result to ffmpeg `drawtext`, so a Windows user's promo-video generation had no font to draw with and failed with "No suitable font found" regardless of what was installed. This was the exact hole a disarmed `if result is not None:` guard in the font tests was hiding until the inert-test sweep above armed it. Windows candidates are now appended after the POSIX list, resolved from `%SYSTEMROOT%` (falling back to `%WINDIR%`, then `C:\Windows`) rather than a hardcoded `C:`, since Windows is not always on the system drive: `arialbd.ttf`, `segoeuib.ttf`, `calibrib.ttf`, `tahomabd.ttf`, then `arial.ttf` and `segoeui.ttf` as regular-weight fallbacks. Bold-first matches the intent of the existing POSIX list (bold sans-serif is what stays legible as overlay text on video), and every listed face ships with all currently supported Windows releases, so a stock install resolves. The candidates are gated behind a `platform.system() == "Windows"` check and appended, never interleaved, so macOS/Linux discovery order is byte-identical to before.
+- **The track-validation hook no longer crashes on a well-formed non-object payload** — `main()` caught only `(json.JSONDecodeError, EOFError)`, so stdin holding valid JSON that is not an object (`[1,2,3]`, `null`, `42`, `"str"`, `true`) sailed past the guard into `validate()` and died on `data.get(...)` with `AttributeError` — a traceback and a non-zero exit in the user's session. `main()` now checks the decoded payload is a `dict` and exits 0 quietly if not: there is nothing to validate, and a hook that fires on every Write/Edit must never break a session over an unexpected payload. Defence-in-depth rather than a live fix — Claude Code always sends an object today — and it retires the strict `xfail` that had been holding the bug in the suite.
+- **Markdown writes no longer fail spuriously on Windows under editor/AV contention** — `atomic_write_text` (`handlers/_atomic.py`) renamed its temp file over the target with a bare `os.replace`, the same Windows failure mode #488 fixed for the state cache but never applied here. On Windows, `os.replace` over a file another process holds open raises `PermissionError` (`WinError 5` ERROR_ACCESS_DENIED / `WinError 32` ERROR_SHARING_VIOLATION) — and this helper backs ~18 call sites that write *every* user-facing markdown file (album READMEs, track files, `IDEAS.md`, via `rename`, `status`, `ideas`, `core`, and the mastering stage writers). Those files are far more likely than `state.json` to be open in an editor, mid-antivirus-scan, or mid-OneDrive/Dropbox sync, so a Windows user could lose a track edit or a status update with an opaque "Access is denied" while the markdown they were looking at stayed stale. The replace is now wrapped in a bounded, Windows-only retry with semantics identical to #488 (10 attempts, ~10ms→100ms backoff, ~1s total) that retries only those two transient sharing-violation errors, then re-raises so a genuinely locked file still fails loudly rather than silently dropping the write; the existing temp-file cleanup and original-file preservation are unchanged. POSIX behavior is byte-for-byte unchanged — the rename runs exactly once.
+- **Child-process output is no longer decoded with the Windows ANSI codepage** — 13 `subprocess.run(..., text=True)` call sites across the media, mastering, promotion, and sheet-music tools passed no `encoding=`, so Python decoded ffmpeg/ffprobe/afconvert/MuseScore/AnthemScore output with `locale.getpreferredencoding(False)` — UTF-8 on macOS/Linux, but **cp1252** on a stock Windows box, with *strict* error handling. Since ffmpeg echoes its input filenames back into stderr and this project explicitly supports non-ASCII track titles, a track named `Nöthing` made the failure path itself raise `UnicodeDecodeError`: the user saw a decode traceback instead of the "ffmpeg failed" diagnostic that was about to be printed. Every such call now passes `encoding="utf-8", errors="replace"` — `errors="replace"` matters independently of the codepage, since an external binary can emit genuinely invalid bytes and a diagnostic path must never be the thing that crashes. CI never caught this because `PYTHONUTF8=1` is set job-wide; the MCP server Claude Code launches inherits no such variable. Affected: `tools/shared/media_utils.py` (2), `tools/mastering/adm_validation.py` (4), `tools/mastering/codec_preview.py`, `tools/promotion/generate_promo_video.py`, `tools/promotion/generate_album_sampler.py`, `tools/sheet-music/transcribe.py` (2), `tools/sheet-music/prepare_singles.py` (2).
+- **Windows `where` output is now parsed one match at a time** — `where` prints *one line per hit*, unlike `which`. `find_anthemscore()` returned `result.stdout.strip()` wholesale, so a user with AnthemScore in two locations (e.g. a Program Files install plus a per-user copy) got the entire CRLF-joined blob back as a single "path"; it was then passed as `argv[0]` to `subprocess.run`, failing opaquely with no hint that discovery was the culprit. `find_musescore()` already took the first line, but split on `'\n'`, which on CRLF output leaves a trailing `\r` welded to the executable path — an equally unusable path that merely fails one step later. Both now iterate `splitlines()` and return the first non-empty, stripped line, which is correct for `where`, `which`, and either line ending.
+- **AnthemScore installed in its default Windows location is now found by the MCP preflight** — the server's `_check_anthemscore` fallback probed only `/Applications/…`, `/usr/bin/anthemscore`, and `/usr/local/bin/anthemscore` before falling through to `shutil.which`, while the CLI tool's `find_anthemscore()` also knows `C:\Program Files\AnthemScore\AnthemScore.exe` and the `(x86)` variant. A Windows user with a stock install that isn't on `PATH` was told "AnthemScore not found. Install from …" by the MCP transcription preflight even though the bundled CLI tool located and ran it fine. The two detectors are now at parity; macOS and Linux behavior is byte-for-byte unchanged, since a Windows drive path can never resolve there.
+- **A cluster of tests that were structurally incapable of failing can now fail** — an audit found ~35 assertions across the plugin, state, and shared suites that reported green no matter what they were pointed at, so the behaviours they nominally guarded had no coverage at all. Four patterns: (1) the two skill-registration integrity checks (#234) carried a blanket `xfail(strict=False)`, which passes whether the assertion holds or not — `test_no_missing_skills_in_cache` was live-confirmed XPASSing — and they are now version-anchored, skipping only when the local plugin cache has no entry for *this* checkout's version and asserting for real when it does (this also fixes a latent bug in the ghost check, which unioned every cached version and so reported a skill deleted three releases ago as a ghost forever); (2) `TestStateCacheThreadSafety::test_concurrent_get_state` passed on the exact deadlock it targeted — `join(timeout=5)` returns silently, leaving `results` empty, and `all([])` is `True` — so it now asserts thread liveness after each join, the exact result count, and the observed state itself (a cache handing back `{}` under contention was previously indistinguishable from success); (3) eight assertions sat behind `if` guards that were false in precisely the scenario the test existed to catch — renaming `reference/suno/artist-blocklist.md` turned three artist-name tests green simultaneously, and `if result is not None` disarmed font-path validation on exactly the fontless runners where discovery is most likely broken — each guard is now an unconditional assertion with a diagnostic message; (4) ~20 `pytest.skip("… not found")` calls turned missing or unparseable *required* plugin assets (core templates, promo templates, `SKILL_INDEX.md`, `config.example.yaml`, `genre-presets.yaml`, and any skill whose YAML frontmatter fails to parse) into green skips, which on Windows would let a path/encoding failure that makes a file unreadable mask itself as a pass. Also removes four `assert … or True` / `assert True` no-ops, replacing each with the real invariant it was standing in for. Skips are retained only where the artifact is genuinely optional (the local plugin cache; a host with no system fonts). Tests only — no product behaviour changed.
+- **Three wall-clock races removed from the test suite, and the `validate_track` hook covered for the first time** — the same class of defect as the windows-latest lock-stress flake below: a test standing a `time.sleep()` window in for a happens-before relation, so a loaded CI runner fails the build and blames product code. `test_adm_validation_parallel_345` proved the ADM checks run concurrently by sleeping 50 ms inside each check and asserting an observed-concurrency counter reached 2 — on a contended runner under `-n auto`, thread-pool startup can stagger past that window and the counter stays at 1; overlap is now *forced* with a `threading.Barrier(2)`, so a serial stage breaks the barrier deterministically instead of flaking (a companion test pins that failure mode by driving the real stage with its bound set to 1). `test_prune_archival` separated four files with `time.sleep(0.01)` and asserted which two survived by mtime, a bet that the filesystem resolves a 10 ms gap — it does not on Windows, where the clock feeding file times ticks at ~15 ms; mtimes are now stamped explicitly with `os.utime`. `test_indexer`'s "incremental_update does not mutate the original" slept 10 ms and asserted two ISO-8601 `generated_at` stamps differed, which coarser-granularity platforms can serialise identically; the test now freezes `indexer.datetime` to two known instants and asserts the exact values. `test_lock_backoff`'s release-then-acquire test raced a `time.sleep(0.3)` releaser against the backoff schedule *and* contained zero assertions — it passed with the function under test stubbed to `pass`; a `threading.Event` handshake now sequences the release behind an observed retry, and it asserts the contender genuinely holds the lock afterwards (a third handle is refused) and that a retry actually occurred. Separately, `hooks/validate_track.py` — a PostToolUse hook that runs on every Write/Edit under the *system* `python3` — had no tests at all despite a recent Python 3.9 import crash that silently disabled track validation; a new suite covers the validation contract (each required field, invalid status, missing frontmatter, non-track paths, content-less Edit payloads, malformed stdin, exit codes 0/2) plus a regression guard asserting the module's annotations stay lazily evaluated, so the PEP 604 crash cannot return unnoticed. Tests only; no product behavior changed.
+- **CI now asserts ffmpeg is actually present instead of trusting the installer** — every ffmpeg-dependent test gates on a module-level `shutil.which("ffmpeg")` skipif (codec preview, ADM validation, mastering samples), so a half-succeeded `choco install ffmpeg` / `brew install ffmpeg`, or a shim directory that never reached the *next* step's `PATH`, would let all ~10 audio tests silently skip while the leg still reported green — quietly reversing #484's entire point of putting ffmpeg on the Windows runner. Both `test.yml` and `nightly.yml` now run an explicit `ffmpeg -version` + `ffprobe -version` verification step on all three legs immediately after the per-OS install. It runs under `shell: bash` (`-eo pipefail` on all three OSes, Git Bash on Windows) so a missing binary fails the job loudly rather than degrading into a silent skip.
+- **`hooks/` is now linted** — both the `Makefile` `lint` target and the CI Lint job scoped ruff to `tools/ servers/`, leaving `hooks/` — code that auto-executes on every Write/Edit in every user session — with no lint gate at all. `hooks/` is added to both ruff invocations (the plain check and the `--select PLW1514 --preview` encoding check) in both places. This surfaced two pre-existing I001 findings that had never been checked: `hooks/validate_track.py` had an unsorted import block (`json, sys, re`) and `hooks/check_version_sync.py` had non-conforming spacing after its imports; both are fixed, with `from __future__ import annotations` kept first, immediately after the module docstring.
+- **`PYTHONUTF8=1` now reaches the two jobs that need it most** — it was set on the `test` job, nightly `deep-test`, and both integration jobs, but not on `mcp-boot` (test.yml) or `mcp-e2e` (nightly.yml) — precisely the two jobs that drive a real stdio JSON-RPC handshake against a cp1252-locale Windows runner. It is now declared once at workflow level in both files so every job inherits it, with the per-job duplicates removed; behaviour for the jobs that already had it is unchanged. `wsl2-suite` is unaffected either way — job-level env does not cross the WSL boundary, so it still exports `PYTHONUTF8` inside the distro.
+- **Experimental nightly legs can now report their own failure** — `deep-test` uses `continue-on-error: ${{ matrix.experimental || false }}` so a broken 3.12/3.13 leg doesn't fail the nightly run, but `continue-on-error` sets the *job result* to `success`, meaning `notify-failure`'s `if: failure()` never fired for those legs and the signal existed only for a human who opened the run page — which, for a nightly, is never. The legs still don't fail the run (deliberately), but each one now writes its true `steps.tests.outcome` to `$GITHUB_STEP_SUMMARY` (leg, tier, pass/fail), so the run page shows at a glance whether an experimental Python is broken. The summary step is `if: always()` because a failed step otherwise skips the remainder of the job even under `continue-on-error`.
+- **Corrected the stale Python floor in `requirements.txt`** — the install header still claimed "Required: Python 3.10+", contradicting both the README and #467, which established 3.11+ as the real floor (the MCP server imports `datetime.UTC`, a 3.11+ name) — and contradicting the file's own `scipy==1.17.1` pin, which floors at 3.11. Comment-only; no pins changed.
+- **MuseScore installed as `musescore3`/`mscore3` (the standard apt package) is now detected** — `find_musescore()` only listed bare `mscore`/`musescore` on Linux and only probed those two names on `PATH`, so a plugin user who ran `apt install musescore3` (which installs `/usr/bin/mscore3` plus a `musescore3` symlink, no bare `mscore`) got "MuseScore not found" and the sheet-music PDF re-export silently fell back to copying the source PDF. The Linux path table now also lists `/usr/bin/mscore4`, `/usr/bin/musescore3`, and `/usr/bin/mscore3`, and the `PATH` fallback probes `mscore4`/`musescore4`/`mscore3`/`musescore3` in addition to the bare names. macOS/Windows tables already reference the app bundles / versioned `.exe` names by full path, so they are unchanged. A new real-MuseScore integration test (below) exercises this end-to-end against an apt install.
+- **Multi-process lock stress test no longer flakes on the windows-latest CI leg** — the test (#486) predates the #489 read-path change and still documented `read_state` as one that "never raises"; its reader worker called `read_state()` bare. After #489, `read_state` deliberately *re-raises* a transient Windows sharing violation (`WinError 5`/`32`) that outlives its bounded retry budget — and under this test's pathological 4-writer burst a reader can, on ~1 run in 8, exhaust that budget on a single iteration, crashing the worker with an uncaught `PermissionError`. The reader now catches that designed re-raise (it is contention, not a torn read or corruption) and continues, with a pervasive-failure guard (`exit 14` if it hits on more than a quarter of reads) so a genuine `read_state` retry regression still fails loudly. POSIX is unaffected — `open` never faults mid-rename there, so the reader never takes this branch. Test-only; the product contract is unchanged.
+- **Transient Windows contention on the state cache is no longer misclassified as corruption** (#489) — while a concurrent `write_state` was mid-`os.replace`, a reader's `open(state.json)` transiently raises `PermissionError` (`WinError 5` / `WinError 32`); `read_state` caught it under a broad `except (json.JSONDecodeError, OSError)` and treated it as *corruption* — copying the good `state.json` to a spurious `state.<ts>.corrupt` backup and returning empty `{}`, so a session silently lost its whole state view over a normal cross-process blip (two Claude sessions, an AV scan). This is the reader-side counterpart to #488, and the reason its writer-only retry didn't settle the multi-process lock stress test on the windows-latest CI leg. The read now retries the transient open with the same bounded Windows-only budget as the writer; quarantine is reserved exclusively for *genuine corruption* (malformed JSON, or JSON that decodes to the wrong shape), and any `OSError` — a surviving sharing violation, or a real permission/disk fault — re-raises instead of quarantining good state or returning `{}`. POSIX behavior is unchanged.
+- **Concurrent/AV-contended state writes no longer fail spuriously on Windows** (#488) — `write_state` renamed its temp file over `state.json` with a bare `os.replace`, which on Windows raises `PermissionError` (`WinError 5` ERROR_ACCESS_DENIED / `WinError 32` ERROR_SHARING_VIOLATION) whenever another process holds the target open: a lock-free `read_state`, a second Claude session, or a transient antivirus scan. POSIX rename-over-open-file is atomic and never hits this, so the multi-process lock stress test (#486) passed on POSIX but flaked on the windows-latest CI leg. The replace is now wrapped in a bounded, Windows-only retry (10 attempts, ~10ms→100ms backoff, ~1s total) that retries only those two transient sharing-violation errors — still under the write lock so no writer interleaves — then re-raises so a genuinely stuck file fails loudly. POSIX behavior is byte-for-byte unchanged.
+- **`create_track` now refreshes the state cache so new tracks are immediately usable** — `create_track` wrote the track markdown to disk but never rebuilt the server's in-memory state, so `get_track`, `update_track_field`, and `list_tracks` returned "not found" for the just-created track until the user ran `rebuild_state` by hand. It now calls `_shared.cache.rebuild()` after a successful write, mirroring `create_album_structure`; a rebuild failure is logged as a non-fatal warning (the file is already written) rather than turning a successful create into an error.
+- **Mastering ceiling-guard pull-down no longer crashes on Windows** (#480) — `apply_pull_down_db` fsynced its temp WAV through a handle opened `"rb"`; on Windows `os.fsync()` calls `FlushFileBuffers`, which requires write access, so every pull-down raised `OSError(EBADF)` (`CeilingGuardError: write failed ... Bad file descriptor`). The handle now opens `"rb+"` — the file already exists and nothing is truncated, so POSIX fsync semantics are unchanged.
+- **Windows slug sanitization for NTFS-forbidden title characters** (#480) — `_normalize_slug` passed `<>:"|?*` straight through, so a title like `Say "Goodbye"` produced an unwritable filename (`01-say-"goodbye".md`) and track creation failed with no `created` key. These characters are now stripped from slugs on Windows only; POSIX slugs are byte-identical to before.
+- **MCP server now starts on Windows** (#476) — `tools/state/indexer.py` imported the Unix-only `fcntl` module unconditionally, crashing `server.py` on import so no MCP tools loaded on Windows. State-cache locking is now platform-gated: `fcntl.flock` on Unix, `msvcrt.locking` on Windows, behind shared `_flock_nb`/`_funlock` helpers. The lock file opens in append mode ('w' truncation fails on Windows while the byte-range lock is held), locking tests are platform-neutral, and new windows-latest and macos-latest CI jobs guard the module import, the locking tests, and (macOS) that the pinned requirements install on Apple Silicon. Reported by @Memshik42.
+- **MCP server now launches on Windows via `.mcp.json`** (#476) — the launch command was `${HOME}/.bitwize-music/venv/bin/python3`, which fails twice on Windows: `${HOME}` is unset there (Windows uses `USERPROFILE`, so Claude Code left the literal `${HOME}` in place) and the venv interpreter lives at `Scripts\python.exe`, not `bin/python3`. Because Claude Code has no per-OS command mechanism and no universal `python`/`python3` name exists (Windows `python3` is a Store stub; many POSIX systems lack bare `python`), the fix is a launcher pair — `servers/bitwize-music-server/mcp-launch` (POSIX shebang) and `mcp-launch.cmd` (Windows) — referenced by its extensionless name in `.mcp.json`; Claude Code runs the shell script on POSIX and resolves the `.cmd` on Windows. Validated end-to-end against real Claude Code (2.1.210) on Windows 11: the installed plugin's server reports ✓ Connected. Reported by @Memshik42.
+
+### Added
+- **The indexer CLI command layer is now covered** — the six argparse handlers in `tools/state/indexer.py` (`cmd_rebuild`, `cmd_update`, `cmd_validate`, `cmd_session`, `cmd_cleanup`, `cmd_show`) were the second-largest uncovered block in the repo (~300 statements, lines 1507-1812): every other indexer function had a unit test, but the CLI that stitches them together — the exact code a user hits when they run `python -m tools.state.indexer …` or `/bitwize-music:rebuild` — was exercised by nothing, because `main()` is coverage-excluded and no test drove the handlers it dispatches to. A new `tests/unit/state/test_indexer_cli.py` invokes each handler in-process with a constructed `argparse.Namespace` (the same pattern the handler-function unit tests already use), asserting both the return code and the real side effect: `cmd_rebuild` writes state and preserves an existing session across a full rebuild, reports slug collisions, and returns 1 when config is missing; `cmd_update` covers all four fallbacks (no state → rebuild, incompatible schema version → rebuild, invalid sections → rebuild, clean incremental) plus the collision warning; `cmd_validate` distinguishes a valid state, schema errors, and a version mismatch; `cmd_session` sets/clears fields, rejects over-length and too-many-pending-action inputs, and persists `updated_at`; `cmd_cleanup` handles the no-state, no-albums, all-present, dry-run, and real-removal paths; and `cmd_show` renders both the empty summary and a fully-populated one (albums, tracks, collisions, ideas, skills, session) in verbose and non-verbose modes. Every test drives the autouse `_isolate_state_cache` tmp cache and stubs `read_config` rather than touching the developer's real `~/.bitwize-music`, so the suite stays hermetic and xdist-safe. This lifts `indexer.py` line coverage from 72% to 96%, with the entire 1507-1812 range now covered. Tests only — no product behavior changed.
+- **The macOS `afconvert` ADM-validation path is now covered — three fallback branches by unit test, real afconvert by a macOS CI job** — `adm_validation._afconvert_encode_decode()` is the product's only macOS-exclusive code path (encode WAV→AAC with Apple's `afconvert`, decode via ffmpeg, and fall back to the ffmpeg `aac` encoder on three distinct failures), and until now `grep -rn afconvert tests/` returned zero — it was invisible to CI and to mocks alike. A new unit module, `tests/unit/mastering/test_adm_validation_afconvert.py`, drives every branch deterministically by monkeypatching `adm_validation.subprocess.run` with a recording dispatcher that fakes the whole toolchain (and writes a genuine decoded WAV for the ffmpeg `pcm_f32le` decode so the trailing `sf.read` returns a real array — no ffmpeg/afconvert needed, so it runs everywhere with no gate): (1) the `afconvert --help` probe failing as absent (`FileNotFoundError`), non-zero rc (`CalledProcessError`), or hung (`TimeoutExpired`); (2) the `afconvert` encode timing out; and (3) the `afconvert` encode returning a non-zero rc. Each test asserts on the returned encoder-name string *and* spies on which binary was actually invoked — the fallback cases must show the ffmpeg `aac` encode ran and must report encoder `"aac"` (never `"afconvert"`), while the mocked-success case must show afconvert did the encode, ffmpeg only decoded, and the fallback encode never ran, reporting `"afconvert"`. The public `check_aac_intersample_clips(encoder="afconvert")` wiring is covered too, proving the fallback vs. success encoder name propagates into `encoder_used`. The teeth were verified RED/GREEN: transiently mislabelling the encode-timeout fallback's return made the timeout test fail on the encoder-name assertion, and reverting restored green. Because a mock cannot make afconvert produce a decodable m4a, the real path is proven separately by `tests/integration/test_afconvert_macos.py`: it generates a tiny real WAV via ffmpeg lavfi, runs the real `_afconvert_encode_decode`, and asserts encoder `"afconvert"` with a non-empty float32 array at the expected 44.1 kHz. It is triple-gated — `integration` marker + `skipif(not BITWIZE_INTEGRATION)` (the standard double gate every integration module carries) plus `skipif(shutil.which("afconvert") is None)`, which keys off the actual capability rather than a `sys.platform == "darwin"` proxy (mirroring the repo's existing `requires_ffmpeg` idiom and the MuseScore test's binary-presence skip) so it collect-and-skips cleanly on Linux/Windows even when the env gate is set; ffmpeg presence is guarded the same way since both fixture generation and decode need it. A new `afconvert` job in `integration.yml` runs it on `macos-latest`: afconvert is a built-in macOS binary so nothing installs it (only ffmpeg, via Homebrew), `BITWIZE_INTEGRATION=1` opens the env gate, and a diagnostic prints `which afconvert`, the `afconvert --help` output and its real exit code (the product probes with `check=True`, so a non-zero probe would wrongly force the ffmpeg fallback — surfacing that in the logs), and the ffmpeg version. The job mirrors the sibling jobs' fork-PR guard, pinned action SHAs, and 20-minute timeout.
+- **The macOS `afconvert` ADM-validation path is now covered** — `_afconvert_encode_decode()` is the product's only macOS-exclusive path, and `grep -rn afconvert tests/` used to return zero. A new unit module (`tests/unit/mastering/test_adm_validation_afconvert.py`) drives every branch deterministically by monkeypatching `shutil.which` (present/absent) and `subprocess.run` with a recording dispatcher that fakes the toolchain and writes a genuine decoded WAV for the ffmpeg `pcm_f32le` step: afconvert absent → ffmpeg `aac` fallback; afconvert present but the encode times out or returns non-zero → fallback; and the success path → encoder `"afconvert"`. A regression test pins that a present afconvert is used regardless of `--help`'s exit code (the bug fixed above). The real end-to-end path is proven macOS-only by `tests/integration/test_afconvert_macos.py` (real WAV via ffmpeg lavfi → real `_afconvert_encode_decode` → assert encoder `"afconvert"`, non-empty float32 at 44.1 kHz), triple-gated (`integration` marker + `BITWIZE_INTEGRATION` + `shutil.which("afconvert")` capability check so it collect-and-skips on Linux/Windows). A new `afconvert` job in `integration.yml` runs it on `macos-latest` (afconvert is built-in; only ffmpeg is installed, via Homebrew), mirroring the sibling jobs' fork-PR guard, pinned SHAs, and timeout.
+- **MuseScore PDF export is now CI-verified on native Windows** — the MuseScore integration job gained a `windows-latest` leg. Chocolatey installs MuseScore to `C:\Program Files\MuseScore 4\bin\MuseScore4.exe` (the first entry in `find_musescore()`'s Windows path table), `find_musescore()` detects it with no help, and the export path produces a real PDF — all on every PR. This closes the last native-Windows sheet-music gap that was actually testable; AnthemScore stays licensed-only (its trial exposes no CLI on any OS, and device-based activation is incompatible with ephemeral runners). The docs are updated: the compatibility matrix's sheet-music rows move from "No — use WSL2" to Yes with per-tool footnotes (MuseScore CI-verified; AnthemScore licensed and expected-to-work but not independently run on Windows).
+- **Real-MuseScore PDF re-export integration test in CI** — a new `musescore` job in `integration.yml` installs the standard apt `musescore3` and runs the sheet-music export path (`prepare_singles.export_pdf`) against a real MuseScore CLI for the first time (previously mock-only), headless via `QT_QPA_PLATFORM=offscreen`. The gated `tests/integration/test_musescore_export.py` (minimal MusicXML fixture → `mscore` subprocess) asserts a genuine PDF lands on disk (`%PDF` magic, non-empty) and that the product's `find_musescore()` auto-detects the apt binary. Double-gated behind the `integration` marker + `BITWIZE_INTEGRATION`, so `pytest tests/` and the 3-OS matrix collect-and-skip cleanly with no MuseScore present. Closes the last maintainer-identified test gap (real sheet-music export).
+- **Real-service integration tests in CI (Postgres + SeaweedFS/S3)** — a new `integration.yml` workflow and gated `tests/integration/` suite exercise the two surfaces that were mock-only until now against actual services. The `db_*` MCP tools run against a real PostgreSQL service container (full tweet lifecycle — db_init → create → list → update → search → stats → delete — plus db_init idempotency); the cloud uploader runs against a real SeaweedFS S3 gateway (a config → `get_s3_client` → `retry_upload`/`upload_file` round-trip, verified via boto3, plus a dry-run no-op check). Both are double-gated behind the `integration` marker and a `BITWIZE_INTEGRATION` env guard, so `pytest tests/` and the 3-OS matrix collect-and-skip cleanly with no services present. Closes two maintainer-identified test gaps (real Postgres, real S3-compatible storage).
+- **Generic S3-compatible endpoint support in the cloud uploader** — `cloud.s3.endpoint_url` points the `s3` provider at any S3-compatible service (SeaweedFS, MinIO, Backblaze B2, Wasabi, self-hosted), not just AWS. When set, `get_s3_client` builds the boto3 client against that endpoint with path-style addressing and request checksums only when the API requires them (compatibility with gateways that lack virtual-host buckets or reject the newer `x-amz-checksum-*` trailers). AWS-native S3 (no `endpoint_url`) and Cloudflare R2 are unchanged.
+- **ffmpeg-based audio processing now CI-tested on native Windows** (#484) — the Windows test leg installs ffmpeg via Chocolatey, so the ffmpeg-gated audio tests (ADM validation, codec preview, mastering samples) run on all three OSes instead of skipping on windows-latest; they passed on the first run with no product changes needed. Reverses the original support-tier decision that kept the Windows leg ffmpeg-less. Native Windows audio remains best-effort; AnthemScore/MuseScore (sheet music) stay WSL2-recommended.
+- **Plugin-install smoke test in PR CI and nightly WSL2 suite** (#485) — two permanent jobs distilled from empirical capability probes. `plugin-install-smoke` (test.yml) installs the Claude Code CLI with no Claude auth and runs the documented marketplace-add + install flow against the PR's own checkout (local-path marketplace via `claude plugin marketplace add ./`), asserting the plugin lands enabled in the versioned cache with all skills and `.mcp.json` — the probes established the plugin CLI has no auth wall, so this costs ~1 minute and no secrets. `wsl2-suite` (nightly.yml) runs the full pinned install and test suite inside WSL2 (Ubuntu-24.04, Python 3.12) on windows-latest — the documented Windows support path — benchmarked by the probes at 4256 passed / 28 skipped in ~11.5 min inside WSL. Probe by-catch documented in the workflow: setting `WSL_UTF8=1` at job level breaks setup-wsl v7.0.0's WSL version detection.
+- **End-to-end MCP server boot test in CI** (#476) — new `mcp-boot` matrix job (ubuntu/windows/macos) simulates a real user install: it builds the documented `~/.bitwize-music/venv` from the pinned requirements, launches the server through the same `mcp-launch`/`mcp-launch.cmd` wrapper `.mcp.json` invokes, and drives a real stdio JSON-RPC handshake (`initialize` → `notifications/initialized` → `tools/list` → `health_check`) with a stdlib-only checker (`tests/e2e/mcp_boot_check.py`). Guards against process-level startup failures like #476 that the in-process unit suite — which mocks FastMCP — cannot catch. The checker fails on any non-JSON stdout line, so a stray print that would corrupt the stdio transport is caught too.
+
+### Changed
+- **Native Windows promoted to a Full support tier** — with the last testable gap closed (MuseScore PDF export now CI-verified on windows-latest) and clipboard + promo video confirmed on real Windows runs, native Windows moves from *Core (best-effort)* to *Full* in the compatibility matrix, alongside macOS/Linux/WSL2. The full test suite runs on windows-latest, with dedicated Windows legs for the MCP stdio boot check and MuseScore export. The remaining caveats are not Windows-specific: promo video is verified by a real render rather than continuously guarded (its tests mock ffmpeg on every OS), and AnthemScore transcription needs a licensed install (its trial exposes no CLI on any platform).
+- **The coverage gate now measures all three OSes and gates on their union, closing a structural blind spot** — `test.yml` ran `--cov=tools --cov=servers --cov-fail-under=75` on the ubuntu leg only, with an explicit comment that the gate was Linux-only "to avoid cross-platform variance from win32/darwin platform branches." That variance was the signal, not the noise: every `sys.platform == "win32"` and darwin branch in `tools/` and `servers/` is *unreachable* on the one OS that was doing the measuring, so neither the headline 88% nor the 75% floor said anything whatsoever about the platform-specific code — which is precisely where this project's real bugs have lived (#476's unconditional `import fcntl`, #497's missing `os.replace` retry, #480's `os.fsync` on a read-only handle and POSIX-only slug sanitization, a hardcoded `venv/bin/python3`). The most literal example: the entire Windows locking primitive in `tools/state/indexer.py` — `import msvcrt`, `_flock_nb`, `_funlock` — reported as uncovered on every green build, and no other leg measured anything at all. All three legs now collect coverage (macOS and Windows stay on `-n auto`; pytest-cov aggregates the xdist workers itself, so their runtimes are unaffected) and upload their raw data as per-OS artifacts. A new `coverage` job merges the three and enforces the gate on the combined number, raised 75 → 80 to reflect the ~88% the union actually measures while leaving headroom. Merging across OSes required a `[tool.coverage.paths]` section in `pyproject.toml` mapping the three runner layouts (`/home/runner/work/…`, `/Users/runner/work/…`, `D:\a\…`) onto one source tree; two non-obvious rules are documented there because getting either wrong makes `coverage combine` **fail silently** — it prints "Combined 3 files" and reports the Linux-only total. The job therefore verifies the merge rather than trusting it: it fails if fewer than three legs report, if any measured path was not rewritten into the checkout, or if a known win32-only sentinel line is still uncovered after combining. `make test` deliberately keeps the lower 75 floor, since a single-OS local run can never reach the combined number.
+- **Concurrency groups on `test.yml` and `integration.yml`** — only `nightly.yml` had one, so rapid pushes to the same PR stacked full 3-OS test matrices plus Docker and service-container jobs on top of each other, burning runner minutes on runs whose results nobody would ever read. Both workflows now use `group: "${{ github.workflow }}-${{ github.ref }}"` with `cancel-in-progress: true`, matching nightly's pattern: the newest push per ref wins and superseded runs are cancelled. Runs on different refs are unaffected.
+- **Explicit `timeout-minutes` on the remaining unbounded jobs** — `validate`, `lint`, and `security` (test.yml), both jobs in `pr-target-check.yml`, and the job in `version-sync.yml` all inherited GitHub's 6-hour default, so a hung step could pin a runner for a working day before anyone noticed. Each now carries a generous but finite budget (10 min for the fast validation/gate jobs, 15 min for lint and the pip-audit security scan). Jobs that already declared a timeout are untouched.
+
+## [0.99.0] - 2026-07-13
+
+### Fixed
+- **Help index completed, validator policy re-encoded** (#473) — `skills/help/SKILL.md` now lists all 53 skills (9 were missing); `tools/validate_help_completeness.py` enforces the help-comprehensive / CLAUDE.md-curated contract (CLAUDE.md references are ghost-checked, not completeness-checked), with new unit tests; contributor checklist updated to match
+- **Ruff config consolidated in pyproject** (#468, #470) — deleted `ruff.toml`, which had silently shadowed the extended `[tool.ruff]` ruleset (E,F,I,UP,B,SIM,RUF at py311) since March; fixed all 52 findings the active config surfaced with zero new suppressions
+- **Plugin-suite findings resolved** (#471, #472) — `allowed-tools:` frontmatter added to the last two skills missing it; `qc_tracks.py` zip encodes its equal-length invariant with `strict=True`; promotion docstrings corrected to Python 3.11+; all 141 test definitions audited against the current repo (34 retargeted, 4 dropped with audit trail)
+- **Audio-path regression checks retargeted** (#474) — the two remaining pre-refactor checks now verify the guards where they actually live (CLAUDE.md pattern block; `skills/import-audio` with the `resolve_path` requirement)
+
+## [0.98.0] - 2026-07-11
+
+### Added
+- **Root `FAQ.md`** (#466) — integration stance, commercial rights, and project basics, linked from README
+
+### Fixed
+- **Corrected the documented Python floor to 3.11+** (#467) — the MCP server imports `datetime.UTC`, a 3.11+ name, so the old "3.10+" claim was never true
+
+## [0.97.0] - 2026-07-07
+
+### Added
+- **Suno V5.5 mid-year knowledge refresh** (#460, #461). Documented the June 2026
+  stem-separation overhaul (Auto Split / Split from Mix / Advanced Split — ~100
+  instruments, generative regeneration); clarified Exclude Styles as a dedicated
+  Pro/Premier field vs. an inline fallback and added group-vocal suppression
+  vocabulary; noted Audio Influence ~0.70–0.85 when using Voices. A new Suno
+  reference CHANGELOG entry records the research sources and a "Refuted / Not
+  Adopted" list of widely-circulated V5.5 prompt-grammar claims that failed
+  verification (4-7-as-a-rule, four-layer templates, per-section parameterized
+  tags, inline style-field negatives).
+
+### Changed
+- **Style Box descriptor gate reframed** (#460, #461). The advisory pre-generation
+  gate now flags genuine synonym-pile bloat (>12 descriptors) instead of >7, and no
+  longer mislabels sparse boxes as "within the 4-7 sweet spot." The old 4-7 cutoff
+  was an unvetted single-source rule that fired on the majority of real
+  (~10-descriptor) style boxes; guidance across `suno-engineer`, `v5-best-practices`,
+  and `pre-generation-check` is reframed so 4-7 reads as a starting heuristic, not a
+  Suno rule.
+- **Performance Cues standardized** to a short comma-free phrase (`[Outro - chant
+  fading]`); the gate detects cues by the ` - ` separator, so gate behavior is
+  unchanged.
+
+### Fixed
+- **Corrected the V5 release date** in the V4→V5 migration guide (October 2024 →
+  September 2025) to match the repo's own Suno Studio / v5-generation dating, and
+  hedged the unverified "V5.5 honors subtle descriptors better" claim that had been
+  stated as fact.
+
+## [0.96.0] - 2026-07-05
+
+### Added
+- **Pre-generation gates now check the Style Box descriptor and Performance Cues standards** (#456).
+  `run_pre_generation_gates` previously only verified the Style Box was non-empty, so it would pass a
+  20-descriptor synonym-pile or all-bare `[Verse]`/`[Chorus]` tags — the exact defects the
+  `suno-engineer` Quality Standards (0.95.0) tell you to fix first. Added two advisory (non-blocking
+  `WARN`) gates: **Style Box Descriptor Count** (flags >7 descriptors, counted across the period- and
+  comma-delimited blocks) and **Performance Cues** (flags ≥2 structure tags with no per-section cues
+  like `[Verse 1 - cold, regal]`). Closes #456.
+
+## [0.95.0] - 2026-07-04
+
+### Added
+- **Expanded Suno metatag reference coverage and suno-engineer prompt-building workflow**.
+  Metatags were mentioned in the plugin but scattered and thin — `structure-tags.md` had
+  only 6 delivery/mood bracket tags and was missing `[Post-Chorus]`/`[Fade In]`/`[Hook]`,
+  `v5-best-practices.md`'s Sound Effects list had only 6 examples, and the Duet pattern
+  existed only inside `suno-engineer/SKILL.md` with no canonical reference. More
+  importantly, `suno-engineer`'s own workflow never instructed pulling mood/voice/SFX
+  vocabulary from the reference docs it already links, so real generations only ever
+  got bare structure tags. Added a terminology explainer (structure tags vs.
+  delivery/mood bracket tags vs. Style Box descriptors vs. inline lyrical metatags) to
+  `reference/suno/README.md` and `structure-tags.md`; expanded mood tags, sound effects,
+  and added a Duet/Call-and-Response + Production/Vocal FX section to `voice-tags.md`;
+  and updated `suno-engineer/SKILL.md`'s workflow to explicitly pull concrete
+  descriptors from these references when building vocals, instruments, and Style Box
+  prompts. Deliberately did not adopt invented `[Mood: X]`/`[Energy: X]` bracket syntax
+  or bracket-style instrument tags from third-party guides — those contradict this
+  plugin's field-tested anti-"tag soup" guidance.
+
+### Performance
+- **ADM validation runs per-track checks in parallel** (#345). The mastering
+  pipeline's inter-sample clip check encodes+decodes each track via two ffmpeg
+  subprocesses; running them serially dominated wall-clock time (and tripled on
+  retry). The checks now run concurrently, bounded to CPU count, with identical
+  results, ordering, error handling, and clip-halt behavior.
+
+### Docs
+- **Suno Song Editor workflow guide** (#237) — `reference/workflows/song-editor.md`:
+  when to use section-level edits vs. regeneration vs. mix-engineer polish, each
+  operation with use cases, and mastering-pipeline interaction.
+- **Creative Sliders reference** (#238) — `reference/suno/creative-sliders.md`:
+  per-slider behavior, genre starting ranges, interaction effects, and
+  slider-vs-prompt guidance; linked from the Suno reference index.
+- **Covers & Personas workflow guide** (#239) — `reference/workflows/covers-and-personas.md`
+  plus optional cover-track sections in `templates/track.md`.
+- **Expanded error-recovery guide** (#240) — added recovery procedures for state
+  cache corruption, mastering mid-failure cleanup, malformed markdown, batch
+  partial failures, config path resolution, and plugin/MCP corruption.
+
+### Tests
+- **Dedicated handler test coverage** (#236) — new `test_handlers_content.py`,
+  `test_handlers_promo.py`, and `test_handlers_maintenance.py` (the last closing
+  the `migrate_audio_layout` coverage gap).
+- **Corrected logger scoping** (#344) in `test_config_load_failure_logs_warning`
+  so it pins the actual emitting module.
+
+### Fixed
+- **Handler & CLI correctness fixes**:
+  - **`check_version_sync` no longer crashes on non-UTF-8 manifests** (#394).
+    Manifests are read as UTF-8 and `UnicodeDecodeError` is handled, so the
+    hook degrades cleanly instead of tracebacking on a non-UTF-8 locale.
+  - **Idea duplicate detection is case-insensitive** (#395), matching the
+    case-insensitive readers — `"cyberpunk dreams"` is now rejected as a
+    duplicate of `"Cyberpunk Dreams"` instead of creating a second entry.
+  - **Rhyme-scheme analyzer groups clear rhymes correctly** (#396). The
+    spelling-based tail extraction split rhyming pairs (`eyes`/`cries`,
+    `times`/`rhymes`); the nucleus is now capped and vowel `y`/`i` folded so
+    they share a rhyme group, without merging genuinely distinct words.
+  - **`_stage_layout` survives a corrupt `LAYOUT.md`** (#399). A non-UTF-8
+    layout file raised `UnicodeDecodeError` outside the stage's guard,
+    aborting the master pipeline; the read is now guarded and the stage
+    regenerates from defaults per its non-halting contract.
+  - **`create_track` writes valid YAML for quoted titles** (#403). A title
+    containing a double-quote produced malformed frontmatter (silently
+    dropping fields); the frontmatter scalar is now YAML-escaped.
+  - **`update_streaming_url` escapes URLs in frontmatter** (#404). A URL with
+    a double-quote or backslash produced malformed YAML on the in-place edit
+    path, silently dropping the URL from the state cache; it is now escaped.
+  - **`find_album_path` validates before globbing** (#405). An `album_name`
+    with glob metacharacters was expanded as a pattern before the guard ran;
+    validation now precedes all glob use.
+  - **`qc_tracks` no longer aborts the batch on one bad file** (#408). A
+    corrupt WAV now yields a per-track FAIL row and the batch continues,
+    instead of tearing down the run.
+  - **`reference_master` batch mode excludes the reference reliably** (#409).
+    The reference WAV is matched by resolved path, so an absolute `--reference`
+    is no longer re-mastered as its own target.
+- **Audio/DSP edge-case crashes hardened** across the mastering and mixing
+  pipelines:
+  - **Silent/corrupt tracks no longer poison album LUFS aggregates** (#400).
+    A `-inf` LUFS reading fed `avg_lufs`/`lufs_range` in the verification and
+    ceiling-guard stages, producing `-inf`/`inf` and spurious range failures.
+    A shared `_finite_lufs_aggregates` helper now aggregates finite readings
+    only (returning `None` when all tracks are silent), and downstream
+    rounding/comparisons handle `None`.
+  - **Mix analyzer survives degenerate WAVs** (#401, #402). A zero-length WAV
+    crashed with an empty-array reduction; a sub-10-sample buffer produced a
+    `NaN` noise floor. Both now return a clean per-file result instead.
+  - **`apply_fade_out` no longer raises on sub-sample fades** (#406). A tiny
+    positive duration rounded `fade_samples` to 0 and raised; it is now a
+    no-op fade.
+  - **`original_lufs` reports the source loudness** (#407), measured before
+    processing rather than after.
+  - **Envelope followers no longer divide by zero** (#410). A 0 ms attack or
+    release in `gentle_compress`/`apply_transient_shaper` raised
+    `ZeroDivisionError`; time constants are clamped to a small positive floor.
+  - **`find_mastered_dir` skips non-directory candidates** (#411) instead of
+    crashing with `NotADirectoryError` when a candidate path is a file.
+  - **`find_best_segment` no longer skips the last analysis window** (#412),
+    an off-by-one in the window loop bound.
+- **Malformed slugs return clean JSON across every MCP tool** (#443). The
+  shared `_find_album_or_error` / `_resolve_audio_dir` / `_find_track_or_error`
+  helpers called `_normalize_slug` raw, and ~13 tool handlers called it
+  directly, so a slug with a path separator, null byte, or `..` traversal
+  raised an uncaught `ValueError` to the MCP layer — the same class #397/#442
+  fixed in a handful of handlers. The three helpers now convert that
+  `ValueError` into their structured error, and a single error boundary
+  installed at tool registration wraps every handler so any leaked
+  `ValueError` becomes a `{"error": ...}` response. Only `ValueError` is
+  caught, so genuine bugs still surface; the boundary preserves each tool's
+  FastMCP schema (it wraps via `functools.wraps`).
+- **Songbook no longer drops the first music page of every track** (#390).
+  `create_songbook` inferred `singles_have_title_pages = (manifest is not
+  None)` and unconditionally skipped page 0 of each single. But
+  `prepare_singles` writes `.manifest.json` even when it silently skips the
+  title page (pypdf/reportlab missing, or the step raised) — so singles with
+  no title page but a manifest lost their real first page (the whole track
+  for a 1-page transcription) and the TOC miscounted. `prepare_singles` now
+  records the actual per-track `title_page` fact in the manifest, and
+  `create_songbook` trusts that flag (falling back to the prior filename
+  heuristic for legacy manifests), so only genuine title pages are skipped.
+- **`create_track` validates `track_number`** (#372). Non-numeric values
+  (`abc`, `1a`, empty), `None`, booleans, and zero/negative numbers now
+  return a structured error naming the invalid value instead of crashing
+  with an unhandled `ValueError` — and `00` no longer silently creates a
+  malformed `00-title.md` track. Integers and numeric strings (`7`, `"03"`)
+  keep working.
+- **`_update_frontmatter_block` honors its error contract** (#378). A track
+  file whose frontmatter parses to a list or scalar now returns
+  `(False, "Frontmatter in <path> is not a mapping (got <type>)")` per the
+  documented contract instead of raising `TypeError` out of the sheet-music
+  publish loop.
+- **`db_sync_album` returns a JSON error on malformed slugs** (#379). Slugs
+  containing path separators, null bytes, or `..` raised an uncaught
+  `ValueError` to the FastMCP layer; the slug lookup is now guarded with the
+  same try/except pattern every sibling `db_*` handler uses.
+- **`db_create_tweet` no longer silently drops the track link** (#380). When
+  `track_number > 0` but no matching track row exists, the tool inserted the
+  tweet with a NULL `track_id` while echoing the requested track number as
+  if it had linked. It now returns an error naming the missing track and
+  album (suggesting `db_sync_album` or `track_number=0`) before any insert.
+- **`analyze_tracks.py` handles WAV-less directories** (#386). Pointing the
+  CLI at a directory with no WAV files crashed with a `ValueError` from an
+  empty-array reduction; it now logs a clear "No tracks to analyze" error
+  and exits nonzero.
+- **Slug validation errors are clean JSON in three more handlers** (#397).
+  `reset_mastering`, `migrate_audio_layout`, and `get_skill` let
+  `_normalize_slug`'s `ValueError` escape as an opaque tool error on inputs
+  like `../other`; all three now catch it and return their module's
+  structured error shape.
+
+- **`suno-engineer` now requires checking the Style Box descriptor ceiling and defaults to
+  per-section Performance Cues** (follow-up to #449). #449 documented concrete vocal/instrument/SFX
+  descriptors and mentioned `v5-best-practices.md`'s "4-7 descriptor sweet spot" and
+  `structure-tags.md`'s Performance Cues technique, but never wired either into the
+  `suno-engineer` workflow or its Quality Standards checklist as something to actually check
+  before finalizing a prompt. In real album production this produced Style Boxes with 20+
+  comma-separated descriptors (mostly synonym-piles like "imperious, commanding, regal, grand,
+  theatrical, explosive") and Lyrics Boxes with bare `[Verse]`/`[Chorus]` tags carrying no
+  delivery variation — output that repeatedly came back sounding flat and generic across
+  multiple tracks on an album. Added an explicit workflow step + Quality Standards checks
+  requiring: (1) Style Box trimmed to the 4-7 descriptor sweet spot before generating, and
+  (2) 1-3 Performance Cues appended to every structure tag (`[Verse 1 - cold, regal]`) by
+  default, moving the song's emotional arc out of the Style Box prose and into the Lyrics Box
+  where it belongs. Rewriting one in-progress track's Style Box (20+ descriptors → 6) and
+  adding Performance Cues to all 12 of its section tags produced a subjectively much more
+  dynamic, less generic-sounding generation — the before/after difference is what prompted
+  this fix.
+- **`suno-engineer` guidance-consistency follow-ups** (#454, follow-up to #453). Trimmed the
+  Style Prompt example to the 4-7 sweet spot (it modeled 9 descriptors); reconciled the
+  emotional-arc location between `suno-engineer/SKILL.md` and `voice-tags.md` § Emotion Arc
+  Mapping (baseline mood in Style Box prose, per-section variation in Performance Cues,
+  cross-referenced both ways); updated `templates/track.md` to model per-section Performance
+  Cues instead of bare section tags and to stop redirecting delivery notes to the Style Box;
+  and clarified that Performance Cues plus the optional standalone accent share one
+  ≤3-per-section budget.
+
+## [0.94.0] - 2026-07-03
+
+### Fixed
+- **`load_config` no longer returns non-mapping YAML that crashes every caller**
+  (#389). A config file whose top level is a list or scalar (e.g. `- foo` or
+  `42`) was passed through as-is, so the first `.get()` in `resolve_path`,
+  `resolve_overrides_dir`, or any other consumer died with `AttributeError`.
+  Non-mapping configs now log a clear error naming the file and the actual
+  type, exit cleanly when `required=True`, and return the fallback otherwise.
+  The indexer's own `read_config` had the same defect (feeding the CLI
+  `rebuild`/`update` commands and the MCP server's state cache) and is
+  hardened identically.
+- **State rebuilds no longer crash on malformed config value types** (#391).
+  `build_config_section` called bare `int()` on `generation.max_lyric_words`
+  (ValueError/TypeError on `lots` or `[800]`, OverflowError on `.inf`) and
+  concatenated `paths.content_root` as a string (TypeError on numeric values,
+  first surfacing inside `resolve_path`). New `_cfg_int`/`_cfg_str`/
+  `_cfg_section` guards — following the `_cfg_bool` pattern from #388 — warn
+  and fall back to defaults for wrong-typed ints, path strings, section
+  mappings (`paths`/`artist`/`database`/`generation`), `artist.name`, and the
+  ideas file path, so CLI rebuilds and incremental updates degrade gracefully
+  instead of aborting with a traceback. Blank keys (`overrides:` with no
+  value) default silently as before; warnings log only the key and type,
+  never raw values, so misshapen `database` sections cannot leak credentials
+  into logs. A wrong-typed `logging:` section (or non-numeric
+  `logging.max_size_mb`) now disables file logging with a warning instead of
+  crashing MCP server startup.
+- **`migrate_state` no longer crashes when `state.json` has a non-string
+  version** (#393). A JSON-valid state file with `"version": 1.2` (float,
+  int, null, or list) raised `AttributeError` inside version comparison.
+  Non-string versions now log a warning and return `None`, triggering the
+  documented full-rebuild path. Same treatment for the surrounding state
+  shape: a JSON-valid non-object `state.json` is quarantined like corrupt
+  JSON (backed up, rebuilt), wrong-typed `config`/`albums` sections trigger a
+  full rebuild instead of crashing `incremental_update`, and a non-string
+  `last_migrated_version` is dropped on rebuild and treated as untracked by
+  `get_pending_migrations` instead of crashing every subsequent
+  `health_check`.
+- **`argument-hint` YAML frontmatter now parses as a string across all runtimes**
+  (#439). Three skill files (`configure`, `next-step`, `test`) declared
+  `argument-hint: [ ... ]` with an unquoted `[`, which YAML parses as a
+  flow sequence (array). Claude Code tolerates this, but GitHub Copilot CLI
+  silently skips such skills — they never appear in `copilot skill list`,
+  with no error even at debug log level (reproduced on 1.0.64 and 1.0.68;
+  the field was added in 1.0.64 and has required a string ever since).
+  Bracket forms containing a colon can also crash Claude Code's TUI
+  ([anthropics/claude-code#22161](https://github.com/anthropics/claude-code/issues/22161)).
+  Values are now wrapped in double quotes so every runtime receives a string.
+- **Pronunciation gate no longer false-passes on words containing "Word"**
+  (#384). The table parser skipped ANY row whose line contained the
+  substring "Word", silently dropping data rows like "Wordsworth" — if
+  those were the only entries, `check_pronunciation_enforcement` reported
+  `all_applied: true` with the phonetic missing from the lyrics, defeating
+  the pronunciation hard rule. The same parser bug lived in the BLOCKING
+  Gate 3 of `run_pre_generation_gates` — both sites now share one parser
+  (`_parse_pronunciation_table`) that matches the header row by its first
+  cell only and separator rows by cell content rather than substring. The
+  batch promo CLI also exits non-zero on per-track failures now, so
+  `generate_all_promos.py`'s error detection actually fires.
+- **Batch promo-video generation reports real per-track results** (#382).
+  The handler globbed `*_promo.mp4` after the run and marked every file
+  `success: true` — stale files from previous runs counted as fresh
+  successes and per-track ffmpeg failures were invisible.
+  `batch_process_album` now returns its per-track outcomes and the
+  response includes `failed` / `failed_tracks`.
+- **`--retries` can no longer silently skip every upload** (#385).
+  `retry_upload` with a non-positive retry count never entered its
+  attempt loop and reported every file as failed (even in `--dry-run`).
+  It now always attempts at least once, and the CLI rejects
+  `--retries < 1` with a clear argparse error.
+- **IDEAS.md and status writes are crash-safe; rename failures are honest**
+  (#381, #398, #383). Every mutating write in `ideas.py` (idea backlog,
+  promoted-idea README injection) and the track/README status rewrites at
+  the end of `master_album` used truncate-then-write `write_text` — a crash
+  mid-write could leave the entire idea backlog or a source-of-truth
+  markdown file empty. All now go through the existing `atomic_write_text`
+  helper (temp file + fsync + atomic rename). And when `rename_album` /
+  `rename_track` move files successfully but the state-cache write fails,
+  they no longer report a silently-clean success with a divergent in-memory
+  cache: they rebuild the cache from disk (ground truth — the files did
+  move) and report `cache_rebuilt`, or degrade to an explicit `warning`
+  telling you to run `rebuild_state` if the rebuild also fails.
+- **`transcribe.py` album-name resolution works again** (#375). The
+  documented `python3 transcribe.py <album-name>` invocation built
+  `{audio_root}/{artist}/{album}` — omitting the `artists/` and
+  `albums/{genre}/` segments of the mirrored layout — so it never found a
+  real album and always fell through to "Source not found". It now sweeps
+  genre directories under `{audio_root}/artists/{artist}/albums/` (literal
+  comparison, no glob), warns if legacy same-name twins exist under
+  multiple genres, and the "Tried:" error hint prints the correct path
+  shape.
+- **Genre-list cache no longer poisons on a degenerate scan**. The
+  `_get_valid_genres()` cache stored whatever the first call computed —
+  including an empty set from a broken or mocked plugin root — and served
+  it for the life of the process, making `create_album_structure` reject
+  every genre from then on (the source of an intermittent xdist test
+  failure). The cache is now keyed by `PLUGIN_ROOT` and only stores
+  non-empty results.
+- **Codec-preview ffmpeg can no longer hang `master_album` forever** (#387).
+  `render_aac_preview` ran ffmpeg with no timeout, so a wedged subprocess
+  blocked the samples stage (and the whole `master_album` call)
+  indefinitely. The invocation is now bounded at 120s (mirroring
+  `adm_validation.py`); a timeout raises `CodecPreviewError`, which the
+  samples stage already degrades to a per-track warning.
+- **Quoted YAML booleans no longer invert to True** (#388). `bool("false")`
+  is `True` in Python, so quoting a falsy boolean anywhere in user YAML
+  silently enabled the feature the user disabled: `mastering.
+  adm_validation_enabled: "false"` in config.yaml (or album frontmatter — the
+  only path that enables ADM since #353) turned Apple Digital Masters
+  validation ON, `archival_enabled: "no"` enabled archival output,
+  `database.enabled: "false"` still opened Postgres connections,
+  `cloud.public_read: "false"` uploaded files with a **public-read ACL**,
+  quoted `cloud.enabled`/`logging.enabled`/`sheet_music.section_headers`/
+  `require_suno_link_for_final`/`require_source_path_for_documentary`
+  flipped their gates, and a track or album `explicit: "false"` frontmatter
+  flag marked the content explicit. Shared `parse_yaml_bool()` /
+  `coerce_yaml_bool()` helpers (tools/shared/config.py) now parse YAML 1.1
+  boolean literals (`true/false/yes/no/on/off/1/0`, case-insensitive) at
+  every user-YAML boolean site; unrecognized values fall back to the key's
+  documented default with a warning instead of silently meaning True. State
+  schema bumps 1.3.0 → 1.4.0 with a migration that re-coerces cached
+  `explicit` flags stored as strings by the old parsers.
+- **Album slug collisions across genres no longer silently erase an album from
+  the state cache** (#392). The indexer keyed the cache's `albums` map by bare
+  directory name, ignoring the genre path segment — two albums with the same
+  slug under different genres overwrote each other, so one album (and all its
+  tracks) vanished from every MCP tool, and `create_album_structure` only
+  checked the genre-scoped path, so it happily created the twin. Album slugs
+  are now globally unique across genres: `create_album_structure` (and
+  `promote_idea`, which inherits the guard) and `rename_album` reject a slug
+  that already exists under any other genre, naming the existing genre/path
+  and suggesting a different name or `/bitwize-music:rename`. Pre-existing
+  on-disk collisions are detected at index time instead of silently
+  overwriting — the lexicographically-first genre wins deterministically, and
+  the shadowed album(s) are recorded in a new `album_collisions` state field
+  (schema 1.2.0 → 1.3.0; migration seeds `[]`) and surfaced by `health_check`,
+  `find_album`, `list_albums`, `rebuild_state`, and the indexer CLI with the
+  fix guidance (rename or move the directory, then rebuild).
+
+### Docs
+- **Suno vocal-age control troubleshooting** (`reference/suno/tips-and-tricks.md`).
+  Vague age adjectives ("mature and deep") in the Style Box are weak signals
+  that get outcompeted by breathy/soft-coded words ("intimate", "whispered")
+  sitting nearby, so Suno keeps generating a young-sounding vocal even when
+  age is explicitly requested. Documents the escalation path found in
+  production: concrete vocal-range/texture tags (`alto`, `contralto`,
+  `smoky`, `weathered`) first, then — if a fresh generation still skews
+  young — inline lyrical metatags per section (`[Verse 1: Raspy older female
+  vocal, husky contralto]`) plus dropping youth-coded genre words like "pop"
+  in favor of inherently mature-vocal-coded genres ("torch song", "vintage
+  soul", "cabaret"), with Persona/Voice cloning (Pro/Premier) as the final
+  fallback.
+- **Suno generic-vocal troubleshooting** (`reference/suno/tips-and-tricks.md`).
+  A related but distinct failure mode: Style Box text using emotion/character
+  words ("powerful and defiant", "sultry") instead of concrete vocal
+  range/texture tags produces a technically correct but generic, characterless
+  voice, since Suno has no reliable mapping from mood words to timbre. Fix
+  mirrors the vocal-age entry — swap or supplement emotion words with range
+  (`mezzo-soprano`, `contralto`) and texture (`gritty`, `raspy`, `commanding`)
+  tags, plus an explicit `no generic or polished studio pop vocal` exclude.
+
+## [0.93.0] - 2026-07-01
+
+### Fixed
+- **Album README title guarded against null/non-string frontmatter** (#417).
+  State indexing no longer errors when an album's `title` frontmatter is
+  missing or not a string.
+- **Batch of default and common-path fixes** (#416, closing #370/#373/#374/#376).
+- **Promo clip color validation** (#415). Auto-extracted sampler colors are
+  converted to `#`-prefixed hex so generated promo clips pass validation.
+- **Plugin migration notes now actually surface on upgrade** (#320). The
+  session-start migration check (Step 4.5) compared state's `plugin_version`
+  against the manifest, but `build_state`/`incremental_update` overwrote
+  `plugin_version` with the installed version on every rebuild — so "stored <
+  current" could never be true and migrations were silently skipped for every
+  upgrading user. Worse, no code actually parsed or surfaced migrations; Step
+  4.5 was prose with nothing behind it. Fixed by separating
+  `last_migrated_version` (only advanced on explicit acknowledgment, preserved
+  across rebuilds) from `plugin_version` (installed version, for display), and
+  adding two MCP tools: `get_pending_migrations` (computes the notes between
+  `last_migrated_version` and the installed version, already parsed and sorted)
+  and `acknowledge_migrations` (records them as processed). A pre-tracking
+  state (`last_migrated_version` null) now surfaces the full backlog once
+  instead of silently skipping it; a fresh install is seeded to the installed
+  version so it sees nothing. No schema-version bump — bumping would force the
+  live MCP path to auto-rebuild every existing state and erase the "behind"
+  status the fix depends on. `acknowledge_migrations` also refuses to record a
+  null version (e.g. when plugin.json is unreadable and no version is supplied),
+  which would otherwise reset `last_migrated_version` and resurface the entire
+  backlog on the next session.
+- **`analyze_audio` no longer emits invalid JSON for silent tracks** (#371). A
+  fully/near-silent WAV made `analyze_track` return `-inf` LUFS (and `nan`
+  dynamic range), which poisoned `avg_lufs`/`lufs_range` and serialized as the
+  invalid tokens `Infinity`/`-Infinity`/`NaN` — rejected by strict parsers (JS
+  `JSON.parse`, the MCP client), so the whole album response failed to parse.
+  Fixed at two layers: `_safe_json` now sanitizes non-finite floats to `null`
+  (protects every MCP tool, mirroring `JSON.stringify(Infinity) === "null"`),
+  and `analyze_audio` computes its summary over finite LUFS only, reporting
+  silent tracks in a new `summary.silent_tracks` field plus a recommendation
+  instead of a nonsensical "Average LUFS is -inf".
+
+### Changed
+- Dependency maintenance: held scipy/numpy at the Python 3.11 ceiling with
+  3.11-safe bumps, plus routine pip and GitHub Actions group bumps (#425,
+  #423, #420, #414, #413).
+
+### Docs
+- **Corrected the plugin install identifier across docs** (#426, #427). The
+  install command is `/plugin install bitwize-music@bitwize-music` — the
+  marketplace name comes from `marketplace.json`, not the repo name — fixed in
+  the README, the `test-definitions.md` consistency test, and the
+  `troubleshooting.md` skill-files path. Thanks @DaveMatNat.
+
+## [0.92.0] - 2026-06-01
+
+### Changed
+- **Skills now use model tier aliases** (`opus`/`sonnet`/`haiku`) in `model:`
+  frontmatter instead of pinned IDs. Aliases auto-track the frontier model of each
+  tier, so new Claude releases (e.g. Opus 4.8) are picked up with no file edits (#365).
+- **Added per-skill `effort:` levels** on Opus/Sonnet skills — `max` for core
+  creative work (lyric writing/refinement/review, album concept), `high`/`medium`/
+  `low` by task. Haiku skills omit `effort:` (unsupported on that tier) (#366).
+- **Removed the `skill-model-updater` skill and the `Claude Model Updater` CI
+  workflow** (`.github/workflows/model-updater.yml`; 53 skills total, down from 54).
+  Their per-release version-bumping job is obsolete under aliases, and the
+  alias/effort hygiene they would have audited is now enforced by the test suite —
+  with the model-alias format additionally checked by the Static Validation CI job.
+- The `model:` field is now **alias-only** — pinned `claude-*` IDs are rejected by
+  both the test suite and the Static Validation workflow, so the convention can't
+  silently regress.
+- Updated `model-strategy.md`, `SKILL_INDEX.md`, `docs/skills.md`, the skill test
+  suite, and the commit co-author convention to reflect aliases, effort, and Opus 4.8.
+
+## [0.91.0] - 2026-05-08
+
+### Changed (BREAKING)
+- **ADM validation is now per-album opt-in via README frontmatter**
+  (issue #353). Prior behavior: `mastering.adm_validation_enabled:
+  true` in `~/.bitwize-music/config.yaml` would run ADM on every
+  album. New behavior: the album's own README must include
+  `mastering: { adm_validation_enabled: true }` in its frontmatter.
+  Global `config.yaml` value is ignored for this key.
+
+  Context: a significant chunk of mid-April 2026 went into building
+  out the ADM pipeline — dark-casualty classification, per-track
+  ceiling tightening, harmonic excitation in polish, warn-fallback
+  sidecars, observability instrumentation (#347, #348, #349, #350,
+  #351, #352) — only to discover at the end that ADM (Apple Digital
+  Masters inter-sample peak validation) is an Apple-submission-tier
+  niche that almost never matters for Suno-generated tracks. Suno
+  output typically lacks the high-mid spectral content ADM requires,
+  so most tracks ship dark-casualty-flagged regardless of how much
+  the pipeline works at them.
+
+  Rather than rip out the ADM infrastructure — the work has real
+  value for the minority of albums that ARE submission-viable, and
+  much of the underlying machinery (warn-fallback contract,
+  per-track ceiling architecture, spectral regression guard) pays
+  off on normal mastering too — it stays enabled per-album via
+  frontmatter opt-in and defaults OFF for everyone else. No more
+  silent 3-5 min/track overhead on runs that can't pass anyway.
+
+  Operators who want ADM per album add `mastering: {
+  adm_validation_enabled: true }` to the album's README
+  frontmatter. Global `config.yaml` value is ignored for this
+  key — it's the kind of decision that should live with the
+  album, not with the operator's memory.
+
+### Added
+- Per-album `mastering:` frontmatter block. Currently accepts
+  `adm_validation_enabled`; future keys (ceiling_db, target_lufs,
+  archival_enabled) will use the same block with standard
+  frontmatter > config > default cascade.
+- Harmonic excitation in polish — `apply_harmonic_excitation`
+  DSP primitive + per-stem `excitation_db` preset setting.
+  When `defaults.analyzer.adm_aware_excitation: true` in the
+  mix preset, dark-classified stems (high_mid band_energy < 10 %)
+  get synthetic upper-harmonic content added during polish via
+  tanh saturation → high-pass → attenuate → mix. Gives
+  mastering's limiter room to work on dark Suno material that
+  would otherwise ship with ADM inter-sample peak flags. Off by
+  default — enable per preset when targeting ADM compliance.
+- Post-QC spectral regression guard — WARN when mastering pushed a
+  track's `tinniness_ratio` (high_mid/mid) above 0.6 AND the ratio
+  grew by more than +0.10 from pre-master. Preset-tunable via
+  `post_qc_tinniness_warn_floor` and `post_qc_tinniness_warn_delta`.
+  Flags the regressed track(s) in `ctx.stages["post_qc"]
+  ["tinniness_regressions"]` and in `ctx.warnings`.
+- `fix_dynamic` iterates up to 3 times to reach target LUFS,
+  returning `converged` and `iterations_run` in metrics.
+- `_stage_verification` emits `VERIFICATION_WARNINGS.md` sidecar and
+  downgrades to `status: "warn"` when auto-recovery exhausts
+  iterations. Pipeline continues instead of halting.
+- **`/bitwize-music:promote-idea` skill + `promote_idea` MCP tool (#328)**: One-shot conversion of a `Pending` idea from `IDEAS.md` into a full album project. Auto-derives the album slug from the idea title (lowercase, ASCII-only, diacritics stripped, apostrophes elided, non-alphanumeric → hyphen) or accepts an explicit override. Calls `create_album_structure` with the idea's genre, injects the idea's `**Concept**` text into the new album `README.md` under a `## Concept` section, advances idea status `Pending → In Progress`, and adds a `**Promoted To**: <slug>` back-link in `IDEAS.md`. Distinct errors for missing idea, already-promoted idea, missing/invalid genre, and duplicate album slug. `documentary=True` flag mirrors `new-album` behavior (creates `RESEARCH.md` + `SOURCES.md`). The state indexer now also extracts `concept` and `promoted_to` fields from `IDEAS.md` so downstream tools can read the concept without re-parsing the markdown.
+- **Genre-aware silence QC thresholds**: new `silence_leading_max_s` / `silence_trailing_max_s` preset fields (`tools/mastering/genre-presets.yaml`). Defaults 0.5 / 3.0 s. `electronic` and `edm` override `silence_leading_max_s: 1.5` so filter-sweep / build intros don't FAIL the silence gate. (#323 comment)
+- **Click removal on every stem polish chain**: `vocals`, `backing_vocals`, `bass`, `synth`, `guitar`, `keyboard`, `strings`, `brass`, `woodwinds`, `other` now run click removal as the first step (was drums / percussion only). Shared `_apply_click_removal` helper standardizes the detector across all chains — `click_peak_ratio: 15.0` default matches the analyzer in `analyze_mix_issues` so polish and analysis report the same events. Genre presets (e.g. `electronic: 10.0`) overlay the default per-genre. Drum / percussion chains kept `cubic` repair (better spectral reconstruction on isolated transients); harmonic stems use `linear` repair (safer on dense mix content and vocal consonants). `mix_track_stems` dispatch unified — every processor now accepts `report` and surfaces `clicks_removed`. (#323 comment)
+- `ctx.track_ceilings`, `ctx.dark_tracks`, `ctx.remaster_filenames`
+  on `MasterAlbumCtx` — per-track ADM tightening state.
+- `is_dark` field on `analyze_track` output (`band_energy['high_mid']
+  < 10 %`).
+- `ADM_VALIDATION.md` sidecar now includes `dark_casualties`,
+  `tightened_tracks`, and per-track final `track_ceilings` in the
+  adm_validation stage output.
+
+### Changed
+- **Opus skills migrated from 4.6 to 4.7** (#319). Bumped `model:`
+  frontmatter on the seven Opus-tier skills: `album-conceptualizer`,
+  `lyric-refiner`, `lyric-reviewer`, `lyric-writer`, `researchers-legal`,
+  `researchers-verifier`, `suno-engineer`. Co-author line in `CLAUDE.md`,
+  `CONTRIBUTING.md`, `.github/SECURITY.md`, and `.github/pull_request_template.md`
+  updated to `Claude Opus 4.7`. Docstring example in `tools/state/parsers.py`
+  and schema example in `reference/state-schema.md` updated to use the
+  current model ID. Sonnet/Haiku skills were already on current versions
+  and required no changes. CI skill-frontmatter regex already admits 4.7
+  IDs. No fixed thinking budgets exist in the repo, so 4.7's
+  adaptive-thinking-only constraint is a no-op here.
+- `master_album` docstring enumerates halt vs warn-fallback
+  conditions explicitly.
+- **Logger names standardized to `__name__` (#268)**: All 12 MCP server modules that used `logging.getLogger("bitwize-music-state")` now use `logging.getLogger(__name__)`, giving hierarchical logger names (e.g., `handlers.processing.audio`) so operators can filter logs by module/subpackage. Affected: `server.py`, `handlers/{core,database,gates,maintenance,text_analysis}.py`, `handlers/processing/{audio,video,mixing,sheet_music,_album_stages,_helpers}.py`. Six `caplog` assertions in the test suite updated to reference the new module-hierarchical logger names.
+- **Dense-transient genre click QC thresholds bumped** to match `idm`'s calibration (`click_peak_ratio: 10.0`, `click_fail_count: 30`, was 8.0/15). Applies to `electronic`, `edm`, `techno`, `drum-and-bass`, `jungle`, `dubstep`, `hardstyle`, `breakbeat`, `metal`, `industrial`, `trap`, `drill`, `phonk`, `grime`, `shoegaze`, `dream-pop`. Prior values were flagging post-polish electronic drum transients as clicks (20+ clicks on a 3-min track → FAIL) even though the hits are musical, not digital pops. (#323 comment)
+- **`polish_album` verify stage** now runs a pre-master check subset (`format, mono, phase, clipping, silence, spectral`) and defers `truepeak` / `clicks` to post-mastering QC. Polished audio is un-limited and dense-transient (the limiter is what enforces the ceiling), so failing those checks on pre-master files is a false gate. The stage surfaces `checks_run` and `checks_deferred_to_post_master` for transparency. (#323 comment)
+- **`master_album` pre-QC stage** now forwards `genre` to `qc_track` (so genre-preset silence / click thresholds apply) and surfaces `checks_run` / `checks_deferred_to_post_master` in its status output. (#323 comment)
+- ADM ceiling tightening is now per-track. A single clipping track
+  no longer drags the album-wide ceiling down; clean tracks keep
+  their original ceiling regardless of neighbor ADM failures.
+- `_stage_mastering` honors `ctx.remaster_filenames` — on ADM retry
+  cycles, only clipping non-dark tracks are re-mastered.
+- Dark tracks (high_mid band_energy < 10 %) are excluded from ADM
+  tightening; their ADM clips route to warn-fallback instead of
+  forcing further ceiling reductions.
+
+### Fixed
+- **Analyzer recommendations never reached polish** (root cause of
+  "9/10 dark_casualty" on Suno albums despite enabling
+  `adm_aware_excitation`). `analyze_mix_issues` keyed per-stem
+  analyses by raw WAV filename stem (`01-Vocals`, `lead_vocals`, …)
+  while `mix_track_stems` looked them up by canonical `STEM_NAMES`
+  category (`vocals`, `drums`, …) from `discover_stems`. Keys
+  never matched → `stem_recs = {}` → `overrides_applied: []` →
+  excitation (and every other analyzer rec) was silently dropped.
+  Bonus bug: `_analyze_one`'s
+  `MIX_PRESETS["defaults"][stem_name]["excitation_db_when_dark"]`
+  lookup also failed for the same reason, falling back to a
+  hardcoded 2.0 for every stem regardless of type. Fix: analyzer
+  now uses `discover_stems` to canonicalize before storing
+  results, matching what polish looks up.
+- ADM warn-fallback reporting was inaccurate when the loop
+  short-circuited on the all-dark first check:
+  - Warning text hardcoded `_ADM_MAX_CYCLES` (the configured max)
+    instead of the actual executed count. Now reports
+    `adm_cycles_executed` + `adm_tightening_cycles` separately and
+    uses different wording when no tightening ran.
+  - `ADM_VALIDATION.md` advice contradicted the pipeline verdict —
+    recommended "Tighten true-peak ceiling by 0.5 dB and re-master"
+    even when every failure was a dark-content casualty. The
+    renderer now takes a `dark_casualty_filenames` kwarg and tailors
+    the advice: all-dark failures get harmonic-excitation guidance,
+    partial failures split advice by track class.
+  - `per_track_decisions` dict on `adm_validation` stage output —
+    records classification (`dark_casualty` / `tightenable`),
+    outcome (`not_tightened` / `diverged` / `floor_reached` /
+    `tightened`), reason, cycle, and final ceiling per clipping
+    track. Survives the all-dark short-circuit path where
+    `adm_history` and `track_ceilings` are both empty.
+- Auto-recovery path now writes at `output_sample_rate` (was using
+  source rate, so 48 kHz polished sources produced mastered files
+  at 48 kHz while the rest of the album was 96 kHz).
+- `master_album` halting at `verification` when track-level auto-recovery
+  couldn't converge. The docstring promised warn-fallback; the
+  implementation now delivers it.
+- **`master_album` status_update stage no longer brittle on re-masters (#335)**: The stage previously only promoted tracks from `Generated → Final` and appended a "Skipped: expected Generated" error for any other starting status. Combined with a hardcoded `status: "pass"` report this silently no-op'd the entire stage on any re-master of an album whose tracks weren't pinned at exactly `Generated` (Not Started, Sources Pending, Sources Verified, In Progress, Released — all hit this). The stage now promotes any non-terminal status (`Not Started`, `Sources Pending`, `Sources Verified`, `In Progress`, `Generated`) to `Final` because the mastered WAV is real and status should follow. `Final` and `Released` are left alone as terminal states; `Released` specifically is never demoted back to `Final` on a re-master. Tracks with an empty `path` (cache-staleness, no disk file) are now silently skipped instead of appending an error. Stage outcome is now classified honestly: `pass` when clean or idempotent, `partial` when some updates succeeded and some errors exist, `skipped` when nothing updated AND errors exist (was always `pass` before, masking real failures).
+- **`/bitwize-music:lyric-refiner` no longer blocks on instrumental-mixed albums (#311)**: The refiner's former guard clause — "Track status `Not Started` or `Sources Pending` → error" — fired on any non-ready vocal track and stopped the whole run, even when other tracks were refineable. Replaced with a three-bucket triage (instrumental / not-ready / refineable): non-refineable tracks are silently skipped with a one-line note (`Skipping {track} — instrumental` or `Skipping {track} — no lyrics yet ({status})`), and the refiner processes whatever is left. Zero-refineable is now a clean informational exit, not a guard-clause failure. Added explicit `### Instrumental Guard` section to match the convention shared with `lyric-writer` / `lyric-reviewer` / `pronunciation-specialist`, and extended the `TestInstrumentalGuard.test_instrumental_guard_section` parametrize to cover `lyric-refiner`. Report header now shows both skip counters: `X of Y (Z instrumental skipped, W Not Started skipped)`.
+- **qc_audio silence check (#321)**: Trailing silence followed by a sub-threshold noise-floor blip no longer gets misclassified as an internal gap. The silence detector now classifies each silent region by position AND by the amount of non-silent content between the region and the file edge — a region ending within 1s of the file end (with <300ms of non-silent content after it) counts as trailing, not internal. Unblocks the `master_album` / `polish_album` pre-QC gate on tracks with natural fade-outs.
+- **analyze_mix_issues click detection (#323)**: Replaced the sample-wise `|diff| > 6·σ(diff)` detector with a windowed peak-to-RMS check (matches `qc_tracks._check_clicks`) at `peak_ratio=15` over 10 ms windows. The old detector flagged tens of thousands of "clicks" on every clean vocal, bass, and synth stem (vocal consonants and synth attacks have high instantaneous derivatives but spread their energy across a window), emitting `click_removal: true` recommendations that the polish pipeline silently ignored. The analyzer now only recommends click removal when genuine single-sample discontinuities exist.
+
+## [0.90.0] - 2026-04-15
+
+### Added
+- **opus_safe TP override (#290)**: `opus_safe: true` preset field applies -1.5 dBTP ceiling for dense-transient genres (EDM, trap, metal, dubstep, drum-and-bass, hardstyle, industrial, punk).
+- **ADM validation stage (#290 step 9)**: `master_album` now runs `_stage_adm_validation` after ceiling guard — encodes each mastered WAV to AAC (ffmpeg native `aac` default; afconvert on macOS; `libfdk_aac` via config override), decodes back, checks for inter-sample peaks. Emits `ADM_VALIDATION.md` sidecar. Halts if clips found.
+- **ID3v2.4 metadata embedding (#290)**: `master_album` embeds artist, album, title, copyright, and label into mastered WAV delivery files via `tools/mastering/metadata.py`. ISRC and UPC fields are supported by the tool but not yet sourced in the pipeline (follow-up).
+- **polish_audio per-stem WAVs (#290)**: Stems mode now writes `polished/<track>/vocals.wav` (and other processed stems) alongside the full mix, activating stem-first vocal-RMS measurement in the mastering analysis.
+- **Album-ceiling guard (#290 phase 5, step 8)**: `master_album` now gates
+  mastered tracks against `album_median + 2 LU`. Small overshoots (≤0.5 LU)
+  get a silent scalar pull-down; larger overshoots halt + escalate.
+- **LAYOUT.md emitter (#290 phase 5, step 7)**: `master_album` writes
+  `LAYOUT.md` next to `ALBUM_SIGNATURE.yaml` with one transition per
+  adjacent track pair. Album-level override via
+  `layout.default_transition: gapless` in README frontmatter.
+- **Album coherence check + correct (issue #290 phase 3b)** — Two new MCP tools. `album_coherence_check` measures the mastered album, selects an anchor, and classifies every other track against per-genre tolerance bands: LUFS (±0.5 LU), STL-95 (`coherence_stl_95_lu`, default ±0.5 LU), LRA floor (`coherence_lra_floor_lu`, default 1.0 LU minimum), low-RMS (`coherence_low_rms_db`, default ±2.0 dB), vocal-RMS (`coherence_vocal_rms_db`, default ±2.0 dB). Read-only — returns per-track violation lists + a summary with outlier counts broken down by metric. `album_coherence_correct` takes the same check output and re-masters LUFS-outlier tracks from `polished/` into `mastered/` (atomic staging pattern, mirrors `master_album`) with the per-track `target_lufs` overridden to the anchor's **measured** LUFS — chasing real output rather than an idealized preset target guarantees convergence. Supports `dry_run=True` for CI preview. MVP scope: LUFS correction only; STL-95 / LRA / RMS outliers are reported but not auto-corrected (compression-ratio correction comes in a later phase). Four new tolerance fields added to the `defaults:` block in `genre-presets.yaml` (and `_PRESET_DEFAULTS` in `master_tracks.py`).
+- **Album signature measurement (issue #290 phase 3a)** — New `measure_album_signature` MCP tool. Runs `analyze_track` on every WAV in an album's subfolder (default `mastered/`), then aggregates into per-track signature metrics (LUFS, peak, STL-95, short-term range, low-RMS, vocal-RMS, 7-band spectral energy) plus album-level aggregates (median, p95, min, max, range, eligible-count). When `genre` or `anchor_track` is supplied, also runs the phase-2 anchor selector and surfaces per-track deltas from the anchor. Read-only — no files written. Intended for tuning genre tolerance presets from reference albums and for feeding the phase-3b coherence check/correct tools. New pure-Python module `tools/mastering/album_signature.py` holds the aggregation + delta math (no I/O, no MCP coupling).
+- **Mastering foundation — streaming-grade 24/96 delivery (issue #290 phase 1a, #304)** — New `mastering:` block in `config.example.yaml` documenting streaming-grade defaults (24-bit WAV at 96 kHz, -14 LUFS, -1 dBTP). `master_audio` and `master_album` now consume these defaults via a new `tools/mastering/config.py` loader (`load_mastering_config`, `resolve_mastering_targets`) with precedence: explicit handler arg > genre preset > user config > hardcoded default. Mastering report emits a runtime honesty notice when the resolved `delivery_sample_rate` exceeds the probed source rate ("upsampled from 44.1 kHz source — no additional audio information vs. source"). New opt-in archival output path writes 32-bit float pre-downconvert copies to `{audio_dir}/archival/` when `mastering.archival_enabled: true`; new `prune_archival` MCP tool keeps the N most-recent archival files per album. Optional new config keys `artist.copyright_holder`, `artist.label`, `mastering.adm_aac_encoder` (default `aac`) for downstream metadata embedding and ADM validation phases. `qc_tracks.py` format check expanded to accept 44.1/48/88.2/96/176.4/192 kHz (was 44.1/48 only). Companion issue #303 tracks the full-fidelity metadata embedding story.
+- **Realistic audio test fixtures + integration tests** — Added `make_clicks_and_pops`, `make_silent_gaps`, and `make_phase_partial` generators to `tests/fixtures/audio/` for QC paths a sine wave can't exercise (injected DC pops, internal silent gaps, partial phase cancellation). Audio fixtures moved from an unscanned `tests/fixtures/audio/conftest.py` into `tests/conftest.py` so all tests auto-discover them. New `tests/unit/mastering/test_integration_realistic_audio.py` exercises sibilance/tinniness, partial-phase mono fold FAIL, click detection, internal-gap silence FAIL, and LUFS spread across dynamic content. Documented generator catalog and authoring conventions in `tests/fixtures/README.md` (#300)
+- **Mastering samples — codec preview + mono fold-down QC artifacts** — `master_album` now writes operator-listening artifacts to a sibling `mastering_samples/` directory after verification, so `mastered/` stays byte-identical to the streaming upload. Each track gets a 128 kbps `.aac.m4a` AAC encode (Bluetooth-path audition), a `.mono.wav` mono fold sample (phone-speaker / Echo audition), and a `.MONO_FOLD.md` per-band delta report. A >6 dB band drop in the mono fold hard-fails the pipeline with the offending frequency surfaced (phase cancellation guard). New standalone tools `render_codec_preview` and `mono_fold_check` run the same checks independently. Thresholds and on/off flags configurable in `genre-presets.yaml` defaults; `reset_mastering` accepts `mastering_samples` (#296)
+- **Mastering pipeline overhaul** — 30+ new configurable parameters across the full mastering chain:
+  - DC offset removal (subsonic HPF)
+  - Low shelf EQ with configurable Q factor
+  - Linear-phase FIR EQ option (zero phase distortion)
+  - Mid/side EQ for frequency-selective stereo management
+  - De-essing with frequency, bandwidth, threshold, and ratio controls
+  - Stereo width adjustment with bass mono fold
+  - Parallel compression (wet/dry blend) with makeup gain
+  - 3-band multiband compression with Linkwitz-Riley crossovers
+  - Iterative LRA (Loudness Range) targeting per EBU R128
+  - Look-ahead limiting with configurable release
+  - Oversampled processing for nonlinear stages (2x/4x)
+  - Sample rate conversion
+  - 24-bit output support
+  - Inter-track gap insertion
+  - Album-level loudness consistency (two-pass mastering)
+  - Extended loudness metering (short-term, momentary LUFS)
+- **Mix pipeline enhancements** — saturation, sub-bass exciter, transient shaping wired into per-stem processing
+- **Configurable mastering presets** — refactored from tuples to dicts; all parameters exposed via CLI and genre presets
+- **Album signature persistence (#290 phase 4):** `master_album` now writes `ALBUM_SIGNATURE.yaml` alongside `mastered/` after every successful run, capturing the anchor, album medians, delivery targets (LUFS, TP ceiling, LRA), and coherence tolerances. Released albums automatically enter "frozen mode" on re-master — the shipped anchor + targets are reused so subsequent masters don't drift from what's on DSPs.
+- **`freeze_signature` / `new_anchor` params on `master_album`** — force frozen or fresh routing regardless of album status. Mutually exclusive; enforced in pre-flight.
+- **`is_album_released` helper** in `handlers/_shared.py` for cache-backed status checks.
+- **`get_plugin_version` helper** in `handlers/_shared.py` — single source of truth for plugin version reads (DRYed from health.py and master_album's new stage).
+- **`reference/streaming-mastering-specs.md`** — new authoritative reference for delivery targets, the signature contract, and re-mastering behavior.
+
+### Changed
+- **Stage extraction refactor (#290 D5)**: `master_album` is now a ~60-line orchestrator delegating to 14 standalone stage functions in `handlers/processing/_album_stages.py`. Zero behavior change; enables ADM validation (step 9) to land cleanly.
+- **Default mastered output format** — `master_album` / `master_audio` / `polish_and_master_album` now produce **24-bit WAV at 96 kHz** by default (was 16-bit at source rate, typically 44.1 kHz). Existing user configs without a `mastering:` block pick up the new defaults on the next run. To preserve the legacy 16/44.1 output, set `mastering.delivery_bit_depth: 16` and `mastering.delivery_sample_rate: 44100` in `~/.bitwize-music/config.yaml`. Users with custom `{overrides}/mastering-presets.yaml` per-genre values continue to honor those overrides. Disk usage increases ~3x per track at the new defaults (~33 MB vs. ~10 MB for a 3-minute stereo track).
+
+### Fixed
+- **Notices on early-exit paths (A4 #290)**: Failure JSON from `master_album` now always includes the `notices` key, even when the pipeline halts before successful completion.
+- LRA targeting now iteratively adjusts compression ratio (was measurement-only)
+- Added missing `--deess-bandwidth` CLI arg
+- Added missing CLI args for multiband ratios/thresholds and mid/side frequencies
+- Wired `eq_low_q` through to `apply_low_shelf()` (was defined but unused)
+- Look-ahead limiter now hits its target ceiling exactly (was overshooting by ~1 dB on transients). Gain at peak samples was being sampled from the release-relaxed envelope; replaced with a rolling minimum over the lookahead window (#283)
+- QC click detector is now genre-aware: `click_peak_ratio` and `click_fail_count` are per-genre preset fields, tuned looser for genres with intentional sharp transients (electronic, IDM, breakcore, trap, metal, glitch, footwork, etc.) so musical transients no longer FAIL QC. `qc_tracks.py` accepts `--genre`, the `qc_audio` MCP tool accepts `genre`, and user `mastering-presets.yaml` overrides still apply (#285)
+- Mastering chain now adds a final true-peak guard at the output rate after downsample and SRC. `scipy.signal.resample_poly`'s polyphase FIR has passband ripple that previously reintroduced 0.1–0.9 dB inter-sample peaks above the limiter ceiling; one reactive `limit_peaks()` pass closes that gap so `ceiling_db` is hit within ~0.05 dB without the prior headroom workaround (#286)
+- Polish-stage declicker now reads `click_peak_ratio` / `click_fail_count` from
+  the mastering genre preset so polish and QC click detection stay aligned.
+  Stem passes (drums, percussion) use cubic-spline repair across ±1.5 ms of
+  clean neighbors instead of two-sample linear interpolation; full-mix fallback
+  keeps linear repair because dense mix content amplifies surgical artifacts.
+  Polish results now surface `clicks_removed` per stem and on the full-mix
+  result so operators can see whether polish acted (#289).
+- `analyze_mix_issues` in stems mode now analyzes every stem per track and reports per-stem diagnostics under `tracks[].stems[stem_name]`, rather than sampling only the alphabetically first stem. Issues in specific stems (muddy bass, harsh vocals, etc.) are no longer missed, and per-track issue rollups are the union across stems (#272)
+- **Archival stage now mirrors `mastered/` (#290 phase 4, PR #304 review A5):** orphans whose basename is no longer in `mastered/` are pruned before new files are written, so re-masters with fewer or renamed tracks don't retain stale archival entries. Records pruned names under `stages.archival.pruned`.
+
+## [0.89.0] - 2026-04-10
+
+### Added
+- **Lyric-refiner skill** — multi-pass lyric refinement for post-writing polish
+- **Tango genre** — Argentine-Uruguayan dance and song tradition covering Golden Age orquestas, tango canción, nuevo tango (Piazzolla), and electrotango; includes mastering presets for bandoneón-centric dynamics
+
+### Fixed
+- Updated Opus 4.5 references to Opus 4.6 in model-strategy.md
+- Updated Sonnet 4.5 references to Sonnet 4.6 in model-strategy.md
+- Fixed README skill count (51 → 52)
+- Fixed lyric-refiner skill missing required section heading
+
+## [0.88.0] - 2026-04-08
+
+### Added
+- **154 new genres** — massive genre library expansion from 197 to 351 genres, completing all remaining genre expansion issues (#176, #177, #179, #180, #181, #182, #183, #184, #185, #186, #187, #188, #189, #190, #192, #194, #195, #196, #197, #201, #203, #204, #206, #207)
+  - Electronic Trance, Hardcore & experimental (13): Vocal Trance, Goa Trance, Psychedelic Trance, Happy Hardcore, Acid Jazz, Dark Ambient, Dub Techno, Glitch, Glitch Hop, Glitch Pop, Moombahton, Neurofunk, Witch House
+  - Niche & modern Electronic (8): Chiptune, EBM, Darksynth, Future Funk, Folktronica, Deconstructed Club, Lo-fi House, Hardwave
+  - Modern club & Hip-Hop production (8): Jersey Club, Footwork, Baile Funk, Italo Disco, Balearic, G-Funk, Chopped and Screwed, Bounce
+  - British movements & UK dance (6): Britpop, Madchester, 2-Step Garage, Bassline, Speed Garage, Broken Beat
+  - Jazz & Blues subgenres (12): Bebop, Cool Jazz, Hard Bop, Modal Jazz, Jazz Fusion, Ethio-Jazz, Gypsy Jazz, Nu Jazz, Smooth Jazz, Soul Jazz, Vocal Jazz, Delta Blues, Piano Blues
+  - Rock movements & revival (10): Arena Rock, Hair Metal, Heartland Rock, NWOBHM, Jangle Pop, Noise Pop, Post-Britpop, Post-Punk Revival, Psychobilly, Rockabilly
+  - Art rock & experimental (8): Canterbury Scene, Dance-Punk, Krautrock, No-Wave, Slowcore, Space Rock, Jam Band, Dark Jazz
+  - Metal subgenres (6): Blackgaze, Crossover Thrash, Drone Metal, Melodic Death Metal, Post-Metal, Viking Metal
+  - Modern Hip-Hop (7): Abstract Hip-Hop, Emo Rap, Horrorcore, Jazz Rap, Latin Trap, Plugg, Trap Metal
+  - Soul, Funk & R&B deep cuts (8): Alternative R&B, Boogie, Doo-Wop, New Jack Swing, Northern Soul, P-Funk, Psychedelic Soul, Quiet Storm, Trap Soul
+  - Vocal & A Cappella (4): A Cappella, Barbershop, Choir, Beatboxing
+  - Vocal & Choral (2): Gregorian Chant, Vocaloid
+  - World & Cultural music (6): Celtic, Klezmer, Polka, Throat Singing, Lounge, Spaghetti Western
+  - African music (10): Afropop, Afro-House, Benga, Chimurenga, Gqom, Juju, Kwaito, Maskandi, Mbaqanga, Soukous
+  - African deeper cuts (8): Bongo Flava, Champeta, Coupé-Décalé, Desert Blues, Fuji, Gengetone, Kuduro, Mbalax
+  - Latin & Caribbean (8): Bachata, Bolero, Calypso, Mambo, Merengue, Soca, Son Cubano, Dembow
+  - Caribbean & Latin niche (6): Chicha, Corridos Tumbados, Guaracha, Huayno, Punta, Vallenato
+  - Latin American deep cuts (7): Axé, Forró, Kompa, Mento, MPB, Pagode, Banda
+  - East & Southeast Asian (6): Anisong, Cantopop, Kayokyoku, Thai Pop, Trot, Visual Kei
+  - South Asian & Middle Eastern (10): Carnatic, Dabke, Dangdut, Ghazal, Hindustani, Indian Classical, Laiko, Rai, Shaabi, Sufi
+  - European folk & regional pop (10): Chutney, Isicathamiya, Kizomba, Manele, Morna, Norteno, Rebetiko, Sega, Semba, Sevdah, Taarab, Tejano, Turbo Folk, Turkish Pop
+  - Remaining Electronic styles (7): Brostep, Cyberpunk, Dark Cabaret, Dark Electro, Deep Techno, Dungeon Synth, Post-Dubstep, Psybient, Rave, Space Disco, UK Funky, Vocal House
+- Mastering presets for all 154 new genres in `genre-presets.yaml`
+- New `skills/mastering-engineer/genre-presets.md` reference document
+
+## [0.87.0] - 2026-04-07
+
+### Added
+- **16 new genres** — Punk & Hardcore deep cuts (6) and Electronic House & Disco variants (10)
+
+### Fixed
+- `analyze_mix_issues` now falls back to scanning `stems/` when no root WAVs exist, instead of erroring
+- `polish_audio` auto-detects stems and gracefully degrades to full-mix mode instead of hard-failing
+- Mix-engineer SKILL.md updated with explicit stems-first decision tree
+- Removed unused type-ignore comment for numba import
+
+### Changed
+- Vectorized envelope follower in `gentle_compress` using numba JIT for faster audio processing
+
+## [0.86.0] - 2026-04-06
+
+### Added
+- **44 new genres** — expanded genre library from 137 to 181 genres with full documentation, mastering presets, and INDEX integration
+  - **Hip-Hop regional** (#178): East Coast Hip Hop, West Coast Rap, Southern Hip Hop, Gangsta Rap, Underground Hip Hop, Crunk, Mumble Rap, Pop Rap
+  - **Country & Americana** (#202): Honky-Tonk, Bro-Country, Red Dirt, Bakersfield Sound, Western Swing, Cowpunk, Neotraditional Country
+  - **Regional American** (#199): Cajun, Go-Go, Chicano Rap, Swamp Pop, Country Rap
+  - **Electronic micro-genres** (#205): Nightcore, Breakcore, PC Music, Speedcore, Riddim, Wave, Complextro
+  - **Historical & period** (#198): Ragtime, Sea Shanties, Medieval, Madrigal, Music Hall
+  - **Jamaican & Reggae** (#191): Roots Reggae, Lovers Rock, Rocksteady, Ragga
+  - **Pop subgenres** (#200): Dream Pop, Darkwave, Synth-Pop, Baroque Pop, Chamber Pop, Bubblegum Pop, Twee Pop, Sophisti-pop
+
+## [0.85.0] - 2026-04-05
+
+### Added
+- **62 new genres** — expanded genre library from 74 to 136 genres with full documentation, mastering presets, and INDEX integration
+  - **Rock/Punk**: Ska, Post-Punk, Noise Rock, Math Rock, Stoner Rock, Nu-Metal, Pop Punk, Screamo
+  - **Metal**: Death Metal, Power Metal, Symphonic Metal, Folk Metal, Deathcore, Djent, Groove Metal, Sludge Metal, Progressive Metal, Speed Metal
+  - **Electronic**: Jungle, UK Garage, Breakbeat, Downtempo, IDM, Electro, Hardstyle, Electroswing, Future Bass, Minimal Techno, Gabber
+  - **Hip-Hop**: Boom Bap, Cloud Rap, Conscious Hip-Hop
+  - **R&B/Soul**: Neo-Soul, Motown
+  - **Country/Folk**: Outlaw Country, Zydeco
+  - **Latin/Caribbean**: Cumbia, Samba, Reggaeton, Afro-Cuban, Boogaloo, Tropicália, Zouk
+  - **African**: Highlife, Amapiano, Afroswing, Gnawa
+  - **Asian**: J-Pop, City Pop, Mandopop, Enka, Qawwali, Bhangra
+  - **Christian/Faith**: Contemporary Christian, Worship
+  - **Other**: Dub, Flamenco, Fado, New Age, Spoken Word, Musical Comedy, Video Game Music, Cabaret
+
+## [0.84.1] - 2026-04-05
+
+### Removed
+- **Ship skill** — internal release automation that didn't fit the plugin's music production scope; assumed a single-branch workflow incompatible with the develop → main release flow ([#145](https://github.com/bitwize-music-studio/claude-ai-music-skills/pull/145))
+
+## [0.84.0] - 2026-04-05
+
+### Added
+- **Bollywood genre** — Hindi film music (filmi) with 10 subgenres, 15 artists, 14 reference tracks, Suno keywords, mukhda/antara lyric conventions, and mastering presets with differentiated LUFS targets ([#141](https://github.com/bitwize-music-studio/claude-ai-music-skills/pull/141), community contribution by [@markus-michalski](https://github.com/markus-michalski))
+- **Diagnose MCP tool** — comprehensive health check tool for troubleshooting plugin, server, and environment issues ([#137](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/137))
+- **Explicit flag consistency check** — release gate validates that frontmatter `explicit` flag matches actual lyric content ([#117](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/117))
+- **Realistic audio fixtures** — WAV/MP3 test fixtures with proper headers, pipeline integration tests, and dev Makefile ([#132](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/132))
+- **Tool tests and CI coverage threshold** — handler isolation tests for gates, album_ops, streaming, and server unit tests ([#119](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/119))
+
+### Changed
+- **Refactored processing.py** — split monolithic 2,752-line module into 4 focused submodules: audio, mixing, sheet_music, video ([#122](https://github.com/bitwize-music-studio/claude-ai-music-skills/pull/122))
+
+### Fixed
+- **Genre index count** — corrected stale count from 71 to 74 ([#143](https://github.com/bitwize-music-studio/claude-ai-music-skills/pull/143))
+
+## [0.83.1] - 2026-04-04
+
+### Changed
+- **README** — added star history chart and circular contributor profile icons
+
+## [0.83.0] - 2026-04-04
+
+### Added
+- **Instrumental field sync validation** — validate-album warns and pre-generation-check blocks when frontmatter `instrumental` and Track Details table disagree ([#129](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/129))
+- **Guided regeneration workflow** — structured path for rejecting and regenerating tracks that don't meet quality standards ([#116](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/116))
+  - CLAUDE.md: regeneration workflow documented in Status Tracking section
+  - Resume: detects Generated tracks without approval (✓), offers style/lyrics/retry regeneration paths
+  - Next-step: recommends review and regeneration for unapproved Generated tracks
+  - SKILL_INDEX: new "Track Regeneration" workflow sequence and decision tree entries
+- **Album status management improvements** — auto-advancement, batch operations, and documented status flows ([#118](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/118))
+  - CLAUDE.md: documented non-documentary status flow (Concept → In Progress, skipping Research/Sources phases), auto-advancement rules, and batch-approve workflow
+  - Verify-sources: auto-advances album from Research Complete → Sources Verified when all tracks verified, with partial verification progress reports
+  - Resume: phase table covers both documentary and standard album flows, batch-approve path for Generated → Final
+  - Next-step: batch-approve path for all-generated albums
+  - SKILL_INDEX: batch-approve entry in Album Lifecycle table
+- **Instrumental track support** — tracks can be marked `instrumental: true` in frontmatter to skip the lyrics workflow entirely ([#115](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/115))
+  - Track template: new `instrumental` field in frontmatter and Track Details table
+  - Pre-generation-check: Gates 2 (Lyrics), 3 (Pronunciation), 4 (Explicit) auto-skip for instrumental tracks
+  - Lyric-writer, lyric-reviewer, pronunciation-specialist: instrumental guard stops execution with clear routing to suno-engineer
+  - Resume & next-step: decision trees route instrumental tracks directly to `/suno-engineer`
+  - Suno-engineer: expanded instrumental guidance (Style Box without vocals, section tags only, Instrumental: On)
+  - Album-conceptualizer: Phase 4 asks vocal/instrumental split per track
+  - SKILL_INDEX: explicit instrumental workflow path and mixed album (vocal + instrumental) sequence
+  - New-album: tip about instrumental track support for OST/soundtrack albums
+
+## [0.82.0] - 2026-04-03
+
+### Added
+- **Musicals genre** — integrated theatrical form from Golden Age Broadway (Rodgers & Hammerstein) to contemporary hip-hop musicals (Hamilton); 8 subgenres, 15 artists, 14 reference tracks, Suno keywords, lyric conventions, and mastering presets
+- **Soundtrack genre** — vocal songs and curated compilations for film/TV, distinct from instrumental Cinematic scoring; covers Bond themes, disco soundtracks, needle drops, animated features, and power ballads; 8 subgenres, 15 artists, 14 reference tracks, Suno keywords, lyric conventions, and mastering presets
+- **Database query pagination** — `db_list_tweets` and `db_search_tweets` support `limit`/`offset` parameters ([#114](https://github.com/bitwize-music-studio/claude-ai-music-skills/pull/114))
+- **MCP payload pagination** — summary modes and top-N limiting for large-payload MCP tools ([#113](https://github.com/bitwize-music-studio/claude-ai-music-skills/pull/113))
+
+## [0.81.2] - 2026-03-27
+
+### Changed
+- **boto3** bumped 1.42.76 → 1.42.77
+
+## [0.81.1] - 2026-03-27
+
+### Fixed
+- **`[End]` tag misclassification** — `validate_section_structure` now recognizes `[End]` as a dedicated section type instead of defaulting to `verse` ([#111](https://github.com/bitwize-music-studio/claude-ai-music-skills/pull/111), closes [#108](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/108))
+
+## [0.81.0] - 2026-03-26
+
+### Added
+- **mypy strict type checking** — full type annotations across all 51 source files (handlers, tools, server) with strict settings (`disallow_untyped_defs`, `disallow_any_generics`, `warn_unreachable`, etc.), integrated into CI lint job ([#110](https://github.com/bitwize-music-studio/claude-ai-music-skills/pull/110), closes [#102](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/102))
+- **`types-PyYAML` stubs** — proper yaml typing, eliminated all `import-untyped` suppressions
+- **Extended ruff rules** — added I (isort), UP (pyupgrade), B (bugbear), SIM (simplify), RUF rule sets; auto-fixed 216 import/syntax issues, manually fixed 44 remaining across tools/ and handlers/
+
+### Fixed
+- **Ambiguous variable names** — renamed `l` to `lightness`/`line` in media_utils and lyrics_analysis
+- **Mutable default argument** — `reset_mastering` parameter annotated with noqa
+- **Bare generic types** — all `dict`, `list`, `tuple`, `Pattern` given explicit type parameters
+
+## [0.80.0] - 2026-03-26
+
+### Added
+- **Modularized MCP server** — broke monolithic `server.py` (10,260 lines, 76 tools) into 16 focused handler modules under `handlers/`, reducing `server.py` to ~480 lines of orchestration ([#85](https://github.com/bitwize-music-studio/claude-ai-music-skills/pull/85), closes [#81](https://github.com/bitwize-music-studio/claude-ai-music-skills/issues/81))
+- **`_find_track_or_error` shared helper** — deduplicated track lookup boilerplate across 8 call sites in 5 handler modules
+- **`StateCache.get_state_ref()`** — public API for in-place state mutation, replacing 3 direct `cache._state` accesses
+- **Re-export completeness test** — catches missing re-exports when new tools are added to handler modules
+
+### Changed
+- **MCP server architecture** — 79 tools organized across 16 domain modules: core, content, text_analysis, lyrics_analysis, album_ops, gates, streaming, skills, status, promo, health, ideas, rename, processing, database, maintenance
+- **`verify_streaming_urls` runs concurrently** — HTTP checks now use `asyncio.gather` (worst-case latency ~50s → ~10s)
+
+### Fixed
+- **State cache stale after `create_album_structure`** — new albums are now immediately available to subsequent tools like `create_track`
+- **Shadowed `import re as _re`** in processing.py and _shared.py — now uses module-level `re`
+- **19 unused imports** removed across handler modules (F401 lint violations from monolith extraction)
+- **Duplicated constants** — `_STREAMING_PLACEHOLDER_MARKERS`, `_MARKDOWN_LINK_RE`, and `_CODE_BLOCK_SECTIONS` deduplicated into `_shared.py`
+- **Dead code** — removed unused `_words_rhyme` function from lyrics_analysis.py
+
+## [0.79.4] - 2026-03-25
+
+### Fixed
+- **Dynamic version badge** — README badge now reads from GitHub releases, never needs manual updating
+- **Automated dev bump** — auto-release workflow bumps develop to next `-dev` version after each release
+- **Version sync hook false positives** — hook now detects sequential edits and skips mid-pair checks
+- **Dependabot grouping** — pip and GitHub Actions updates batched into single PRs instead of 10+ individual PRs
+
+## [0.79.3] - 2026-03-25
+
+### Changed
+- **README reworked** — personal narrative opener, 77% shorter, architecture-focused; skills reference, troubleshooting, and configuration extracted to `docs/`
+
+### Fixed
+- **CI: version badge check skips `-dev` versions** — badge shows last release, dev branches no longer fail on mismatch
+- **CI: removed test count and skills badge checks** — badges removed from README, corresponding CI validations removed
+
+## [0.79.2] - 2026-03-25
+
+### Changed
+- **Batch dependency update** — 11 pip packages and 3 GitHub Actions bumped to latest versions
+
+### Fixed
+- **pypdf CVE-2026-33699** — bumped pypdf 6.9.1→6.9.2 to resolve security vulnerability
+
+## [0.79.1] - 2026-03-25
+
+### Added
+- **Dependabot configuration** — automated weekly dependency update PRs for pip packages and GitHub Actions version pins
+
+## [0.79.0] - 2026-03-25
+
+### Added
+- **Rilo Kiley artist deep-dive** — comprehensive artist reference for indie-rock genre covering discography, production techniques, and style characteristics
+
+### Fixed
+- **`line` style ignores `color_hex` and `glow` parameters** — was hardcoded to `colors=white` with no glow support; now uses custom color and glow like all other styles (contributed by [@markus-michalski](https://github.com/markus-michalski) in [#84](https://github.com/bitwize-music-studio/claude-ai-music-skills/pull/84))
+- **CI: ignore unfixed pygments CVE-2026-4539 in pip-audit** — added exclusion for upstream vulnerability with no available fix
+
+## [0.78.1] - 2026-03-24
+
+### Added
+- **German pronunciation section in Suno pronunciation guide** — documents vowel length fixes (single → double vowel for long sounds, e.g. `juchhe` → `juchee`), umlaut handling, and German interjection pronunciation table (contributed by [@markus-michalski](https://github.com/markus-michalski) in [#79](https://github.com/bitwize-music-studio/claude-ai-music-skills/pull/79))
+
+## [0.78.0] - 2026-03-24
+
+### Added
+- **Children's Music genre** — comprehensive documentation covering nursery rhymes, educational music, Kinderlieder, lullabies, kids pop, singalong, musical storytelling, action/movement songs, animated/TV soundtrack, and family folk subgenres; 18 artists from Woody Guthrie (1947) to Cocomelon (2006+); mastering presets with lullaby variant (-16 LUFS) (contributed by [@markus-michalski](https://github.com/markus-michalski) in [#78](https://github.com/bitwize-music-studio/claude-ai-music-skills/pull/78))
+
+## [0.77.1] - 2026-03-23
+
+### Fixed
+- **Test skill uses venv Python and absolute paths** — `python3 -m pytest tests/` replaced with `~/.bitwize-music/venv/bin/python3 -m pytest ${CLAUDE_PLUGIN_ROOT}/tests/` across SKILL.md and test-definitions.md, fixing failures when invoked as a plugin skill (system Python missing deps, relative paths not resolving)
+
+## [0.77.0] - 2026-03-23
+
+### Added
+- **76 new unit tests** for external tool mocking — boto3 cloud uploads (19 tests), ffmpeg/subprocess promo video generation (14 tests), album sampler pipeline (10 tests), reference mastering CLI (7 tests), media utilities (13 tests), fade-out and master_track pipeline (12 tests), bringing total from 2,406 to 2,482
+- **PR target gate** — CI now blocks PRs to `main` unless source branch is `develop`
+- **Dev version guard** — CI blocks `-dev` version suffixes from reaching `main`
+
+### Changed
+- **TODO.md audit** — marked Priority 6 items as complete (logging, progress, retry, concurrency, cache cleanup were all already implemented); added Future Improvements section for post-1.0 work
+
+## [0.76.0] - 2026-03-23
+
+### Added
+- **`color_hex` parameter** for `generate_promo_videos` and `generate_album_sampler` — manually set wave color (e.g. `"#C9A96E"`) instead of auto-extracting from artwork (contributed by [@markus-michalski](https://github.com/markus-michalski) in [#76](https://github.com/bitwize-music-studio/claude-ai-music-skills/pull/76))
+- **`glow` parameter** for both tools — control glow intensity from 0.0 (none) to 1.0 (full), default 0.6; replaces hardcoded 3-layer screen blend (contributed by [@markus-michalski](https://github.com/markus-michalski) in [#76](https://github.com/bitwize-music-studio/claude-ai-music-skills/pull/76))
+- **`text_color` parameter** for both tools — override default white text color (e.g. `"#FFD700"` for gold) (contributed by [@markus-michalski](https://github.com/markus-michalski) in [#76](https://github.com/bitwize-music-studio/claude-ai-music-skills/pull/76))
+- **`style` parameter for `generate_album_sampler`** — same 9 visualization styles as promo videos (was hardcoded to "pulse") (contributed by [@markus-michalski](https://github.com/markus-michalski) in [#76](https://github.com/bitwize-music-studio/claude-ai-music-skills/pull/76))
+
+### Changed
+- **Album sampler clip generation** refactored to delegate to `generate_waveform_video()` from promo video module, eliminating duplicated filter code and ensuring consistent rendering (contributed by [@markus-michalski](https://github.com/markus-michalski) in [#76](https://github.com/bitwize-music-studio/claude-ai-music-skills/pull/76))
+
+## [0.75.0] - 2026-03-23
+
+### Added
+- **Promo language selection** — New Step 4 in promo-writer workflow asks user which language(s) to generate copy in (English, German, French, Spanish, bilingual, or custom); skipped automatically when `## Language` is set in `promotion-preferences.md` override (contributed by [@markus-michalski](https://github.com/markus-michalski) in [#75](https://github.com/bitwize-music-studio/claude-ai-music-skills/pull/75))
+- **Bilingual promo mode** — Stacked primary + secondary language in one post (separated by `---` divider); Twitter exception uses separate tweets per language due to 280-char limit (contributed by [@markus-michalski](https://github.com/markus-michalski) in [#75](https://github.com/bitwize-music-studio/claude-ai-music-skills/pull/75))
+- **Language Adaptation section** in copy-formulas.md with bilingual post format example and language rules (contributed by [@markus-michalski](https://github.com/markus-michalski) in [#75](https://github.com/bitwize-music-studio/claude-ai-music-skills/pull/75))
+- **Campaign cross-reference links** — All 5 platform template files now link back to campaign.md (contributed by [@markus-michalski](https://github.com/markus-michalski) in [#75](https://github.com/bitwize-music-studio/claude-ai-music-skills/pull/75))
+- **Platform copy overview table** in campaign.md template with links to each platform file (contributed by [@markus-michalski](https://github.com/markus-michalski) in [#75](https://github.com/bitwize-music-studio/claude-ai-music-skills/pull/75))
+
+### Changed
+- **Promo templates reformatted** — Cleaner heading structure, consistent `---` separators across all platform templates; Instagram hashtag sets as table; campaign.md includes Language field in overview (contributed by [@markus-michalski](https://github.com/markus-michalski) in [#75](https://github.com/bitwize-music-studio/claude-ai-music-skills/pull/75))
+- **Promo-writer workflow renumbered** — Steps 5-9 (was 4-8) to accommodate new Language Selection step (contributed by [@markus-michalski](https://github.com/markus-michalski) in [#75](https://github.com/bitwize-music-studio/claude-ai-music-skills/pull/75))
+
+## [0.74.0] - 2026-03-23
+
+### Added
+- **Multi-platform AI art prompts** — Album art director now asks which AI art platform to use (Midjourney, Leonardo.ai, DALL-E, Stable Diffusion) and generates platform-specific prompts with appropriate format, negative prompts, and model/preset recommendations (contributed by [@markus-michalski](https://github.com/markus-michalski) in [#74](https://github.com/bitwize-music-studio/claude-ai-music-skills/pull/74))
+- **Leonardo.ai support** — Natural language prompts with separate negative prompt field, model selection (Phoenix, Kino XL), and preset recommendations (contributed by [@markus-michalski](https://github.com/markus-michalski) in [#74](https://github.com/bitwize-music-studio/claude-ai-music-skills/pull/74))
+- **Platform comparison table** — Quick reference for choosing the right AI art generator (contributed by [@markus-michalski](https://github.com/markus-michalski) in [#74](https://github.com/bitwize-music-studio/claude-ai-music-skills/pull/74))
+- **Platform-specific tips** — Refinement keywords and best practices per platform (contributed by [@markus-michalski](https://github.com/markus-michalski) in [#74](https://github.com/bitwize-music-studio/claude-ai-music-skills/pull/74))
+
+## [0.73.0] - 2026-03-23
+
+### Added
+- **Chanson genre** — French chanson documentation covering réaliste, à texte, rive gauche, musette, nouvelle chanson and more (contributed by [@markus-michalski](https://github.com/markus-michalski) in [#73](https://github.com/bitwize-music-studio/claude-ai-music-skills/pull/73))
+- **Middle Eastern Pop genre** — Arabic, Israeli, and North African pop covering raï, Mizrahi, khaleeji, mahraganat, and Arabic-electronic fusion (contributed by [@markus-michalski](https://github.com/markus-michalski) in [#73](https://github.com/bitwize-music-studio/claude-ai-music-skills/pull/73))
+- **Mastering presets** — Added Schlager, Chanson, and Middle Eastern Pop (with aliases for arabic-pop, rai, mizrahi, mahraganat) to both `genre-presets.yaml` and `genre-presets.md` (contributed by [@markus-michalski](https://github.com/markus-michalski) in [#73](https://github.com/bitwize-music-studio/claude-ai-music-skills/pull/73))
+- **Genre-creator skill update** — Added step 9 to genre-creator workflow: update mastering preset files when creating new genres (contributed by [@markus-michalski](https://github.com/markus-michalski) in [#73](https://github.com/bitwize-music-studio/claude-ai-music-skills/pull/73))
+
+## [0.72.2] - 2026-03-22
+
+### Fixed
+- **genre-creator skill structure** — added required `## Your Task` and `## Important Notes` sections, fixed broken template link, added to SKILL_INDEX.md
+- **README skill count** — updated 51 → 52 to reflect genre-creator addition
+- **README version badge** — updated to 0.72.1
+
+## [0.72.1] - 2026-03-22
+
+### Fixed
+- **pypdf CVE fix** — bumped 6.7.5 → 6.9.1 (CVE-2026-31826, CVE-2026-33123)
+- **Test badge** — updated count 2348 → 2358
+
+## [0.72.0] - 2026-03-22
+
+### Added
+- **Schlager genre** — 68th genre documentation covering German-language popular music from post-war ballads to modern EDM-infused party hits; full Overview, Characteristics, Lyric Conventions, Subgenres, Artists, Suno Keywords, and Reference Tracks sections (contributed by [@markus-michalski](https://github.com/markus-michalski) in [#69](https://github.com/bitwize-music-studio/claude-ai-music-skills/pull/69))
+- **`genre-creator` skill** — Standardizes creation of new genre documentation files with consistent section order, fact-checking via WebSearch, and automatic INDEX.md updates (contributed by [@markus-michalski](https://github.com/markus-michalski) in [#69](https://github.com/bitwize-music-studio/claude-ai-music-skills/pull/69))
+- **Contributors section** — README now credits community contributors
+
+## [0.71.0] - 2026-03-21
+
+### Added
+- **Exclude Styles field** — New `### Exclude Styles` section in track template for Suno V5 negative prompting (e.g., "no drums, no electric guitar"); documented in suno-engineer skill with max 2–4 items rule; MCP server supports extraction via `get_track_section` and includes in `suno` content type
+- **Tampermonkey exclude styles support** — Suno auto-fill userscript (v1.2.0) now fills the "Exclude styles" input field from clipboard JSON
+- **`/clipboard exclude` content type** — Copy just the Exclude Styles section to clipboard
+- **Supporting files test** — New `TestSupportingFiles` plugin test validates all files referenced in skill `## Supporting Files` sections exist on disk
+
+### Changed
+- **`/clipboard style` auto-appends exclusions** — Style content type now combines Style Box + Exclude Styles into a single paste-ready string (no manual appending needed)
+- **Clipboard skill docs** — Updated content type list and `suno` JSON output to reflect `exclude_styles` field
+- **Override docs** — Updated `config/README.md` override directory listing to show all 12 override files with format convention note
+- **Suno-engineer backfill rule** — Added instruction to backfill `### Exclude Styles` section into older track files when editing them
+
+### Fixed
+- **URL scheme validation** — `verify_streaming_urls` now rejects non-http/https URLs (prevents SSRF via file://, gopher://, etc.)
+- **Path traversal hardening** — `load_override` and `get_reference` use `Path.relative_to()` instead of string `startswith()` for safer path containment checks
+- **DB connection timeout** — Added `connect_timeout=5` to PostgreSQL connections to prevent indefinite blocking
+- **Duplicate asyncio import** — Removed redundant `import asyncio` inside `verify_streaming_urls`
+- **CodeQL alerts** — Rewrote URL substring checks in tests to use `startswith()`/exact match (resolves 4 "Incomplete URL substring sanitization" alerts)
+- **Co-author line** — Updated from "Claude Opus 4.5" to "Claude Opus 4.6" in PR template and SECURITY.md
+
+## [0.70.0] - 2026-03-20
+
+### Added
+- **Original Soundtrack (OST) album type** — 6th album type for music evoking fictional media (games, films, TV, anime); includes world/setting template sections, leitmotif planning, duration strategy, and cross-track referencing
+- **`voice-checker` skill** — Reviews lyrics and prose for AI-written patterns (abstract noun stacking, over-explained metaphors, cliche escalation, missing idiosyncrasy, prose AI tells); advisory Warning/Info severity
+- **Cross-track referencing** — lyric-writer supports callbacks, motifs, and character threads across tracks for concept/narrative albums; new Motifs & Threads and Cross-References template sections
+- **Iterative refinement passes** — lyric-writer tighten/strengthen/flow refinement patterns added to craft-reference
+
+### Fixed
+- **Missing skill trigger phrases** — added trigger conditions to pre-generation-check, ship, and voice-checker skill descriptions
+- **Domain correction** — `bitwize-music.com` → `bitwizemusic.com` in config example and tests
+- **pypdf CVE fix** — bumped 6.7.1 → 6.7.5 (CVE-2026-27628, CVE-2026-27888, CVE-2026-28351, CVE-2026-28804)
+
+## [0.69.0] - 2026-03-03
+
+### Added
+- **Target Duration planning system** — `Target Duration` field threaded through album planning (Phase 3), album/track templates, lyric-writer, suno-engineer, and lyric-reviewer; lookup chain: track → album → genre default
+- **Duration-to-word-count mapping** — explicit table in craft-reference.md mapping duration ranges to word count targets for hip-hop and non-hip-hop genres
+- **Duration-aware prompt construction** — suno-engineer adjusts structure recommendations based on target duration (under 3:00, 3:00–5:00, over 5:00)
+- **Duration override example** — album-planning-guide override template includes duration preferences by format
+
+## [0.68.0] - 2026-03-01
+
+### Changed
+- **Suno target duration guidance** — lyric-writer word count targets updated to produce 3:30–5:00 minute tracks (previous targets produced 2:00–2:30); genre-specific word counts, structure recommendations, and instrumental tag runtime estimates added to craft-reference.md
+- **Length check updated** — quality check #8 now flags songs under 200 words as "likely too short for target duration" and lowers hard-fail thresholds to 400/600 words (non-hip-hop/hip-hop)
+
+## [0.67.0] - 2026-02-23
+
+### Added
+- **Sheet music URL persistence** — `publish_sheet_music` now writes uploaded R2 URLs back to track and album frontmatter automatically (singles → `sheet_music.pdf`/`musicxml`/`midi` per track, songbook → `sheet_music.songbook` on album README)
+- **`prepare_singles.py`** — replaces `fix_titles.py`; copies source files to `singles/` with clean consumer-ready titles, generates `.manifest.json` for track ordering
+- **Songbook title page, TOC, and footers** — `create_songbook.py` enhanced with professional title page, table of contents, and configurable footer URL
+- **`sheet_music` frontmatter** — new section in track template (`pdf`, `musicxml`, `midi`) and album template (`songbook`) for sheet music download URLs
+- **`_update_frontmatter_block()` helper** — reusable function for adding/updating YAML frontmatter blocks in markdown files
+- **`public_url` config field** — documented in R2 cloud config for custom CDN domain URLs
+- **`enabled` and `footer_url` config fields** — new sheet_music config options for master switch and PDF footer customization
+- **8 new tests** — 5 for frontmatter persistence in `TestPublishSheetMusic`, 3 for `TestUpdateFrontmatterBlock`
+
+### Changed
+- **`xml` → `musicxml`** — sheet music frontmatter key renamed for clarity
+- **Relative R2 key fallback** — when no `public_url` configured, frontmatter is still populated with relative R2 keys instead of skipping entirely
+
+### Removed
+- **`fix_titles.py`** — replaced by `prepare_singles.py` with broader functionality
+
+## [0.66.0] - 2026-02-22
+
+### Added
+- **12-stem pipeline** — expanded from 6 to 12 stem types matching Suno's full `split_stem` output: guitar, keyboard, strings, brass, woodwinds, and percussion now have dedicated processing chains instead of being dumped into the "other" catch-all
+- **Instrument-name keywords** — flexible stem routing matches by instrument name (e.g. "Piano.wav" → keyboard, "Saxophone.wav" → woodwinds, "Trumpet.wav" → brass, "Violin.wav" → strings)
+- **Genre overrides for new stems** — 20+ genre presets updated with per-stem settings for guitar, keyboard, strings, brass, woodwinds, and percussion
+- **45 new tests** — 6 processor test classes, 12-stem integration test, 6 keyword routing regression tests
+
+### Fixed
+- **Percussion/drums separation** — "percussion" keyword no longer routes to "drums"; Suno separates kit drums (kick/snare/hi-hats) from percussion (congas/shakers/tambourine) and they need different processing chains
+
+## [0.65.0] - 2026-02-22
+
+### Reverted
+- **`originals/` audio layout** — reverted `originals/` subdirectory layout and `migrate_audio_layout` MCP tool; WAV files remain in album audio root
+- **Fade-out support** — reverted `apply_fade_out()` from mastering pipeline and `fade_out` field from track template/parser
+- **Mix polish character effects** — reverted `apply_saturation()`, `apply_lowpass()`, `apply_stereo_width()` from mix pipeline and character effect settings from genre presets
+
+These 0.61.0 audio pipeline changes degraded output quality. Infrastructure from 0.62.0–0.63.0 (develop branch model, venv health check, debug logging, `reset_mastering`, `cleanup_legacy_venvs`) is preserved.
+
+## [0.64.0] - 2026-02-22
+
+### Reverted
+- **Mastering compression stage** — reverted dedicated compression stage (broke mastering pipeline); will revisit later
+- **Stereo width in stems path** — reverted stems stereo width (coupled to compression changes)
+- **Bus compression presets** — reverted mix-presets.yaml bus compression presets (dead config without code)
+
+## [0.63.0] - 2026-02-21
+
+### Added
+- **Bus compression presets** — 16 genre presets in mix-presets.yaml for bus compression stage
+- **Stereo width in stems path** — stereo width processing now applied during stems-based polish pipeline
+- **Mastering compression stage** — dedicated compression stage added to mastering pipeline
+- **Mastering genre confirmation** — mastering-engineer skill now asks to confirm the genre preset before mastering and checks if any tracks need different treatment
+- **`check_venv_health` MCP tool** — compares installed package versions against `requirements.txt` pins; integrated into session start to warn about version drift after plugin upgrades
+- **Configurable debug logging** — new `logging` section in config.yaml enables file-based debug logging with rotation; silent by default, opt-in for development/troubleshooting
+- **`reset_mastering` MCP tool** — removes `mastered/` and/or `polished/` subfolders so the mastering pipeline can be re-run cleanly; dry-run safe by default, `originals/` and `stems/` are protected
+- **`cleanup_legacy_venvs` MCP tool** — detects and removes stale per-tool venvs (`mastering-env`, `promotion-env`, `cloud-env`) left over from pre-0.40.0; dry-run safe by default
+- **Dev mode docs** — CONTRIBUTING.md section explaining how to avoid cached plugin conflicts when using `--plugin-dir`
+
+### Removed
+- **Redundant requirements files** — removed `requirements-mastering.txt`, `requirements-mixing.txt`, `requirements-promo.txt`, `requirements-research.txt`, `requirements-sheet-music.txt`, and `tools/cloud/requirements.txt`; the unified `requirements.txt` covers all dependencies
+
+### Fixed
+- **Stale venv references** — updated `config/README.md`, `TESTING.md`, `reference/mastering/mastering-workflow.md`, and `skills/test/test-definitions.md` to reference unified `venv/` instead of legacy `mastering-env/`
+- **Migration 0.40.0** — added missing `cloud-env` cleanup action
+- **CI installs full dependencies** — `test.yml` now uses `requirements.txt` instead of the removed `requirements-mastering.txt`
+
+## [0.62.0] - 2026-02-21
+
+### Added
+- **`develop` branch model** — two-branch workflow with `develop` for active work and `main` for stable releases; plugin distribution channels via branch-based marketplace
+- **Plugin version in about skill** — `/bitwize-music:about` now reads and displays version from plugin.json dynamically
+
+### Changed
+- **CI targets Python 3.11 only** — dropped 3.9/3.10/3.12 matrix; not a library, runs in user's venv
+- **CI triggers** — pushes run on `develop` only; `main` validated via PR gate
+- **CONTRIBUTING.md** — updated for develop/main branch model, release process, co-author line
+
+### Fixed
+- **Test count badge** — corrected 2235 → 2238 (3 skipped tests collected by CI)
+
+## [0.61.0] - 2026-02-21
+
+### Added
+- **`originals/` audio layout** — raw WAV files now stored in `originals/` subdirectory to keep album audio root clean; all tools (mastering, mixing, promotion, import-audio) updated with backward-compatible fallback to album root for legacy albums
+- **`migrate_audio_layout` MCP tool** — migrates pre-existing albums from root-level WAVs to `originals/` layout (dry-run safe by default, single album or batch)
+- **Fade-out support** — `apply_fade_out()` in mastering pipeline with exponential/linear curves; `fade_out` parameter in `master_track()`, track file parser, and track template (`| **Fade Out** | — |`)
+- **Mix polish character effects** — `apply_saturation()` (tanh waveshaping), `apply_lowpass()` (Butterworth), `apply_stereo_width()` (mid-side processing) in mix_tracks.py; genre presets updated for 50+ genres with per-stem saturation, lowpass, and stereo width settings
+- **29 new tests** — 6 for `migrate_audio_layout`, plus mastering and mixing coverage
+
+### Changed
+- **CLAUDE.md** — updated audio path structure documentation to reflect `originals/` layout
+- **import-audio skill** — imports now target `originals/` subdirectory
+- **mastering-engineer skill** — updated pre-flight check to look in `originals/` first
+- **mix-engineer skill** — updated audio directory convention docs
+
+## [0.60.0] - 2026-02-21
+
+### Added
+- **Suno stem discovery** — `discover_stems()` maps Suno's exported filenames (`0 Lead Vocals.wav`, `1 Backing Vocals.wav`) to polish pipeline stem roles via keyword-based matching + multi-file combining
+- **Mastering auto-recovery** — `master_album` Stage 5 auto-detects recoverable dynamic range failures (LUFS too low + peak at ceiling) and applies `fix_dynamic()` from raw source files before re-verifying
+- **`fix_dynamic()` reusable helper** — extracted core fix logic into a function that accepts pipeline settings (target LUFS, EQ, ceiling) instead of hardcoded values
+- **12 new tests** — 7 unit tests for `fix_dynamic()`, 5 pipeline tests for auto-recovery scenarios
+
+### Fixed
+- **`fix_dynamic_track` MCP tool** — now uses shared `fix_dynamic()` instead of inline code
+
+## [0.59.0] - 2026-02-20
+
+### Added
+- **`mix-engineer` skill** — automated per-stem audio polish pipeline for Suno output cleanup
+- **`tools/mixing/mix_tracks.py`** — core DSP module: spectral gating noise reduction, Butterworth highpass, parametric EQ, high shelf, envelope-following compression, click detection/interpolation, mid-side stereo enhancement, stem remixing with per-stem gain
+- **`tools/mixing/mix-presets.yaml`** — genre presets for 50+ genres with per-stem processing settings and deep-merge user override support
+- **`polish_audio` MCP tool** — process stems or full mixes with genre presets
+- **`analyze_mix_issues` MCP tool** — spectral analysis for noise floor, muddiness, harshness, clicks, sub-rumble
+- **`polish_album` MCP tool** — 3-stage pipeline (analyze → polish → verify)
+- **`source_subfolder` parameter on `master_audio`** — read WAVs from a subfolder (e.g., "polished") for polish → master chaining
+- **89 unit tests** for mix_tracks.py — 16 test classes covering all DSP functions, pipeline modes, preset loading, numerical stability, and override merging
+- **`requirements-mixing.txt`** — standalone dependency file for mixing tools
+
+### Fixed
+- **Python 3.9 compat** — replaced `str | None` union syntax with `Optional[str]` in server.py
+- **Lint** — removed unused `reachable` variable in URL checking
+- **README badges** — updated skills count (49→50), test count (1969→2183), added mix-engineer to workflow table and skills reference
+
+## [0.58.0] - 2026-02-16
+
+### Added
+- **`ship` skill** — automates full code release pipeline (branch → commit → PR → CI → merge → version bump → release → cleanup)
+
+### Fixed
+- **Unused import** — removed `parse_frontmatter` from server.py imports (ruff F401)
+- **Bandit false positives** — added `nosec` annotations for parameterized SQL and validated URL open in server.py
+- **README version badge** — updated from 0.56.0 to match plugin.json 0.57.0
+
+## [0.57.0] - 2026-02-16
+
+### Added
+- **PostgreSQL database integration** — 8 new MCP tools for social media post management (`db_init`, `db_list_tweets`, `db_create_tweet`, `db_update_tweet`, `db_delete_tweet`, `db_search_tweets`, `db_sync_album`, `db_get_tweet_stats`)
+- **Database config section** — `database:` in config.yaml for PostgreSQL credentials with password masking in state
+- **Portable schema** — `tools/database/schema.sql` with migrations directory for future changes
+- **n8n workflow export** — `tools/n8n/n8n-auto-post-twitter.json` for automated Twitter/X posting (sanitized, no credentials)
+- **`tools/database/`** — connection helper, schema, README with setup instructions
+- **`tools/n8n/`** — workflow exports with setup docs, credential notes, and API cost info
+
+## [0.56.0] - 2026-02-16
+
+### Added
+- **9 artist deep-dives** — production-level sonic profiles for trance (t.A.T.u., Cascada, ATB, Alice Deejay, Ian Van Dahl), pop (Ace of Base, Aqua, La Bouche), and electronic (Eiffel 65) with members, discography, musical analysis, Suno prompt keywords, and reference tracks
+- **Trance artists INDEX.md** — quick-reference Suno keywords and reference tracks for all 5 trance artists
+- **Pop/Electronic INDEX updates** — added new artists to existing genre INDEX files
+
+### Fixed
+- **Suno auto-fill SPA routing** — userscript now detects Next.js client-side navigation via History API monkey-patching (pushState/replaceState + popstate); button injects on `/create`, removes on other pages, never duplicates
+
+## [0.55.0] - 2026-02-15
+
+### Added
+- **`count_syllables` MCP tool** — syllable counts per line with section tracking, consistency analysis (stdev > 3 = UNEVEN), and summary stats
+- **`analyze_readability` MCP tool** — Flesch Reading Ease scoring, vocabulary richness, and grade level assessment for lyrics
+- **`analyze_rhyme_scheme` MCP tool** — rhyme scheme detection (AABB/ABAB/XAXA) with section awareness, self-rhyme and repeated end word detection
+- **`validate_section_structure` MCP tool** — section tag validation, balanced verse lengths (diff > 2 lines flagged), empty/duplicate/missing section detection, content-before-first-tag warning
+- **`_count_syllables_word` helper** — vowel cluster heuristic for syllable counting (silent 'e', consonant-'le' endings, y-as-vowel)
+- **`_get_rhyme_tail` / `_words_rhyme` helpers** — suffix-based rhyme detection from last vowel cluster to end of word, with silent-e handling and plural tolerance
+- **85 unit tests** for lyrics analysis tools (`test_server_lyrics.py`) — 13 test classes covering all helpers and MCP tools with edge cases, boundary conditions, and bug-catching coverage
+
+## [0.54.0] - 2026-02-14
+
+### Added
+- **`extract_distinctive_phrases` MCP tool** — extracts 4-7 word n-grams from lyrics with section awareness, filters ~75 common song cliches and stopword-only phrases, ranks by section priority (chorus/hook > verse), returns pre-formatted web search suggestions for plagiarism checking
+- **`_COMMON_SONG_PHRASES` constant** — frozenset of ~75 ubiquitous lyric cliches filtered during phrase extraction (love/heartbreak, night/time, pain/struggle, fire/light, generic emotional)
+- **`plagiarism-checker` skill** — scans lyrics for phrases that may match existing songs using web search and LLM knowledge; standalone quality check (not a pre-generation gate) with HIGH/MEDIUM/LOW risk findings and CLEAR/NEEDS REVIEW/REWRITE REQUIRED verdicts
+- **~35 unit tests** for distinctive phrase extraction (`test_server_lyrics.py`) — covers `_tokenize_lyrics_with_sections` helper, `_extract_distinctive_ngrams` helper, and `extract_distinctive_phrases` MCP tool
+
+## [0.53.0] - 2026-02-14
+
+### Added
+- **`check_cross_track_repetition` MCP tool** — scans all tracks in an album for words and phrases repeated across multiple tracks; tokenizes lyrics into words and 2-4 word n-grams, filters stopwords and common song vocabulary, flags items appearing in N+ tracks (configurable threshold)
+- **70 unit tests** for cross-track repetition analysis (`test_server_lyrics.py`) — covers helpers (`_tokenize_lyrics_by_line`, `_ngrams_from_lines`), tool edge cases (slug normalization, unreadable files, stopword filtering, sort order, summary structure), and realistic multi-section lyrics
+
+## [0.52.1] - 2026-02-14
+
+### Fixed
+- **Album sampler track titles** — `get_track_title()` now converts slug format to readable titles (e.g., "ocean-of-tears" → "Ocean Of Tears"), matching individual promo video behavior
+- **Album sampler MCP title resolution** — `generate_album_sampler` MCP tool now pre-resolves proper titles from state cache (markdown metadata) and passes them to the sampler, so titles match exactly what's in track files
+
+## [0.52.0] - 2026-02-14
+
+### Added
+- **`get_python_command` MCP tool** — returns venv Python path, plugin root, and ready-to-use command template; prevents skills from hitting system Python which lacks dependencies
+- **4 new tests** for `get_python_command` (venv exists, venv missing, plugin root, usage template)
+
+### Changed
+- **Skills migrated from bare python3 to MCP tools** — mastering-engineer (12 refs), promo-director (2 refs), sheet-music-publisher (9 refs), session-start (1 ref) now use MCP tools instead of bash python3 commands
+- **Skills without MCP equivalents use `get_python_command`** — cloud-uploader (4 refs), test-definitions (1 ref) now call `get_python_command()` first to get the venv path
+- **CLAUDE.md** — indexer rebuild references updated to `rebuild_state()` MCP tool
+- **genre-presets.md** — all python3 CLI examples replaced with MCP tool calls
+
+## [0.51.0] - 2026-02-14
+
+### Fixed
+- **`resolve_path` mirrored structure** — audio and documents paths now use `{root}/artists/{artist}/albums/{genre}/{album}/` matching the content structure (was flat `{root}/{artist}/{album}/`)
+- **Genre lookup for audio/documents** — `resolve_path` MCP tool and `paths.py` utility now look up genre from state cache for all path types (was only content/tracks)
+- **`_resolve_audio_dir` genre support** — mastering/QC MCP tools now resolve genre from state cache instead of using flat paths
+- **`validate_album_structure` wrong-location check** — detects old flat audio structure as misplaced files
+- **`rename_album` path construction** — uses mirrored structure for audio and documents directories
+- **`upload_to_cloud.py` path finder** — tries mirrored structure first with glob fallback
+- **35 documentation files** — updated all path references from flat to mirrored structure
+
+### Added
+- **Per-track stems subfolders** — `import-audio` skill now extracts stems into `stems/{track-slug}/` subfolders preventing filename collisions across tracks
+- **Stems file type detection** — `import-audio` skill detects zip files and routes to stems extraction workflow
+- **Track slug derivation** — stems import infers track from zip filename, user argument, or prompts
+
+## [0.50.0] - 2026-02-13
+
+### Added
+- `master_album` MCP tool — end-to-end mastering pipeline (analyze → QC → master → verify → QC → status update) in a single call
+- Technical Audio QC tool (`qc_tracks.py`) with 7 checks: mono compatibility, phase correlation, clipping, click/pop detection, silence, format validation, spectral balance
+- `qc_audio` MCP tool for running QC from skills
+- QC gates integrated into mastering-engineer workflow (pre and post mastering)
+
+## [0.49.0] - 2026-02-13
+
+### Added
+- **K-pop genre research** — 27 artist deep-dive files covering all major K-pop acts across 4 generations (BTS, BLACKPINK, Stray Kids, NewJeans, aespa, (G)I-DLE, ATEEZ, IVE, LE SSERAFIM, SEVENTEEN, EXO, Girls' Generation, Big Bang, SHINee, TWICE, Red Velvet, 2NE1, TVXQ, Dreamcatcher, ENHYPEN, TXT, ITZY, Epik High, IU, Zion.T, Crush, DEAN) with members, discography, musical analysis, Suno prompt keywords, and reference tracks
+- **K-pop artist INDEX** — `genres/k-pop/artists/INDEX.md` quick-reference with Suno keywords and reference tracks for all 27 artists
+- **K-pop artist blocklist** — 25 entries added to `reference/suno/artist-blocklist.md` with sonic description alternatives
+- **K-pop Suno V5 tips** — comprehensive K-pop section in `reference/suno/v5-best-practices.md` covering style prompts, group vocal sound, Korean-English code-switching, switch-up technique, and common issues
+- **Enhanced K-pop README** — expanded with entertainment company sounds (SM, YG, JYP, HYBE, ADOR, Cube, KQ), additional subgenres, industry terms glossary, and artist cross-references
+
+## [0.48.0] - 2026-02-12
+
+### Added
+- **`/promo-writer` skill** — generates platform-specific social media copy (Twitter, Instagram, TikTok, Facebook, YouTube) from album themes, track concepts, and streaming lyrics; campaign strategy first, then native per-platform posts with character counts and hashtag compliance (Sonnet tier)
+- **Social media best practices reference** — `reference/promotion/social-media-best-practices.md` with per-platform content strategy, algorithm notes, music discovery mechanics, hashtag strategies, indie artist tactics, and cross-platform release rollout templates
+- **Copy formulas reference** — `skills/promo-writer/copy-formulas.md` with 6 hook formulas, CTA templates, post structure skeletons, hashtag recipes by genre/phase, and tone adaptation guide
+- **Promotion preferences override** — `config/overrides.example/promotion-preferences.md` for customizing tone, platform priorities, messaging themes, hashtag preferences, and AI music positioning
+
+### Fixed
+- **Twitter hashtag count** — corrected from "2-3 per tweet" to "1-2 per tweet" in platform-rules.md and promo-reviewer SKILL.md (researched best practice)
+- **Twitter hashtag rules** — added "never start with hashtag" (algorithm penalty), tag rotation (spam detection), and Tags to Avoid section (#MusicPromotion, #FollowBack, #Like4Like)
+- **Release director promo references** — replaced "manual creative step" with promo-writer reference in QA item 9 and Distribution Prep item 6
+- **Promo reviewer workflow** — updated diagram, When to Use, and empty-files message to reference promo-writer as option
+
+## [0.47.0] - 2026-02-11
+
+### Added
+- **9 processing MCP tools** — `analyze_audio`, `master_audio`, `fix_dynamic_track`, `master_with_reference`, `transcribe_audio`, `fix_sheet_music_titles`, `create_songbook`, `generate_promo_videos`, `generate_album_sampler` — wrap Python processing scripts for direct MCP invocation with lazy dep checking and structured JSON responses
+- **Suno auto-fill clipboard type** — `format_for_clipboard` now supports `"suno"` content type returning JSON with title, style, and lyrics for browser auto-fill
+- **Tampermonkey userscript** — `tools/userscripts/suno-autofill.user.js` auto-fills Suno's create page from clipboard JSON with adaptive field detection and React-compatible input simulation
+- **Album streaming block** — album template frontmatter now includes `streaming:` dict with soundcloud, spotify, apple_music, youtube_music, amazon_music keys for listen page generation
+
+### Fixed
+- **Pillow CVE-2026-25990** — bumped pillow 10.4.0 → 12.1.1
+- **CI lint/security scope** — ruff and bandit now scan `servers/` in addition to `tools/`
+- **Ruff warnings** — fixed pre-existing unused imports, variables, and f-string prefix issues in server.py
+
+### Removed
+- **Legacy URL fields** — removed `soundcloud_url` and `spotify_url` flat fields from album template (replaced by `streaming:` block)
+
+## [0.46.0] - 2026-02-11
+
+### Changed
+- **Complete MCP migration** — migrated remaining 3 skills (`tutorial`, `validate-album`, `sheet-music-publisher`) to use MCP tools instead of manual file access; all 46 skills now use MCP tools where applicable
+- **`tutorial`** — config reads → `get_config()`, album scanning → `list_albums()` + `get_album_progress()`
+- **`validate-album`** — manual config + `find` command → `get_config()` + `find_album()` + `validate_album_structure()`
+- **`sheet-music-publisher`** — config read + manual override loading → `get_config()` + `find_album()` + `resolve_path("audio")` + `load_override()`
+
+## [0.45.0] - 2026-02-11
+
+### Added
+- **`/promo-reviewer` skill** — interactive post-by-post review of social media copy in album `promo/` files with approve/revise/shorten/punch-up/hashtag/tone actions, character limit enforcement, and write-back (Sonnet tier)
+- **Platform rules reference** — `skills/promo-reviewer/platform-rules.md` with per-platform character limits, hashtag conventions, and tone guidelines
+
+### Fixed
+- **SKILL_INDEX alphabetical order** — `pre-generation-check` now correctly sorted before `promo-director`
+- **model-strategy.md completeness** — added missing `verify-sources` (Sonnet) and `rename` (Haiku) subsections; counts now match actual skill inventory
+- **SKILL_INDEX model sections** — added missing `/verify-sources` to Sonnet list and `/setup` to Haiku list
+- **Cross-file count consistency** — all four count locations (SKILL_INDEX, model-strategy, distribution table, README) now agree: 6 Opus, 25 Sonnet, 15 Haiku = 46 total
+
+### Changed
+- **Skills count at 46** — up from 45 (added `/promo-reviewer`)
+
+## [0.44.0] - 2026-02-10
+
+### Added
+- **Rename MCP tools** — `rename_album` and `rename_track` tools handle slug, title, and directory renames across all mirrored path trees (content, audio, documents) with state cache updates
+- **`/rename` skill** — interactive wrapper for renaming albums or tracks with confirmation and error handling (Haiku tier)
+- **Plugin migration system** — versioned `migrations/` directory with auto, action, info, and manual migration types; session-start checks for upgrades and processes migration actions
+- **Promo templates** — 6 per-platform social media copy templates (`campaign.md`, `twitter.md`, `instagram.md`, `tiktok.md`, `facebook.md`, `youtube.md`) in new `templates/promo/` directory
+- **Track template frontmatter** — YAML frontmatter with `title`, `track_number`, `explicit`, `suno_url` fields
+- **Suno parenthetical warning** — track template now warns that Suno sings parenthetical directions literally
+- **Migration tests** — validation suite for migration file format, YAML frontmatter, version matching, and action types
+- **Promo template tests** — validates all 6 templates exist and contain required sections
+- **32 rename tests** — `TestRenameAlbum` (15), `TestRenameTrack` (12), `TestDeriveTitleFromSlug` (5)
+
+### Changed
+- **Social media copy** moved from inline SOURCES.md sections to dedicated `promo/` directory in album content
+- **Promo workflow reference** updated to reflect `promo/` directory separation from video files
+- **Album art director** description broadened for use during planning, not just post-Final
+- **Clipboard skill** heading detection updated to match new track template structure (`### Lyrics Box` / `### Style Box`)
+- **Mastering engineer** now requires explicit path resolution step before mastering workflow
+- **Test suite at 1585 tests** — up from 1553 in 0.43.1
+- **Skills count at 45** — up from 44 (added `/rename`)
+
+### Fixed
+- **CONTRIBUTING.md** — added migration checklist item for PRs with filesystem/template/config changes
+
+## [0.43.1] - 2026-02-06
+
+### Added
+- **Test count badge validation** — CI step in `test.yml` verifies README badge matches actual pytest count
+- **Pre-commit hook check 11/11** — local badge sync validation before commit
+- **Version-sync workflow** now triggers on `tests/**` changes and validates test badge presence
+
+### Fixed
+- **README model strategy** — updated Opus 4.5 → Opus 4.6, corrected skill counts (24 Sonnet, 14 Haiku)
+
+## [0.43.0] - 2026-02-06
+
+### Added
+- **MCP server expanded to 30 tools** — 21 new tools across path resolution, content extraction, text analysis, validation, and album operations
+- **3 content analysis tools** — `check_explicit_content`, `extract_links`, `get_lyrics_stats` for pre-generation checks
+- **10 content/validation tools** — `extract_section`, `update_track_field`, `format_for_clipboard`, `validate_album_structure`, `get_album_full`, `search`, `check_pronunciation_enforcement`, `load_override`, `get_reference`, `create_album_structure`
+- **8 path/query tools** — `resolve_path`, `resolve_track_file`, `list_track_files`, `list_tracks`, `get_album_progress`, `run_pre_generation_gates`, `scan_artist_names`, `check_homographs`
+- **160 integration tests** — full end-to-end pipeline tests (real files → indexer → state.json → StateCache → MCP tool), 5+ per tool
+- **309 MCP unit tests** — edge cases, error paths, word boundaries, path traversal protection
+
+### Changed
+- **MCP server renamed** — `state-server` → `bitwize-music-server` to reflect expanded scope
+- **Test suite at 843 tests** — up from 494 in 0.42.0
+
+## [0.42.0] - 2026-02-06
+
+### Added
+- **verify-sources skill** — new `/verify-sources` skill for human source verification workflow
+- **State schema documentation** — formal `reference/state-schema.md` documenting state.json structure
+- **Path resolver utility** — `tools/shared/paths.py` eliminates manual path construction
+- **222 new unit tests** — indexer (121), MCP server (90), path resolver (11); suite now at 494
+- **Coverage reporting** — pytest-cov with HTML artifact upload in CI
+- **README badges** — version and skills count badges with CI sync validation
+- **Badge sync in CI** — version-sync workflow now validates README badges match actual values
+
+### Fixed
+- **Resume skill** — merged next-step decision tree into resume (Step 8) for single-skill navigation
+- **Lyric reviewer checklist** — heading corrected from 13-Point to 14-Point (matches actual items)
+- **Lyric workflow test** — regex now matches writer's `Quality Check (N-Point)` format
+- **README/CLAUDE.md alignment** — fixed trigger phrases, co-author line, status definitions
+- **Import-audio** — added MP3 file handling guidance and supported formats list
+
+### Changed
+- **MCP server logging** — structured logging throughout StateCache for debugging
+- **Config quick-start** — added 3-field quick-start block to config.example.yaml
+- **Overrides docs** — consolidated to single source of truth in config/README.md
+- **SKILL_INDEX** — updated navigation references, added verify-sources
+
+## [0.41.6] - 2026-02-06
+
+### Fixed
+- **Tweet template DM issue** — moved @bitwizemusic after hashtags in tweet templates so tweets are public instead of becoming DMs
+
+## [0.41.5] - 2026-02-06
+
+### Fixed
+- **MCP server config portability** — .mcp.json now uses `${HOME}` and `${CLAUDE_PLUGIN_ROOT}` environment variables instead of hardcoded absolute paths, making the config portable across different installations
+
+## [0.41.4] - 2026-02-05
+
+### Fixed
+- **MCP server environment** — .mcp.json now explicitly passes CLAUDE_PLUGIN_ROOT env variable to server process, fixing "missing env variable" startup failures
+
+## [0.41.3] - 2026-02-05
+
+### Fixed
+- **MCP server startup** — .mcp.json now uses venv Python (`~/.bitwize-music/venv/bin/python3`) instead of system Python, fixing server initialization failures
+
+## [0.41.2] - 2026-02-05
+
+### Changed
+- **Setup skill simplified** — only recommends unified venv approach, removed confusing system-wide install options
+- **Setup checks venv** — verifies ~/.bitwize-music/venv contents instead of system Python packages
+- **No optional components** — all dependencies install together, clearer messaging
+
+## [0.41.1] - 2026-02-05
+
+### Fixed
+- **Setup skill** — runs dependency checks sequentially to prevent sibling tool call cancellation, removes incorrect mcp.__version__ access
+- **Pre-commit hook** — pip-audit check now correctly captures exit code and handles errors properly
+
+## [0.41.0] - 2026-02-05
+
+### Added
+- **Pre-commit dependency security scan** — pip-audit automatically checks requirements.txt for known vulnerabilities before commit
+- **Hook installation guide** — README and install script in hooks/ directory for easy setup
+
+### Fixed
+- **Security vulnerabilities** — updated mcp (1.2.0 → 1.23.0) and pypdf (4.3.1 → 6.6.2) to resolve 10 CVEs
+
+## [0.40.0] - 2026-02-05
+
+### Added
+- **Unified venv for all plugin tools** — single `~/.bitwize-music/venv` for MCP server, mastering, cloud uploads, and document hunting. Automatic detection with fallback to system Python. Works on Linux, macOS, Windows, and WSL.
+- **MCP server wrapper script** — `servers/state-server/run.py` handles platform-specific venv paths (Windows: `Scripts/python.exe`, Unix: `bin/python3`)
+- **Single requirements.txt** — consolidated all dependencies into one file with clear sections for each feature
+
+### Changed
+- **MCP server environment variable convention** — server now checks `CLAUDE_PLUGIN_ROOT` first (standard), then `PLUGIN_ROOT` (legacy), then derives from file location
+- **Installation simplified** — one venv setup installs everything: `python3 -m venv ~/.bitwize-music/venv && pip install -r requirements.txt`
+- **MCP .mcp.json** — simplified configuration by removing redundant `PLUGIN_ROOT` env variable
+
+### Removed
+- **Separate requirements files** — removed `requirements-mcp.txt` and `requirements-cloud.txt` in favor of unified `requirements.txt`
+- **Multiple venvs** — no longer need separate `mcp-env`, `cloud-env`, or `mastering-env` directories
+
+## [0.39.0] - 2026-02-05
+
+### Added
+- **Setup skill** — `/bitwize-music:setup` detects Python environment, checks dependencies, and provides installation commands specific to your system (externally-managed vs user-managed Python)
+- **Session start setup check** — automatic MCP dependency verification on session start with immediate setup guidance if missing
+
+### Changed
+- **MCP server naming** — renamed `bitwize-music-state` → `bitwize-music-mcp` to support future MCP tools beyond state cache
+- **MCP error handling** — improved dependency error message with user-install, pipx, and venv instructions for externally-managed Python environments
+- **MCP documentation** — added setup instructions to README and server README for Ubuntu/Debian systems
+
+## [0.38.0] - 2026-02-05
+
+### Added
+- **MCP server: bitwize-music-state** — bundled MCP server exposing state cache as tools for instant structured responses. Wraps `tools/state/indexer.py` with 9 tools: `find_album`, `list_albums`, `get_track`, `get_session`, `update_session`, `rebuild_state`, `get_config`, `get_ideas`, `get_pending_verifications`. In-memory caching with lazy loading and staleness detection. Server auto-starts when plugin enabled via `.mcp.json`. Requires Python 3.10+, `mcp[cli]>=1.2.0`.
+- **Plugin tests: SKILL.md structure validation** — checks all skills have required sections (task description, procedural content, closing guidance, agent title). Accepts common alternatives (## Workflow, ## Step 1, ## Commands, ## Domain Expertise, etc.). Runs as part of pre-commit check #11.
+- **CI: plugin tests job** — runs full `run_tests.py` suite (449 tests) in CI, guarded against fork PRs
+- **Suno: v5-best-practices.md updates** — Personas workflow, Song Editor, bar count targeting, Creative Sliders, prompt fatigue warning (4-7 descriptor sweet spot), token biases, WMG ownership/licensing, V4.5 comparison note
+- **Suno: tips-and-tricks.md updates** — Personas+Covers combo, Song Editor reference, Creative Sliders, catalog protection warning
+- **Suno: voice-tags.md updates** — V5 Voice Gender selector, sustained notes technique, emotion arc mapping
+- **Suno: structure-tags.md updates** — bar count targeting syntax, performance cues rule, V5 reliability improvements
+- **Suno: pronunciation-guide.md updates** — V5 context sensitivity note, IPA not supported, numbers guidance, multilingual track isolation
+- **Suno: instrumental-tags.md updates** — Producer's Prompt narrative approach, tag soup warning
+
+### Fixed
+- **Plugin manifest: duplicate hooks reference** — removed explicit `hooks/hooks.json` reference from plugin.json since it's loaded automatically by Claude Code
+
+## [0.37.1] - 2026-02-04
+
+### Changed
+- **CI: SHA-pinned action references** — all workflow `uses:` directives now reference exact commit SHAs instead of mutable version tags (checkout v4.3.1, setup-python v5.6.0)
+- **CI: fork PR protection** — `test` and `lint` jobs skip for fork PRs to prevent untrusted code execution via modified requirements/test files
+- **CI: security gates tests** — unit tests now depend on `security` job (pip-audit) completing first
+- **CI: explicit read-only permissions** — all non-release workflows now declare `permissions: { contents: read }`
+- **CI: GITHUB_OUTPUT delimiter syntax** — all output variables use heredoc delimiters to prevent injection via newlines
+- **CI: dead code fix** — model-updater curl error message now reachable under `set -e`
+- **CI: fixed-string grep** — auto-release uses `grep -qF` so semver dots aren't regex wildcards
+- **CI: heredoc replaced with printf** — model-updater PR body uses `printf %s` instead of unquoted heredoc for variable expansion
+
+## [0.37.0] - 2026-02-04
+
+### Added
+- **Security: temp file cleanup** — atexit handlers and `0o600` permissions on temp files in promo video generators
+- **Security: path traversal validation** — `Path.relative_to()` containment checks in mastering tools
+- **Security: state cache permissions** — `0o700` on cache directory, `0o600` on temp files in indexer
+- **Security: album name validation** — character validation before `rglob` in cloud uploader prevents glob injection
+- **Security: CI model-updater hardening** — character whitelist and length validation on fetched model IDs
+- **Security: session input validation** — length limits, null byte checks, action count cap in state indexer
+- **Mastering: pre-flight check** — new Step 1 verifies WAV files exist before mastering workflow
+- **Album-conceptualizer: type decision criteria** — guidance for choosing between Documentary, Character Study, Thematic
+- **Album-conceptualizer: energy mapping example** — concrete visual example and pacing problems checklist
+- **Resume: Research Phase** — suggests `/researcher` and `/document-hunter` for documentary albums
+- **Checkpoint scripts: required actions** — action checklists before each checkpoint message template
+- **Source verification: human checklist** — 6 concrete items for verifying sources (URL, quotes, dates, context, etc.)
+- **Pronunciation guide: enforcement workflow** — full table enforcement process, verification format, rules
+- **Researcher: evidence chain format** — example documentation format for connecting sources
+
+### Changed
+- **Lyric-reviewer: homograph handling unified** — now verifies decisions from lyric-writer instead of independently re-determining pronunciation (fixes contradiction)
+- **Lyric-reviewer: 13-point checklist** — added section length, rhyme scheme, density/pacing, verse-chorus echo checks (was 9)
+- **Suno-engineer: parenthetical contradictions fixed** — removed instructions to use parentheticals in lyrics box (Suno sings them)
+- **Suno-engineer: genre specificity guidance** — added 2-3 descriptor limit with "too much" anti-pattern example
+- **Suno-engineer: album context lookup** — explicit instructions for finding album README from track path
+- **Bass homograph standardized** — `bayss` (music) across lyric-writer, lyric-reviewer, pronunciation-specialist
+- **New-album: documentary parsing** — documents both 2-arg and 3-arg formats, always asks about true-story status
+- **Pronunciation-specialist: standard Override Support section** — restructured to match pattern used by other skills
+- **Researcher: state cache + Glob approach** — replaced `find`/`cat` commands with state cache lookup per CLAUDE.md
+- **Researcher: smart album detection** — checks for single in-progress album before asking user
+- **Mastering-engineer: version-safe plugin detection** — `[0-9]*` pattern replaces `0.*` (works post-1.0)
+- **Mastering-engineer: step renumbering** — 6 steps with new pre-flight check
+- **Lyric-writer: trim strategy** — specific guidance on what to cut when sections exceed limits
+- **Lyric-writer: pronunciation check split** — table enforcement elevated from parenthetical to explicit sub-item
+- **Lyric-writer: twin verses example** — concrete before/after showing reworded vs developing V2
+- **Track template: pronunciation enforcement note** — bold warning that table is mandatory checklist, not documentation
+- **Track template: keeper marker documented** — explains ✓ in Generation Log Rating column
+- **Album template: verification deduplication** — removed per-track table, points to track files as single source of truth
+- **Album template: art filename convention** — documents expected filenames and locations for album art
+- **Suno LUFS targets clarified** — renamed section, added note these are Suno outputs not mastering targets
+- **Style Prompt terminology standardized** — consistent "Style Prompt" (content) vs "Style Box" (UI) across Suno docs
+- **Test skill: section renumbering** — fixed duplicate section 9, renumbered 10-14
+- **Resume: plugin root resolution** — explains how to find plugin directory when state cache needs rebuild
+- **Clipboard: shell-safe example** — `printf '%s'` replaces `echo` for lyrics with special characters
+- **Cross-references added** — release-procedures→distribution.md, error-recovery→mastering-workflow.md
+- **Homograph drift prevention** — canonical source notes added to all 3 skills with homograph tables
+- **Researcher sub-skills: override inheritance** — all 10 sub-skills now reference parent override preferences
+
+## [0.36.0] - 2026-02-03
+
+### Added
+- **CI: CLAUDE.md size check** — validates CLAUDE.md stays under 40K characters (matches pre-commit hook)
+- **CI: Skill frontmatter validation** — validates required fields (name, description, model) and model ID format pattern
+- **Reference: status-tracking.md** — new reference doc for track/album status workflows (split from CLAUDE.md)
+
+### Changed
+- **CLAUDE.md trimmed** — reduced from 40.2K to 33.2K chars by moving skills table to SKILL_INDEX.md, lyrics checklist to lyric-writer SKILL.md, and status tracking to reference file
+- **Model validation uses pattern** — skill frontmatter check now uses regex `^claude-(opus|sonnet|haiku)-\d+-\d+-\d{8}$` instead of hardcoded model IDs, allowing new model versions without updating checks
+- **Plugin tests check SKILL_INDEX.md** — skill documentation test now checks SKILL_INDEX.md instead of CLAUDE.md (since skills table was moved there)
+
+## [0.35.0] - 2026-02-03
+
+### Added
+- **`tools/shared/media_utils.py`** — shared module for color extraction, audio analysis, and ffmpeg helpers (extracted from promotion tools)
+- **`tools/shared/text_utils.py`** — shared module for track naming utilities (extracted from sheet-music tools)
+
+### Fixed
+- **Bare `except:` clauses** — replaced 6 instances across sheet-music tools with specific exception types (`FileNotFoundError`, `subprocess.SubprocessError`, `TypeError`, etc.)
+- **Unguarded `import yaml`** — added `try/except ImportError` with helpful message in `create_songbook.py` and `transcribe.py` to match project convention
+- **Dead code** — removed unused `above_thresh`/`mask` duplication in `master_tracks.py:soft_clip()`, removed unused `BG_COLOR`/`WAVEFORM_COLOR` constants from promotion tools
+- **Unused import** — removed `ProgressBar` import from `reference_master.py`
+- **Resource leak** — `generate_album_sampler.py` now uses `Image.open()` as context manager
+- **Broad exception handling** — narrowed `except Exception` to specific types in `create_songbook.py`
+
+### Changed
+- **Deduplicated promotion tools** — extracted 7 functions from `generate_promo_video.py` and `generate_album_sampler.py` into `tools/shared/media_utils.py` (-274 lines)
+- **Deduplicated mastering tools** — `fix_dynamic_track.py` now imports `apply_eq` and `soft_clip` from `master_tracks.py` (gains safety guards: Nyquist, Q factor, stability checks)
+- **Deduplicated sheet-music tools** — `strip_track_number` extracted to `tools/shared/text_utils.py`
+- **PR template** — fixed Co-Authored-By from "Claude Sonnet 4.5" to "Claude Opus 4.5"
+- **Skill counts** — fixed Sonnet (21→22) and Haiku (11→10) counts in `model-strategy.md` and `SKILL_INDEX.md`
+- **README.md** — fixed stale `paths.yaml` reference to `~/.bitwize-music/config.yaml`, removed false `content_root` default claim
+- **CONTRIBUTING.md** — added `SKILL_INDEX.md` and `model-strategy.md` to new skill checklist, clarified version bumps happen at release time
+
+## [0.34.1] - 2026-02-03
+
+### Fixed
+- **Mastering summary crash** — `master_tracks.py` summary section crashed with `TypeError` when unpacking `(name, dict)` tuples as plain dicts
+- **Album sampler crossfade offsets** — `concatenate_with_crossfade` hardcoded 12-second clip duration instead of using actual `--clip-duration` value, causing audio gaps/overlaps
+- **ffprobe crash on failure** — `get_audio_duration` in promo video and album sampler tools now checks `returncode` before parsing output
+- **CI expression injection** — moved all `${{ steps.*.outputs.* }}` interpolations in `auto-release.yml` and `model-updater.yml` into `env:` blocks to prevent shell injection via crafted inputs
+- **Broad `git add -A` in model-updater** — replaced with targeted file additions to prevent accidental staging of temp files
+- **`echo -e` portability** — replaced with `printf '%b'` in model-updater workflow
+- **Release notes `echo` fragility** — replaced with `printf '%s\n'` in auto-release to avoid flag interpretation
+
+## [0.34.0] - 2026-02-02
+
+### Added
+- **Python version matrix** — CI tests now run across Python 3.9, 3.10, 3.11, 3.12 with pip caching
+- **Security scanning** — bandit static analysis in lint job, pip-audit dependency audit as new security job
+- **Mastering tests in CI** — 47 mastering tests now run in the test pipeline alongside state/shared tests
+
+### Fixed
+- **Path traversal prevention** — upload_to_cloud.py and transcribe.py validate resolved paths stay within expected roots
+- **Atomic state writes** — indexer.py uses tempfile + fsync to prevent corruption on crash
+- **Python 3.9 compatibility** — `Path | None` → `Optional[Path]` in master_tracks.py
+- **analyze_tracks divide-by-zero** — guard total_energy division in spectral analysis
+- **Model updater safety** — validates model ID date format and skips downgrades
+
+### Changed
+- **Documentation sanitized** — replaced real album names with generic examples across 19 files
+
+## [0.33.0] - 2026-02-01
+
+### Added
+- **Pronunciation Table Enforcement rule** — every entry in a track's Pronunciation Notes table must be applied as phonetic spelling in Suno lyrics. The table is a checklist of required substitutions, not documentation. Added full process, verification format, common failures, and anti-pattern examples to lyric-writer SKILL.md. Added to quality check #3 and pitfalls checklist.
+
+## [0.32.0] - 2026-02-01
+
+### Changed
+- **CLAUDE.md deduplicated and trimmed to under 40KB** — consolidated 4 checkpoint sections into single table, slimmed Model Strategy to table with doc reference, condensed Lessons Learned, removed redundant sections (Quick Reference, Using Skills for Research, standalone Watch Your Rhymes, CORRECT APPROACH block). No information lost — all content consolidated or referenced elsewhere.
+
+## [0.31.0] - 2026-02-01
+
+### Changed
+- **Verse-chorus echo check** replaces chorus lead-in rule — expanded from single-line check to full phrase deduplication. Now compares last 2 lines of every verse against first 2 lines of the chorus, flagging exact phrases, shared rhyme words, restated hooks, and shared signature imagery. Covers all verse-to-chorus and bridge-to-chorus transitions.
+
+## [0.30.0] - 2026-02-01
+
+### Added
+- **No Invented Contractions rule** — Suno only handles standard pronoun/auxiliary contractions (they'd, wouldn't). Invented forms (signal'd, TV'd, network'd) will mispronounce or skip. Added to Pronunciation section, quality check #3, and pitfalls checklist.
+
+## [0.29.0] - 2026-02-01
+
+### Changed
+- **Density/pacing reframed as Suno verse length limits** — replaced abstract syllable-density metrics with practical line counts per verse by genre and BPM. All 67 genre READMEs updated to `Density/pacing (Suno)` with default lines/verse, max safe limits, and BPM-aware guidance.
+- **New BPM-aware fallback table** — universal verse length limits when genre README doesn't specify (4 lines at <80 BPM, 6 at 94-110, 6-8 at 110-140)
+- **Default 4 lines/verse** unless genre and tempo justify more — shifted from permissive 8-line defaults to conservative 4-line baseline
+- **Red flag: 8-line verse at BPM under 100** — now flagged as too dense for Suno
+- **Streaming lyrics exception** documented — distributor text can have longer blocks but breaks must match Suno structure
+- **Quality check #10 now hard fail** — trim or split any verse over the genre's Suno limit before presenting
+
+## [0.28.0] - 2026-02-01
+
+### Added
+- **Genre-specific lyric density/pacing norms** — all 67 genre READMEs now include density character, syllables/line range, max topics/verse, typical BPM, and genre-specific pacing notes under Lyric Conventions
+- **Chorus lead-in rule** — the line before a chorus must not duplicate the chorus hook, phrase, or rhyme word. Prevents flat chorus entries.
+- **Quality checks expanded to 12** — #10 density/pacing (genre-aware), #11 chorus lead-in, #12 pitfalls checklist
+- **4 new pitfalls checklist items** — verse too dense for BPM, too many proper nouns per verse, density mismatch with Musical Direction, chorus lead-in repeats chorus
+
+### Changed
+- **Lyric density architecture**: Genre READMEs now own density/pacing norms. SKILL.md keeps universal rules + quick-reference table by genre family.
+
+## [0.27.0] - 2026-02-01
+
+### Added
+- **Lessons Learned Protocol** — 5-step process for turning production issues into preventive rules. When technical issues are discovered (pronunciation errors, rhyme violations, formatting problems), fix immediately, sweep the album, draft a rule, present to user, and log the lesson.
+
+## [0.26.0] - 2026-02-01
+
+### Added
+- **Strict homograph handling for Suno pronunciation** — "context is clear" is never acceptable for homographs. Hard process: identify, ASK user (never guess), fix with phonetic spelling in Suno lyrics only, document in track pronunciation table.
+- **Full homograph table** — live, read, lead, wound, close, bass, tear, wind with both pronunciations and phonetic spellings
+
+## [0.25.0] - 2026-02-01
+
+### Added
+- **Genre-specific lyric conventions for all 67 genres** — research-backed rhyme schemes, verse structures, rhyme quality expectations, key rules, and anti-patterns added to every genre README under a new "Lyric Conventions" section
+- **Genre-aware quality checks** — rhyme scheme check (#8) and flow check (#9) now verify conventions match the genre instead of enforcing hip-hop couplets universally
+- **Quick-reference rhyme table in lyric-writer** — compact summary of all genre families' default schemes, replacing 190 lines of inlined genre tables with a pointer to genre READMEs
+
+### Changed
+- **Architecture**: Genre READMEs now own lyric conventions (rhyme, structure, rules). Lyric-writer SKILL.md keeps universal craft rules + quick-reference table.
+
+## [0.24.0] - 2026-02-01
+
+### Added
+- **Section length guardrails by genre** — per-section line limits for 12 genre families (all 67 genres) to prevent Suno from rushing, compressing, or skipping lyrics. Covers Hip-Hop, Pop, Rock, Punk, Metal, Country/Folk, Electronic, Ambient, R&B, Jazz, Reggae, and Ballad.
+- **Section length enforcement rules** — hard limits that must be trimmed before presenting drafts (hip-hop verse max 8 lines, any chorus max 6 lines, electronic verse max 6 lines, punk kept tight)
+- **Section length added to quality checks** — now check #7 in both lyric-writer Automatic Quality Check and CLAUDE.md master workflow, plus added to Lyric Pitfalls Checklist
+
+## [0.23.0] - 2026-01-31
+
+### Added
+- **Song length guidance for lyric writer** — word count targets by genre (150–250 pop, 200–350 rock/folk, 300–500 hip-hop), default structure (2 verses + chorus + bridge), and hard limits to prevent 800+ word songs that cause Suno to rush or skip sections
+- **Length check added to lyric reviewer** — 9-point checklist (was 8-point) now includes word count validation with warning/critical severity levels
+- **Suno best practices updated** — "Keep Lyrics Concise" note in Lyric Formatting section explaining shorter lyrics generate better results
+
+## [0.22.0] - 2026-01-31
+
+### Added
+- **3 documentary/storytelling hip-hop deep-dives** — focused on narrative architecture, political documentary craft, and storytelling technique:
+  - **Kendrick Lamar** — concept album mastery, vocal personas, jazz-funk-West Coast fusion, nonlinear timelines (GKMC, TPAB, DAMN., GNX)
+  - **Run the Jewels** — El-P/Killer Mike dual-MC interplay, industrial political hip-hop, humor + protest balance (RTJ1-4)
+  - **Immortal Technique** — politically charged documentary rap, "Dance with the Devil" narrative craft, fierce independence
+- Hip-hop genre INDEX.md and README.md updated with all 3 artists
+
+### Fixed
+- **Removed artist/person names from Suno prompt keywords** in Ben Folds deep-dives — replaced "Ben Folds Five style", "Ben Folds solo style", "Ben Folds style", "Paul Buckmaster strings", "Nick Hornby storytelling", and "yMusic chamber rock" with descriptive style keywords (both deep-dive files and piano-rock INDEX.md)
+
+## [0.21.1] - 2026-01-31
+
+### Added
+- **46 artist deep-dives** across 11 genres — comprehensive reference files (265-554 lines each) with overview, members, discography, musical analysis, Suno prompt keywords, and reference tracks:
+  - **Punk** (8 new): Bad Religion, Blink-182, Descendents, Me First and the Gimme Gimmes, Mest, Propagandhi, Rancid, The Offspring
+  - **Rock** (9): Fountains of Wayne, Hoobastank, Incubus, Jeff Buckley, Linkin Park, Phil Collins, Polaris, Toto, Weezer
+  - **Country** (9): Alan Jackson, Dolly Parton, Garth Brooks, George Strait, Johnny Cash, Randy Travis, Sturgill Simpson, Tyler Childers, Willie Nelson
+  - **Synthwave** (4): FM-84, GUNSHIP, The Midnight, Timecop1983
+  - **Piano-Rock** (2): Billy Joel, Elton John
+  - **Pop** (2): Carly Rae Jepsen, Taylor Swift
+  - **Folk** (2): Israel Kamakawiwo'ole, Mumford & Sons
+  - **Celtic-Punk** (1): Dropkick Murphys
+  - **Electronic** (1): Daft Punk
+  - **Hip-Hop** (1): Brock Berrigan
+  - **Ambient** (1): Enya
+- **11 genre INDEX.md files** — lightweight keyword indexes for all genres with deep-dives (rock, country, synthwave, electronic, folk, celtic-punk, hip-hop, ambient, pop); punk and piano-rock indexes expanded with new artists
+- **Genre README updates** — Deep Dive and Keywords links added to artist tables across all 11 genres; Garth Brooks added to country README
+
+## [0.21.0] - 2026-01-31
+
+### Added
+- **Artist reference indexes** — New `genres/[genre]/artists/INDEX.md` files for punk (127 lines) and piano-rock (84 lines) providing extracted Suno prompt keywords and reference tracks without loading full deep-dives (~2,900 lines across 6 files)
+- **Lazy-loading guidance in CLAUDE.md** — New rule: read `artists/INDEX.md` first for Suno keywords; only read full deep-dive when detailed history/analysis is needed
+
+### Changed
+- **Genre README Artists tables** — Deep Dive column now includes `[Keywords]` shortcut links to INDEX.md alongside existing deep-dive links (punk, piano-rock)
+- **CLAUDE.md directory structure** — Added `INDEX.md` to both plugin and content directory trees; updated deep-dive creation rule to require INDEX.md updates
+
+## [0.20.2] - 2026-01-31
+
+### Added
+- **Genre overview files** — New genre READMEs for piano-rock, piano-pop, and singer-songwriter (67 genres total, up from 64)
+- **Artist deep-dive references** — 6 comprehensive artist files in `genres/[genre]/artists/`:
+  - `punk/artists/nofx.md` — Members, 15 albums, Fat Wreck Chords, farewell tour, Suno keywords
+  - `punk/artists/lagwagon.md` — Members, 9 albums, Derrick Plourde, Tony Sly, Joey Cape solo work
+  - `punk/artists/green-day.md` — Members, 14 albums, Gilman Street, American Idiot phenomenon
+  - `punk/artists/masked-intruder.md` — Anonymous concept, 3 albums, gimmick analysis
+  - `piano-rock/artists/ben-folds-five.md` — Members, 4 albums, Chapel Hill scene, production
+  - `piano-rock/artists/ben-folds-solo.md` — 8 solo albums, orchestral work, collaborations
+
+### Changed
+- **Genre directory structure** — Artist deep-dives now live in `genres/[genre]/artists/` subdirectories instead of alongside genre READMEs
+- **Genre README Artists tables** — Added "Deep Dive" column with links to artist reference files (punk, piano-rock)
+- **CLAUDE.md** — Added `genres/` to plugin root directory tree, documented `artists/` subdirectory pattern, added deep-dive linking rule to Key Rules
+
+## [0.20.1] - 2026-01-30
+
+### Changed
+- **README** — Added Claude Code Max plan ($200/month) recommendation callout for new users
+
+## [0.20.0] - 2026-01-29
+
+### Added
+- **Python logging module** across all 15 tool files — `tools/shared/logging_config.py` with `ColorFormatter` (TTY-aware colored output via `Colors` class) and `setup_logging()`. Errors/warnings/status go to stderr via `logger`, formatted tables and data summaries stay as `print()`. `--verbose`/`--quiet` CLI flags added where argparse exists.
+- **Progress indicators** — `tools/shared/progress.py` with `ProgressBar` class (TTY-aware █/░ bar). Added to 7 batch-processing tools: `master_tracks.py`, `analyze_tracks.py`, `reference_master.py`, `upload_to_cloud.py`, `generate_promo_video.py`, `generate_album_sampler.py`, `transcribe.py`.
+- **Retry logic for cloud uploads** — `retry_upload()` in `upload_to_cloud.py` with exponential backoff (1s/2s/4s), `--retries` CLI arg (default: 3). Retries on `ClientError` (except 403/404), `ConnectionError`, `Timeout`.
+- **Concurrent processing** — `-j`/`--jobs` CLI arg in 4 tools: `master_tracks.py` and `analyze_tracks.py` (`ProcessPoolExecutor`), `transcribe.py` and `generate_promo_video.py` (`ThreadPoolExecutor`). Default: 1 (sequential), 0 = auto (CPU count).
+- **State cache cleanup command** — `python tools/state/indexer.py cleanup` removes albums from cache whose paths no longer exist on disk. Supports `--dry-run`.
+- **New shared modules** — `tools/shared/logging_config.py`, `tools/shared/progress.py`, `tools/shared/__init__.py`
+- **Test coverage improvements** — 180 tests (up from 137), 91% coverage. New test files: `test_logging_config.py` (13 tests), `test_progress.py` (14 tests). New test classes in `test_indexer.py`: `TestCmdCleanup`, `TestCmdRebuild`, `TestCmdValidate`, `TestCmdShow`, `TestCmdUpdate`. Edge case tests added to `test_parsers.py`.
+- **Dev tooling** — `requirements-test.txt` (pytest, pyyaml, ruff, pytest-cov), `ruff.toml` config, CI workflow updated with test and lint jobs
+
+## [0.19.3] - 2026-01-29
+
+### Changed
+- **Venv-first messaging** across all tools and skills — error messages in `upload_to_cloud.py` and `generate_promo_video.py` now show venv setup commands instead of bare `pip install`. Cloud-uploader and promo-director SKILL.md docs updated to present venv as the primary (not alternative) approach.
+
+## [0.19.2] - 2026-01-29
+
+### Fixed
+- **Cloud upload album discovery** in `upload_to_cloud.py` — added recursive glob fallback when standard flat path (`{audio_root}/{artist}/{album}`) doesn't exist. Handles audio directories that mirror the content structure with genre folders (e.g., `artists/bitwize/albums/rock/shell-no/`). Reports all checked paths on failure.
+
+## [0.19.1] - 2026-01-29
+
+### Fixed
+- **Cloud upload path resolution** in `upload_to_cloud.py` — when `--audio-root` override already includes the artist path, the script no longer doubles it (e.g., `.../bitwize/albums/rock/bitwize/shell-no`). Now tries standard path first, then falls back to direct `{override}/{album}` lookup.
+
+## [0.19.0] - 2026-01-29
+
+### Added
+- **Per-feature requirements files** - Install only what you need:
+  - `requirements-mastering.txt` - Audio mastering (matchering, pyloudnorm, scipy, numpy, soundfile)
+  - `requirements-promo.txt` - Promo videos (pillow, librosa)
+  - `requirements-sheet-music.txt` - Sheet music (pypdf, reportlab, pyyaml)
+  - `requirements.txt` - Cloud uploads (boto3)
+  - `requirements-research.txt` - Document hunting (playwright)
+- **Model tier consistency test** in `run_tests.py` - Validates SKILL.md model assignments match model-strategy.md, reports tier distribution, detects `disable-model-invocation` flags
+- **Cross-references** added to reference docs (v5-best-practices, distribution, pronunciation-guide, checkpoint-scripts) linking related skills and docs
+- **Task-oriented guide table** in `reference/suno/README.md` - "When to Use Which Guide" quick lookup
+
+### Fixed
+- **Security: ffmpeg command injection** in `generate_promo_video.py` - Switched from `text=` (injectable via title/artist strings) to `textfile=` parameter with temp files
+- **Silent audio crash** in `master_tracks.py` - Added guards for `-inf` LUFS from silent/near-silent audio, skips instead of crashing
+- **Case-insensitive WAV discovery** in `master_tracks.py` - Now finds `.WAV` and `.wav` files
+- **PIL file handle leak** in `generate_promo_video.py` - `Image.open()` now uses `with` block
+- **Shallow copy bug** in `indexer.py` - `existing_state.copy()` replaced with `copy.deepcopy()` to prevent nested dict mutation
+- **Race conditions** in `indexer.py` - Added `try/except OSError` around 4 `stat()` calls where files could be deleted between glob and stat
+- **Whitespace in Suno Link parsing** in `parsers.py` - Added `.strip()` and en-dash to exclusion list
+- **Sources Verified false positive** in `parsers.py` - Reordered matching to check "pending" before "verified", preventing "NOT verified" matching as verified
+- **Model tier test substring matching** in `run_tests.py` - Used exact `### heading` regex instead of substring match (prevented "about" matching in prose, "researcher" matching "researchers-legal")
+
+### Changed
+- **SKILL_INDEX.md** realigned all 38 skills with model-strategy.md (added missing Opus/Sonnet skills, corrected tier assignments)
+- **Album template** (`templates/album.md`) - Replaced hardcoded artist text with generic guidance, renamed distributor heading
+- Removed `disable-model-invocation: true` from `release-director` and `skill-model-updater` skills
+- Test runner timeout now configurable via `BITWIZE_TEST_TIMEOUT` env var (default: 60s)
+- Removed redundant `import re` in `run_tests.py`
+
+## [0.18.0] - 2026-01-29
+
+### Added
+- **State cache layer** (`tools/state/`) - JSON index of all project state for fast session startup
+  - `parsers.py` - Markdown parsing functions for album READMEs, track files, IDEAS.md
+  - `indexer.py` - CLI tool with `rebuild`, `update`, `validate`, `show`, `session` commands
+  - State cached at `~/.bitwize-music/cache/state.json` (always rebuildable from markdown)
+  - Schema versioning with migration chain for plugin upgrades
+  - Atomic writes for crash safety
+  - Incremental updates (only re-parse files with newer mtime)
+- **`session` CLI command** for `indexer.py` - Update session context in state.json
+  - `--album`, `--track`, `--phase` to set context
+  - `--add-action` to append pending actions
+  - `--clear` to reset session data
+- **`__main__.py`** for `tools/state/` - Enables `python3 -m tools.state` invocation
+- **State cache tests** - 57 tests across parsers and indexer
+  - `test_parsers.py` - 29 unit tests including flexible column tracklist parsing
+  - `test_indexer.py` - 28 integration tests for build, update, validate, migrate, session, script invocation
+  - Test fixtures for album README, track files, and IDEAS.md
+  - Regression tests: script invocation (`python3 tools/state/indexer.py --help`), module invocation, package invocation
+- **State test category** in test runner (`/bitwize-music:test state`)
+  - Validates state tool files exist
+  - Checks schema version constant
+  - Runs parser unit tests as subprocess
+
+### Changed
+- Session Start in CLAUDE.md now uses state cache instead of scanning markdown files
+  - Reduces startup from 50-220 file reads to 2-3 file reads
+  - Falls back to full rebuild if cache missing, corrupted, or schema changed
+  - Shows last session context (album, phase, pending actions)
+- Resume skill now reads from state cache instead of glob + individual file reads
+  - Reduces per-invocation from 15-50 file reads to 1-2 file reads
+  - Updates session context via `indexer.py session` command
+  - Includes optional staleness check with incremental update
+- CLAUDE.md "Finding Albums" section now references state cache as primary lookup before Glob fallback
+- CLAUDE.md "Resuming Work" section updated to describe state cache workflow
+- CLAUDE.md Session Start step 2 uses full `python3 {plugin_root}/tools/state/indexer.py` paths consistently
+
+### Fixed
+- **Critical**: `indexer.py` now runnable as `python3 tools/state/indexer.py` (was failing with `ModuleNotFoundError`)
+  - Added `sys.path` fixup at top of file (same pattern as test files)
+  - CLAUDE.md and resume SKILL.md both documented the broken form
+- `documents_root` default now derives from `content_root` instead of CWD
+  - `audio_root` default also derives from `content_root`
+  - Prevents wrong paths when running from a different directory
+- Tracklist parser now handles variable column counts (3+ columns)
+  - Previously required exactly 5 columns; silently returned 0 tracks if template changed
+  - Extracts track number (first col), title (second col), status (last col)
+  - Emits warning if Tracklist section exists but no rows matched
+- `state.session` was dead code — no write mechanism existed
+  - Added `session` CLI command to `indexer.py`
+  - Resume skill step 5 now calls `indexer.py session` to persist context
+
+## [0.17.1] - 2026-01-28
+
+### Changed
+- Revised model assignments for 6 skills with comprehensive rationale for all 38 skills
+  - Promoted to Opus: album-conceptualizer, lyric-reviewer
+  - Promoted to Sonnet: pronunciation-specialist, explicit-checker
+  - Moved to Haiku: skill-model-updater, test
+- Simplified skill-model-updater to auto-detect tiers from existing model fields instead of maintaining a hardcoded tier list
+- Updated model-strategy.md with per-skill rationale and decision framework
+
+## [0.17.0] - 2026-01-28
+
+### Added
+- **Test automation runner** (`tools/tests/run_tests.py`) - Validates skills, templates, references, links, terminology, consistency
+- **Genre INDEX.md** - Searchable, categorized guide to all 64 genres with quick reference tables
+- **Quick-start guides** (`reference/quick-start/`) - first-album.md, true-story-album.md, bulk-releases.md
+- **Override documentation** (`reference/overrides/`) - how-to-customize.md, override-index.md
+- **Release documentation** (`reference/release/`) - platform-comparison.md, distributor-guide.md, metadata-by-platform.md, rights-and-claims.md
+- **Cross-platform guides** (`reference/cross-platform/`) - wsl-setup-guide.md, tool-compatibility-matrix.md
+- **Model strategy documentation** (`reference/model-strategy.md`) - Complete rationale for skill model assignments
+- **Terminology glossary** (`reference/terminology.md`) - Standardized definitions for all key terms
+- **Skill index** (`reference/SKILL_INDEX.md`) - Decision tree, prerequisites, skill sequences
+- **Mastering reference docs** - genre-specific-presets.md, loudness-measurement.md, mastering-checklist.md
+- **Sheet music reference docs** - genre-recommendations.md, troubleshooting.md
+- **Workflow docs** - importing-audio.md
+- **Skill supporting docs** for clipboard, album-ideas, configure, help, about
+- **Researcher skill guides** for all 10 specialized researchers (legal, gov, journalism, security, financial, historical, biographical, tech, primary-source, verifier)
+
+### Changed
+- Expanded error-recovery.md from 52 to 316 lines with 12 detailed recovery scenarios
+- Enhanced config.example.yaml with comprehensive inline documentation and platform examples
+- Updated CLAUDE.md model strategy section to reference new documentation
+
+## [0.16.0] - 2026-01-28
+
+### Added
+- Enhanced all 64 genre documentation files to Gold standard quality
+  - 3+ paragraph overviews with historical context and scene development
+  - 8+ subgenres with detailed descriptions and reference artists
+  - 12+ artists with filled tables (no placeholder entries)
+  - 12+ reference tracks with rich contextual descriptions
+  - Comprehensive Suno prompt keywords for AI music generation
+  - Coverage spans origins through modern revival movements
+
+## [0.15.0] - 2026-01-28
+
+### Added
+- Example override files in `config/overrides.example/` for all 11 documented overrides
+  - CLAUDE.md, pronunciation-guide.md, suno-preferences.md, lyric-writing-guide.md
+  - explicit-words.md, mastering-presets.yaml, album-planning-guide.md
+  - album-art-preferences.md, research-preferences.md, release-preferences.md
+  - sheet-music-preferences.md
+- `requirements:` field in skill frontmatter for skills with external dependencies
+  - mastering-engineer, promo-director, document-hunter, cloud-uploader
+- Test to verify skills with external deps have requirements field
+- Root `requirements.txt` consolidating all Python dependencies by feature (mastering, promo videos, sheet music, cloud uploads, document hunting)
+- Regression test for README skill count matching actual skill directory count
+- Regression test to prevent accidental skill.json files (standard is SKILL.md)
+- Genre validation test to catch mismatched genre references
+- "What's New" section in README showing recent version highlights
+
+### Changed
+- Replaced emojis with text indicators in all logging output ([OK], [FAIL], [WARN])
+  - Python tools: generate_promo_video.py, validate_help_completeness.py, transcribe.py, create_songbook.py
+  - GitHub workflows: test.yml, model-updater.yml, auto-release.yml, version-sync.yml
+- Standardized co-author line in CONTRIBUTING.md to use "Claude Opus 4.5" (was inconsistently using Sonnet)
+
+### Fixed
+- README.md skill count corrected from 32 to 38
+- Removed accidental `skill.json` from resume skill (SKILL.md is the standard format)
+
+## [0.14.3] - 2026-01-27
+
+### Changed
+- Promo video titles now use Title Case instead of ALL CAPS when derived from filenames
+- Album sampler now saved in `promo_videos/` folder alongside track promos (was at album root)
+- Cloud uploader puts all promos in same folder (`{artist}/{album}/promos/`)
+
+### Fixed
+- Cloud uploader documentation clarifies flat path structure (no genre folder in cloud paths)
+- Config README updated with all current settings (promotion, sheet_music, cloud sections)
+
+## [0.14.2] - 2026-01-27
+
+### Fixed
+- Promo videos now read track titles from markdown frontmatter when `--album` specified
+  - Uses actual title from `{content_dir}/tracks/*.md` instead of filename
+  - Falls back to uppercase filename conversion if markdown not found
+- Improved special character escaping for ffmpeg drawtext filter
+  - Handles apostrophes, quotes, backticks, colons, semicolons, brackets, ampersands
+  - Prevents ffmpeg errors on tracks with special characters in titles
+
+## [0.14.1] - 2026-01-27
+
+### Fixed
+- Add missing YAML frontmatter to `promo-director` and `resume` skills (skills weren't appearing in Claude Code)
+- Add `--batch-artwork` and `--album` flags to promo video generator for better artwork discovery
+  - `--batch-artwork /path/to/art.png` - explicit artwork path
+  - `--album my-album` - checks content directory for artwork via config
+  - Better error messages showing where artwork was searched
+
+## [0.14.0] - 2026-01-27
+
+### Added
+- `/bitwize-music:cloud-uploader` skill for uploading promo videos to Cloudflare R2 or AWS S3
+  - Uses boto3 S3-compatible API (works with both R2 and S3)
+  - Dry-run mode for previewing uploads
+  - Public/private upload options
+  - Path organization: `{bucket}/{artist}/{album}/promos/`
+  - Comprehensive setup guide in `/reference/cloud/setup-guide.md`
+  - Config section added to `config/config.example.yaml`
+
+## [0.13.0] - 2026-01-26
+
+### Added
+- **promo-director skill**: Generate professional promo videos for social media from mastered audio
+  - Creates 15-second vertical videos (9:16, 1080x1920) optimized for Instagram Reels, Twitter, TikTok
+  - 9 visualization styles: pulse, bars, line, mirror, mountains, colorwave, neon, dual, circular
+  - Automatic color extraction from album artwork (dominant + complementary colors)
+  - Intelligent audio segment selection using librosa (falls back to 20% into track)
+  - Batch processing: individual track promos + album sampler video
+  - Config integration: reads artist name from `~/.bitwize-music/config.yaml`
+  - Robust artwork detection: finds album.png, album-art.png, artwork.png, cover.png, etc.
+  - Multi-font path discovery (works on Linux/macOS)
+  - Platform-optimized output: H.264, AAC, yuv420p, 30fps
+  - Album sampler with crossfades (fits Twitter's 140s limit)
+- **Promo video tools**: 3 Python scripts in `tools/promotion/`
+  - `generate_promo_video.py` - Core video generator with 9 styles
+  - `generate_album_sampler.py` - Multi-track sampler video
+  - `generate_all_promos.py` - Batch wrapper for complete campaigns
+- **Promo video documentation**:
+  - `skills/promo-director/SKILL.md` - Complete skill workflow
+  - `skills/promo-director/visualization-guide.md` - Style gallery with genre recommendations
+  - `reference/promotion/promo-workflow.md` - End-to-end workflow guide
+  - `reference/promotion/platform-specs.md` - Instagram, Twitter, TikTok, Facebook, YouTube specs
+  - `reference/promotion/ffmpeg-reference.md` - Technical ffmpeg documentation
+  - `reference/promotion/example-output.md` - Visual examples and benchmarks
+  - `reference/promotion/promotion-preferences-override.md` - Override template
+- **Config support for promo videos**: Added `promotion` section to `config/config.example.yaml`
+  - `default_style` - Default visualization style (pulse, bars, etc.)
+  - `duration` - Default video duration (15s, 30s, 60s)
+  - `include_sampler` - Generate album sampler by default
+  - `sampler_clip_duration` - Seconds per track in sampler (12s default)
+- **Workflow integration**: Added promo videos as optional step 8 (between Master and Release)
+  - Updated CLAUDE.md workflow: Concept → Research → Write → Generate → Master → **Promo Videos** → Release
+  - Added to Album Completion Checklist
+  - Added "Promo Videos (Optional)" section to CLAUDE.md
+- **Plugin keywords**: Added promo-videos, social-media, video-generation to plugin.json
+- **Skill documentation safeguards**: Added validation and documentation to prevent skills being forgotten
+  - `tools/validate_help_completeness.py` - Cross-platform Python script that checks all skills are documented
+  - Validates skills appear in CLAUDE.md skills table
+  - Validates skills appear in skills/help/SKILL.md
+  - Integrated into `/bitwize-music:test consistency` suite
+  - Added "Adding a New Skill - Complete Checklist" to CONTRIBUTING.md with 15-item checklist
+  - Lists all required files, recommended updates, testing steps, and common mistakes
+
+### Changed
+- **import-art compatibility**: All promo scripts now check for multiple artwork naming patterns
+  - album.png, album.jpg (standard import-art output)
+  - album-art.png, album-art.jpg (alternative from import-art content location)
+  - artwork.png, artwork.jpg, cover.png, cover.jpg (fallbacks)
+  - Scripts check both album directory and parent directory
+  - Clear error messages when artwork not found
+
+### Fixed
+
+## [0.12.1] - 2026-01-26
+
+### Fixed
+- **Critical**: Fixed mastering-engineer skill to run scripts from plugin directory instead of copying them to audio folders
+  - Scripts now use dynamic plugin path finding (version-independent)
+  - Uses `find` command to locate latest plugin version automatically
+  - Scripts invoked with audio path as argument instead of cd-ing to audio folder
+  - Removed all instructions to copy scripts (cp command)
+  - Added "Important: Script Location" section with CRITICAL warning
+  - Added Common Mistakes section with 5 error patterns:
+    - Don't copy scripts to audio folders
+    - Don't hardcode plugin version number
+    - Don't run scripts without path argument
+    - Don't forget to activate venv
+    - Don't use wrong path for mastered verification
+  - Updated "Per-Album Session" workflow to use dynamic paths
+  - Added regression test to prevent recurrence
+
+**Root cause**: Previous documentation implied scripts lived in audio folder by saying "navigate to folder, run python3 analyze_tracks.py", causing Claude to copy scripts first. Plugin version numbers in cache path (0.12.0, 0.13.0, etc.) meant hardcoded paths would break after updates.
+
+**Impact**: Audio folders now stay clean (only audio files), scripts always use latest version, plugin updates don't break mastering workflow.
+
+## [0.12.0] - 2026-01-26
+
+### Added
+- **Quick Win #1**: Added `/bitwize-music:resume` skill to README.md Skills Reference table (Setup & Maintenance section)
+- **Quick Win #2**: Comprehensive Troubleshooting section in README.md with 8 common issue categories
+  - Config Not Found with setup instructions
+  - Album Not Found When Resuming with debug steps
+  - Path Resolution Issues with correct structure examples
+  - Python Dependency Issues for mastering
+  - Playwright Setup for document hunter
+  - Plugin Updates Breaking Things
+  - Skills Not Showing Up
+  - Still Stuck? with GitHub issue link
+- **Quick Win #3**: Getting Started Checklist in README.md with step-by-step setup instructions
+  - Appears before Quick Start section for better onboarding flow
+  - Includes all required steps: plugin install, config setup, optional dependencies
+  - Each step has code examples and explanations
+- **Quick Win #5**: Model Strategy section in README.md explaining Claude model usage
+  - Table showing Opus 4.5 for critical creative outputs (lyrics, Suno prompts)
+  - Sonnet 4.5 for most tasks (planning, research)
+  - Haiku 4.5 for pattern matching (pronunciation scanning)
+  - Rationale for model choices (quality vs cost optimization)
+  - Reference to /skill-model-updater for checking models
+- **Quick Win #6**: Visual workflow diagram in README.md "How It Works" section
+  - ASCII box diagram showing full pipeline: Concept → Research → Write → Generate → Master → Release
+  - Specific actions listed under each phase
+  - Improves at-a-glance understanding of workflow
+- **Quick Win #7**: Common Mistakes sections added to 4 path-handling skills
+  - skills/new-album/SKILL.md: 5 mistake patterns (config reading, path construction, genre categories)
+  - skills/import-audio/SKILL.md: 5 mistake patterns (artist in path, audio_root vs content_root)
+  - skills/import-track/SKILL.md: 6 mistake patterns (tracks subdirectory, track number padding)
+  - skills/import-art/SKILL.md: 6 mistake patterns (dual locations, filename conventions)
+  - Each mistake includes Wrong/Right code examples and "Why it matters" explanation
+  - 22 total mistake examples preventing most common path-related errors
+- **Quick Win #9**: Enhanced config.example.yaml with inline examples throughout
+  - Artist name examples ("bitwize", "my-band", "dj-shadow-clone")
+  - Genre choice examples for each section
+  - Path pattern examples (~/music-projects, ".", absolute paths)
+  - Platform URL examples (Apple Music, Twitter added)
+  - Notes about writability, file types, and use cases
+  - All sections use "Examples:" or "Example:" format consistently
+- **Quick Win #10**: Cross-references added to 4 key reference documentation files
+  - reference/suno/pronunciation-guide.md: Related Skills and See Also sections
+  - reference/suno/v5-best-practices.md: Related Skills and See Also sections
+  - reference/suno/structure-tags.md: Related Skills and See Also sections
+  - reference/mastering/mastering-workflow.md: Related Skills and See Also sections
+  - Each cross-reference links to related skills and documentation for better navigation
+- Test coverage: 15 new regression tests added to skills/test/SKILL.md
+  - Tests for all 10 quick wins
+  - Verifies README sections exist and have required content
+  - Verifies template consistency
+  - Verifies Common Mistakes sections in skills
+  - Verifies config examples present
+  - Verifies cross-references in reference docs
+
+### Changed
+- **Quick Win #4**: templates/ideas.md status values standardized from "Idea | Ready to Plan | In Progress" to "Pending | In Progress | Complete"
+  - Now consistent with album-ideas skill documentation
+  - Added status explanations (Pending: idea captured, In Progress: actively working, Complete: released or archived)
+
+## [0.11.0] - 2026-01-26
+
+### Added
+- New `/bitwize-music:help` skill - comprehensive quick reference for all skills, workflows, and tips
+  - Skills organized by category (Album Creation, Research, QC, Production, File Management, System)
+  - Common workflow guides (new album, true-story albums, resuming work)
+  - Quick tips reference (config, pronunciation, explicit content, mastering, status flows)
+  - Key documentation paths
+  - Getting help section with navigation tips
+- Added help skill to CLAUDE.md skills table
+- Added help skill to README.md Setup & Maintenance section
+
+## [0.10.1] - 2026-01-26
+
+### Fixed
+- Removed reference to non-existent `/bitwize-music:help` skill in session startup productivity tips
+- Updated tip to simply suggest asking "what should I do next?" for guidance
+
+## [0.10.0] - 2026-01-26
+
+### Added
+- Session startup contextual tips system in CLAUDE.md
+  - Smart, contextual one-liners based on detected user state
+  - 6 conditional tip categories: tutorial (new users), album ideas, resume, overrides customization, overrides loaded confirmation, verification warning
+  - 6 rotating general productivity tips for feature discovery
+  - Tips show right feature at right time without overwhelming users
+- Comprehensive test suite for session startup tips
+  - Tests verify all 6 conditional tip categories are documented
+  - Tests verify productivity tips reference actual skills
+  - Tests verify correct skill command format
+  - Tests verify path variables used instead of hardcoded paths
+
+### Changed
+- Session Start section in CLAUDE.md now shows contextual tips after status summary
+- Session startup tips replace single static tip with comprehensive contextual guidance
+- Final session startup prompt now asks "What would you like to work on?"
+
+## [0.9.1] - 2026-01-26
+
+### Changed
+- Updated all documentation examples to use generic album names (my-album, demo-album) instead of "shell-no"
+  - Changed examples in /resume skill documentation
+  - Changed examples in CLAUDE.md "Finding Albums" section
+  - Changed examples in "Resuming Work" section
+  - Changed examples in "Creating a New Album" section
+
+## [0.9.0] - 2026-01-26
+
+### Added
+- `/bitwize-music:resume` skill - Dedicated skill for resuming work on albums
+  - Takes album name as argument
+  - Reads config to get paths
+  - Uses Glob to find album across all genre folders
+  - Reads album README and track files to assess status
+  - Determines current workflow phase (Planning, Writing, Generating, Mastering, etc.)
+  - Reports detailed status: location, progress, what's done, next steps
+  - Lists available albums if target album not found
+  - Handles case-insensitive matching and album name variations
+  - Usage: `/bitwize-music:resume shell-no`
+
+### Changed
+- CLAUDE.md "Finding Albums" section now recommends `/bitwize-music:resume` skill as the primary approach
+- "Resuming Work on an Album" section updated to prioritize the resume skill
+- Skills table: Added `/bitwize-music:resume` at the top
+- Session Start tip now mentions `/bitwize-music:resume <album-name>` instead of tutorial resume
+
+## [0.8.2] - 2026-01-26
+
+### Added
+- "Resuming Work on an Album" section in CLAUDE.md with explicit instructions for finding albums when user mentions them
+
+### Changed
+- Session Start step 4 now includes explicit instructions to use Glob tool to find album READMEs
+- Clearer scanning instructions: find `{content_root}/artists/*/albums/*/*/README.md`, read each, report status
+
+### Fixed
+- Improved album discovery workflow - Claude now has clear step-by-step instructions for finding albums when user says "let's work on [album]"
+  - Always read config first to get content_root and artist name
+  - Use Glob to search for album README files
+  - Read album and track files to assess current state
+  - Report location, status, and next actions
+  - Common mistakes highlighted (don't assume paths, don't guess genre folders, always search fresh)
+
+## [0.8.1] - 2026-01-26
+
+### Added
+- `/clipboard` skill - Copy track content (lyrics, style prompts) to system clipboard
+  - Cross-platform support: macOS (pbcopy), Linux (xclip/xsel), WSL (clip.exe)
+  - Content types: lyrics, style, streaming-lyrics, all (combined Suno inputs)
+  - Auto-detects platform and clipboard utility
+  - Config-aware path resolution
+  - Usage: `/clipboard <content-type> <album-name> <track-number>`
+- Workflow reference documentation in `/reference/workflows/`
+  - `checkpoint-scripts.md` - Detailed checkpoint message templates
+  - `album-planning-phases.md` - The 7 Planning Phases detailed guide
+  - `source-verification-handoff.md` - Human verification procedures
+  - `error-recovery.md` - Edge case recovery procedures
+  - `release-procedures.md` - Album art generation and release steps
+- `/reference/distribution.md` - Streaming lyrics format and explicit content guidelines
+
+### Changed
+- **CLAUDE.md refactored for performance** - Reduced from 50,495 to 34,202 characters (32% reduction)
+  - Compressed checkpoint sections - Kept triggers/actions, moved verbose messages to `/reference/workflows/checkpoint-scripts.md`
+  - Condensed Audio Mastering section - Brief overview with reference to existing `/reference/mastering/mastering-workflow.md`
+  - Condensed Sheet Music section - Summary with reference to `/reference/sheet-music/workflow.md`
+  - Condensed Album Art Generation - Core workflow with reference to `/reference/workflows/release-procedures.md`
+  - Condensed 7 Planning Phases - Summary with reference to `/reference/workflows/album-planning-phases.md`
+  - Condensed Human Verification Handoff - Triggers with reference to `/reference/workflows/source-verification-handoff.md`
+  - Condensed Error Recovery - Quick reference with link to `/reference/workflows/error-recovery.md`
+  - Condensed Distribution Guidelines - Combined streaming lyrics and explicit content with reference to `/reference/distribution.md`
+  - Simplified Creating Content sections - Condensed album creation and file import workflows
+  - Simplified Suno Generation Workflow - Streamlined process description
+  - Architecture: CLAUDE.md now focuses on workflow orchestration (WHEN/WHY), detailed procedures in reference docs (HOW)
+
+## [0.8.0] - 2026-01-26
+
+### Added
+- **Complete override support for 10 skills** - All creative/stylistic skills now support user customization via `{overrides}` directory
+  - `album-art-director` → `album-art-preferences.md` (visual style, color palettes, composition)
+  - `researcher` → `research-preferences.md` (source priorities, verification standards, research depth)
+  - `release-director` → `release-preferences.md` (QA checklist, platform priorities, metadata standards, timeline)
+  - `sheet-music-publisher` → `sheet-music-preferences.md` (page layout, notation, songbook formatting)
+  - Previously added (0.7.x): explicit-checker, lyric-writer, suno-engineer, mastering-engineer, album-conceptualizer, pronunciation-specialist
+  - All skills follow unified override pattern: check `{overrides}/[skill-file]`, merge with base, fail silently if missing
+  - Complete documentation in config/README.md with examples for all 10 override files
+- `/album-ideas` skill - Track and manage album concepts before creating directories
+  - Commands: list, add, remove, status, show, edit
+  - Organize by status: Pending, In Progress, Complete
+  - Config-based location: `paths.ideas_file` (defaults to `{content_root}/IDEAS.md`)
+  - Creates template file automatically on first use
+  - Integrated into session start workflow (step 3: check album ideas)
+
+### Changed
+- CLAUDE.md session start now checks album ideas file (step 3) and mentions `/album-ideas list` for details
+- `/configure` skill now prompts for `paths.ideas_file` during setup
+- config/README.md expanded with comprehensive override system documentation (10 skills, full examples)
+- Skills table in CLAUDE.md now includes `/album-ideas` skill
+
+### Fixed
+- Tests updated to validate override support in all 10 skills and album-ideas commands
+
+## [0.7.1] - 2026-01-26
+
+### Changed
+- **BREAKING**: Refactored customization system to use unified overrides directory
+  - Replaced `paths.custom_instructions` with `paths.overrides`
+  - Replaced `paths.custom_pronunciation` with `paths.overrides`
+  - Single directory now contains all override files: `~/music-projects/overrides/`
+  - Override files: `CLAUDE.md`, `pronunciation-guide.md`, `explicit-words.md` (future), etc.
+  - Benefits: self-documenting, easy discovery, future-proof, convention over configuration
+  - **Note**: Released immediately after 0.7.0 to fix design before user adoption
+
+### Fixed
+- Config design now scales for future overrides without new config fields
+
+## [0.7.0] - 2026-01-26 **[DEPRECATED - Use 0.7.1]**
+
+### Added
+- Custom instructions support (`paths.custom_instructions` config field)
+  - Load user's custom Claude workflow instructions at session start
+  - Defaults to `{content_root}/CUSTOM_CLAUDE.md` if not set in config
+  - Supplements (doesn't override) base CLAUDE.md
+  - Optional - fails silently if file doesn't exist
+  - Prevents plugin update conflicts for user workflow preferences
+- Custom pronunciation guide support (`paths.custom_pronunciation` config field)
+  - Load user's custom phonetic spellings at session start
+  - Defaults to `{content_root}/CUSTOM_PRONUNCIATION.md` if not set in config
+  - Merges with base pronunciation guide, custom entries take precedence
+  - Optional - fails silently if file doesn't exist
+  - pronunciation-specialist adds discoveries to custom guide, never edits base
+  - Prevents conflicts when plugin updates base pronunciation guide
+- Mandatory homograph auto-fix in lyric-reviewer
+  - Automatically detects and fixes homographs based on context
+  - Reference table of 8 common homographs with phonetic fixes
+  - No longer asks user "Option A or B?" - applies fix immediately
+  - Explicit anti-pattern warning in documentation
+
+### Changed
+- `/configure` skill now prompts for custom_instructions and custom_pronunciation paths during setup
+- `/pronunciation-specialist` now loads and merges both base and custom pronunciation guides
+- `/lyric-reviewer` pronunciation check now links to mandatory auto-fix section
+- CLAUDE.md session start procedure now loads custom instructions and custom pronunciation files
+- Self-updating skills documentation clarified: pronunciation-specialist updates custom guide only
+
+### Fixed
+
+## [0.6.1] - 2026-01-25
+
+### Added
+
+### Changed
+
+### Fixed
+- Auto-release workflow now extracts release notes from versioned section instead of [Unreleased]
+
+## [0.6.0] - 2026-01-25
+
+### Added
+
+### Changed
+- CHANGELOG.md is now manually maintained (no automated commits) for security and quality
+- Auto-release workflow verifies CHANGELOG was updated instead of attempting to modify it
+
+### Fixed
+
+## [0.5.1] - 2026-01-25
+
+### Added
+- Automated release workflow - GitHub Actions automatically creates tags and releases when version files are updated on main
+- `/sheet-music-publisher` skill - Convert audio to sheet music, create KDP-ready songbooks
+  - AnthemScore CLI integration for automated transcription
+  - MuseScore integration for polishing and PDF export
+  - Cross-platform OS detection (macOS, Linux, Windows)
+  - Config-aware path resolution
+  - Automatic cover art detection for songbooks
+  - Tools: transcribe.py, fix_titles.py, create_songbook.py
+  - Comprehensive documentation (REQUIREMENTS.md, reference guides, publishing guide)
+- `/validate-album` skill - Validates album structure, file locations, catches path issues
+- `/test e2e` - End-to-end integration test that creates test album and exercises full workflow
+- `/import-audio` skill - Moves audio files to correct `{audio_root}/{artist}/{album}/` location
+- `/import-track` skill - Moves track .md files to correct album location with numbering
+- `/import-art` skill - Places album art in both audio and content folders
+- `/new-album` skill - Creates album directory structure with all templates
+- `/about` skill - About bitwize and links to bitwizemusic.com
+- `/configure` skill for interactive setup
+- `/test` skill for automated plugin validation (13 test categories)
+- GitHub issue templates (bug reports, feature requests)
+- Suno Persona field in album template for consistent vocal style
+- Comprehensive Suno V5 best practices guide
+- Artist name → style description reference (200+ artists)
+- Pronunciation guide with phonetic spellings
+- Shared `tools_root` at `~/.bitwize-music/` for mastering venv
+- `documents_root` config for PDF/primary source storage
+- Core skills: lyric-writer, researcher, album-conceptualizer, suno-engineer
+- Specialized researcher sub-skills (legal, gov, journalism, tech, security, financial, historical, biographical, primary-source, verifier)
+- Album/track/artist templates
+- Mastering workflow with Python tools
+- Release director workflow
+- Tutorial skill for guided album creation
+
+### Changed
+- Config lives at `~/.bitwize-music/config.yaml` (outside plugin dir)
+- Audio/documents paths mirror content structure: `{root}/{artist}/{album}/`
+- Mastering scripts accept path argument instead of being copied into audio folders
+- Researcher skill saves RESEARCH.md/SOURCES.md to album directory, not working directory
+- All path-sensitive operations read config first (enforced)
+- Brand casing standardized to `bitwize-music` (lowercase)
+
+### Fixed
+- Audio files being saved to wrong location (missing artist folder)
+- Research files being saved to working directory instead of album directory
+- Mastering scripts mixing .py files with .wav files in audio folders
+- User-provided names now preserve exact casing (no auto-capitalization)
+- Skill references in docs now use full `/bitwize-music:` prefix (required for plugin skills)
+- Researcher skill names aligned with folder names (colon → hyphen in frontmatter)

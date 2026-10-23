@@ -1,0 +1,199 @@
+{
+  "checked_at_utc": "2026-10-23T20:59:32.579900+00:00",
+  "machine": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+  "resources": {
+    "ace_source": {
+      "path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/tools/ace-step-1.5",
+      "exists": true
+    },
+    "ace_python": {
+      "path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/tools/acestep-venv/bin/python",
+      "exists": true
+    },
+    "earshot_source": {
+      "path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/tools/earshot-main",
+      "exists": true
+    },
+    "earshot_python": {
+      "path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/tools/earshot-venv/bin/python",
+      "exists": true
+    },
+    "earshot_wrapper": {
+      "path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/tools/earshot.sh",
+      "exists": true
+    },
+    "whisper_model": {
+      "path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/tools/whisper-small-mlx",
+      "exists": true
+    },
+    "hdemucs_checkpoint": {
+      "path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/tools/hdemucs/hdemucs_high_trained.pt",
+      "exists": true
+    },
+    "agent_reach_python": {
+      "path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/tools/agent-reach-venv/bin/python",
+      "exists": true
+    },
+    "agent_reach_launcher": {
+      "path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/music_app_prd_20261024/reach_local.py",
+      "exists": true
+    },
+    "sonic_pi": {
+      "path": "/Applications/Sonic Pi.app",
+      "exists": true
+    },
+    "ffmpeg": {
+      "path": "/opt/homebrew/bin/ffmpeg",
+      "exists": true
+    },
+    "ffprobe": {
+      "path": "/opt/homebrew/bin/ffprobe",
+      "exists": true
+    },
+    "rubberband": {
+      "path": "/opt/homebrew/bin/rubberband",
+      "exists": true
+    }
+  },
+  "checkpoints": [
+    {
+      "path": "tools/ace-step-1.5/checkpoints/Qwen3-Embedding-0.6B/added_tokens.json",
+      "bytes": 707
+    },
+    {
+      "path": "tools/ace-step-1.5/checkpoints/Qwen3-Embedding-0.6B/chat_template.jinja",
+      "bytes": 4116
+    },
+    {
+      "path": "tools/ace-step-1.5/checkpoints/Qwen3-Embedding-0.6B/config.json",
+      "bytes": 1359
+    },
+    {
+      "path": "tools/ace-step-1.5/checkpoints/Qwen3-Embedding-0.6B/merges.txt",
+      "bytes": 1671853
+    },
+    {
+      "path": "tools/ace-step-1.5/checkpoints/Qwen3-Embedding-0.6B/model.safetensors",
+      "bytes": 1191586416
+    },
+    {
+      "path": "tools/ace-step-1.5/checkpoints/Qwen3-Embedding-0.6B/special_tokens_map.json",
+      "bytes": 613
+    },
+    {
+      "path": "tools/ace-step-1.5/checkpoints/Qwen3-Embedding-0.6B/tokenizer.json",
+      "bytes": 11423705
+    },
+    {
+      "path": "tools/ace-step-1.5/checkpoints/Qwen3-Embedding-0.6B/tokenizer_config.json",
+      "bytes": 5404
+    },
+    {
+      "path": "tools/ace-step-1.5/checkpoints/Qwen3-Embedding-0.6B/vocab.json",
+      "bytes": 2776833
+    },
+    {
+      "path": "tools/ace-step-1.5/checkpoints/acestep-v15-turbo/config.json",
+      "bytes": 1968
+    },
+    {
+      "path": "tools/ace-step-1.5/checkpoints/acestep-v15-turbo/configuration_acestep_v15.py",
+      "bytes": 212
+    },
+    {
+      "path": "tools/ace-step-1.5/checkpoints/acestep-v15-turbo/model.safetensors",
+      "bytes": 4787825604
+    },
+    {
+      "path": "tools/ace-step-1.5/checkpoints/acestep-v15-turbo/modeling_acestep_v15_turbo.py",
+      "bytes": 108712
+    },
+    {
+      "path": "tools/ace-step-1.5/checkpoints/acestep-v15-turbo/silence_latent.pt",
+      "bytes": 3841215
+    },
+    {
+      "path": "tools/ace-step-1.5/checkpoints/vae/config.json",
+      "bytes": 425
+    },
+    {
+      "path": "tools/ace-step-1.5/checkpoints/vae/diffusion_pytorch_model.safetensors",
+      "bytes": 337431388
+    }
+  ],
+  "environments": {
+    "ace_python": {
+      "python": "3.12.14",
+      "packages": {
+        "torch": "2.11.0",
+        "torchaudio": "2.11.0",
+        "transformers": "4.57.6",
+        "diffusers": "0.39.0",
+        "mlx": "0.32.4",
+        "mlx-lm": "0.29.1",
+        "mlx-whisper": "0.4.3",
+        "earshot": "0.3.0",
+        "agent-reach": null,
+        "fastapi": "0.159.1",
+        "uvicorn": "0.54.0"
+      }
+    },
+    "earshot_python": {
+      "python": "3.12.14",
+      "packages": {
+        "torch": "2.14.0",
+        "torchaudio": null,
+        "transformers": "5.20.2",
+        "diffusers": "0.41.0",
+        "mlx": null,
+        "mlx-lm": null,
+        "mlx-whisper": null,
+        "earshot": "0.3.0",
+        "agent-reach": null,
+        "fastapi": null,
+        "uvicorn": null
+      }
+    },
+    "agent_reach_python": {
+      "python": "3.12.14",
+      "packages": {
+        "torch": null,
+        "torchaudio": null,
+        "transformers": null,
+        "diffusers": null,
+        "mlx": null,
+        "mlx-lm": null,
+        "mlx-whisper": null,
+        "earshot": null,
+        "agent-reach": "1.6.0",
+        "fastapi": null,
+        "uvicorn": null
+      }
+    }
+  },
+  "ffmpeg_version": "ffmpeg version 9.0.1 Copyright (c) 2000-2026 the FFmpeg developers",
+  "rubberband_version": "4.0.0",
+  "music_app_directories": [
+    "/Applications/Sonic Pi.app",
+    "/Applications/Logic Pro Creator Studio.app"
+  ],
+  "explicit_limits": [
+    "File presence/package import metadata is not a new generation or feature validation.",
+    "Optional 5Hz music LM absent; Qwen3 embedding is not that LM.",
+    "No fresh audio generated for handoff."
+  ],
+  "application_development_tools": {
+    "node": {
+      "version": "v26.3.0",
+      "exit_code": 0
+    },
+    "npm": {
+      "version": "11.16.0",
+      "exit_code": 0
+    },
+    "git": {
+      "version": "git version 2.54.0",
+      "exit_code": 0
+    }
+  }
+}

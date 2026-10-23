@@ -1,0 +1,11 @@
+{
+  "source": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/sonic_pi_hindi_20261023/takes/vocal_01_23102601/16fc49a6-c790-c0c6-6bb8-3d018f8e1efa.wav",
+  "model": "torchaudio.pipelines.HDEMUCS_HIGH_MUSDB_PLUS",
+  "torch": "2.11.0",
+  "torchaudio": "2.11.0",
+  "device": "cpu",
+  "chunk_seconds": 8,
+  "overlap_seconds": 1,
+  "elapsed_seconds": 16.37510085105896,
+  "limit": "Separation removes accompaniment; it does not repair mispronounced words."
+}

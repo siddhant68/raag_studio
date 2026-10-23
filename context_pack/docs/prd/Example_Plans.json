@@ -1,0 +1,107 @@
+[
+  {
+    "brief": "Make a gentle flute piece for a peaceful morning."
+  },
+  {
+    "schema_version": "0.1",
+    "brief": "A peaceful bansuri at dawn, expressive bends and runs, gentle tabla, no singing. About three minutes.",
+    "mode": "instrumental",
+    "duration_seconds": 180,
+    "instruments": [
+      {
+        "id": "bansuri",
+        "role": "lead",
+        "priority": "essential",
+        "presence": "featured",
+        "performance": "expressive",
+        "techniques": [
+          "meend",
+          "grace notes",
+          "flowing runs"
+        ]
+      },
+      {
+        "id": "tabla",
+        "role": "rhythm",
+        "priority": "preferred",
+        "presence": "subtle"
+      },
+      {
+        "id": "santoor",
+        "role": "answer",
+        "priority": "optional",
+        "presence": "subtle"
+      }
+    ],
+    "choir": {
+      "enabled": "off"
+    },
+    "lyrics": {
+      "policy": "none"
+    },
+    "composition": {
+      "moods": [
+        "peaceful",
+        "tender"
+      ],
+      "bpm": 82,
+      "rhythmic_feel": "straight",
+      "development": "Spacious opening, flowing pulse, exposed solo and expressive ending",
+      "ending": "peaceful resolved cadence"
+    },
+    "constraints": {
+      "locked_paths": [
+        "/mode",
+        "/instruments/0/id"
+      ],
+      "avoid": [
+        "singing",
+        "crowded accompaniment"
+      ]
+    },
+    "field_provenance": {
+      "/mode": {
+        "origin": "user",
+        "locked": true,
+        "priority": "essential"
+      },
+      "/composition/bpm": {
+        "origin": "inferred",
+        "locked": false,
+        "reason": "Moderate pulse supports lyrical phrasing"
+      }
+    }
+  },
+  {
+    "brief": "Write a cinematic piece with brass and a huge wordless choir, roughly 100 voices.",
+    "mode": "wordless",
+    "choir": {
+      "enabled": "on",
+      "scale": "massed",
+      "target_count": 100,
+      "count_is_approximate": true,
+      "relationship": "held_harmony",
+      "content": "ooh_aah"
+    }
+  },
+  {
+    "brief": "Make a romantic Hindi song using exactly these words. Do not add lines.",
+    "mode": "lyrical",
+    "lyrics": {
+      "policy": "exact",
+      "text": "तुम पास हो तो शाम ठहर जाए\nतेरी हँसी में मेरा घर मिल जाए",
+      "language": "hi",
+      "script": "Devanagari",
+      "allowed_changes": []
+    },
+    "constraints": {
+      "locked_paths": [
+        "/lyrics/text",
+        "/lyrics/policy"
+      ],
+      "avoid": [
+        "spoken narration"
+      ]
+    }
+  }
+]

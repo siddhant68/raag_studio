@@ -1,0 +1,48 @@
+name: Version Sync Check
+
+on:
+  pull_request:
+    paths:
+      - '.claude-plugin/plugin.json'
+      - '.claude-plugin/marketplace.json'
+      - '.codex-plugin/plugin.json'
+      - 'skills/*/SKILL.md'
+      - 'tests/**'
+
+permissions:
+  contents: read
+
+jobs:
+  check-version-sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+
+    - name: Verify version files are in sync
+      run: |
+        PLUGIN_VERSION=$(jq -r '.version' .claude-plugin/plugin.json)
+        MARKETPLACE_VERSION=$(jq -r '.plugins[0].version' .claude-plugin/marketplace.json)
+        CODEX_VERSION=$(jq -r '.version' .codex-plugin/plugin.json)
+
+        echo "plugin.json version:      $PLUGIN_VERSION"
+        echo "marketplace.json version: $MARKETPLACE_VERSION"
+        echo "codex plugin version:     $CODEX_VERSION"
+
+        if [ "$PLUGIN_VERSION" != "$MARKETPLACE_VERSION" ] || [ "$PLUGIN_VERSION" != "$CODEX_VERSION" ]; then
+          echo ""
+          echo "[FAIL] ERROR: Version files are out of sync!"
+          echo ""
+          echo "Please update all three version files:"
+          echo "  - .claude-plugin/plugin.json"
+          echo "  - .claude-plugin/marketplace.json"
+          echo "  - .codex-plugin/plugin.json"
+          echo ""
+          echo "to the same version number."
+          exit 1
+        fi
+
+        echo ""
+        echo "[OK] Version files are in sync: $PLUGIN_VERSION"

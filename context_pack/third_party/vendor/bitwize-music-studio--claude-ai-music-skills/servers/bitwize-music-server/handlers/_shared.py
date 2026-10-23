@@ -1,0 +1,890 @@
+"""Shared state, constants, and helpers used across handler modules.
+
+``cache`` and ``PLUGIN_ROOT`` are set by ``server.py`` before any handler
+module's ``register()`` function is called.
+"""
+
+from __future__ import annotations
+
+import functools
+import inspect
+import json
+import math
+import re
+import sys
+from pathlib import Path, PureWindowsPath
+from typing import Any
+
+from handlers._atomic import atomic_write_text
+
+# Characters NTFS forbids in filenames, beyond the path separators and NUL
+# rejected for every platform in _normalize_slug(). Stripped from slugs on
+# Windows only, so titles like 'Say "Goodbye"' still produce creatable
+# track/album files; POSIX slugs are unchanged.
+_WINDOWS_INVALID_FILENAME_CHARS = '<>:"|?*'
+_IS_WINDOWS = sys.platform == "win32"
+
+# ---------------------------------------------------------------------------
+# Shared state — set by server.py at startup
+# ---------------------------------------------------------------------------
+
+cache: Any = None  # StateCache instance
+PLUGIN_ROOT: Path | None = None  # Path to plugin root
+
+# ---------------------------------------------------------------------------
+# Status constants — single source of truth for track and album statuses.
+# Use these instead of string literals to prevent typos and simplify refactoring.
+# ---------------------------------------------------------------------------
+
+# Track statuses (in order)
+TRACK_NOT_STARTED = "Not Started"
+TRACK_SOURCES_PENDING = "Sources Pending"
+TRACK_SOURCES_VERIFIED = "Sources Verified"
+TRACK_IN_PROGRESS = "In Progress"
+TRACK_GENERATED = "Generated"
+TRACK_FINAL = "Final"
+
+# Album statuses (in order)
+ALBUM_CONCEPT = "Concept"
+ALBUM_RESEARCH_COMPLETE = "Research Complete"
+ALBUM_SOURCES_VERIFIED = "Sources Verified"
+ALBUM_IN_PROGRESS = "In Progress"
+ALBUM_COMPLETE = "Complete"
+ALBUM_RELEASED = "Released"
+
+# Sets for membership checks
+TRACK_COMPLETED_STATUSES = {TRACK_FINAL, TRACK_GENERATED}
+ALBUM_VALID_STATUSES = [
+    ALBUM_CONCEPT, ALBUM_RESEARCH_COMPLETE, ALBUM_SOURCES_VERIFIED,
+    ALBUM_IN_PROGRESS, ALBUM_COMPLETE, ALBUM_RELEASED,
+]
+
+# Default for missing status fields
+STATUS_UNKNOWN = "Unknown"
+
+# Markdown link pattern — used for source verification gates
+_MARKDOWN_LINK_RE = re.compile(r'\[([^\]]+)\]\(([^)]+)\)')
+
+# Valid genres for album creation — derived from genres/ directory at runtime.
+# Cached per PLUGIN_ROOT value, and only when non-empty: an empty scan means
+# a broken (or test-mocked) plugin root, and caching it would poison every
+# later genre check in the process.
+_VALID_GENRES: tuple[Path | None, frozenset[str]] | None = None
+
+
+def _get_valid_genres() -> frozenset[str]:
+    """Return valid genre slugs by scanning the genres/ directory.
+
+    Non-empty results are cached per PLUGIN_ROOT.
+    """
+    global _VALID_GENRES
+    if _VALID_GENRES is not None and _VALID_GENRES[0] == PLUGIN_ROOT:
+        return _VALID_GENRES[1]
+    if PLUGIN_ROOT is None:
+        # Fallback if called before init (shouldn't happen)
+        return frozenset()
+    genres_dir = PLUGIN_ROOT / "genres"
+    if genres_dir.is_dir():
+        genres = frozenset(
+            d.name for d in genres_dir.iterdir()
+            if d.is_dir() and (d / "README.md").exists()
+        )
+    else:
+        genres = frozenset()
+    if genres:
+        _VALID_GENRES = (PLUGIN_ROOT, genres)
+    return genres
+
+_GENRE_ALIASES = {
+    "r&b": "rnb", "rb": "rnb", "r-and-b": "rnb",
+    "hip hop": "hip-hop", "hiphop": "hip-hop",
+    "k pop": "k-pop", "kpop": "k-pop",
+    "indie folk": "indie-folk",
+}
+
+
+# ---------------------------------------------------------------------------
+# Shared helper functions
+# ---------------------------------------------------------------------------
+
+def _is_path_confined(base: Path, user_component: str) -> bool:
+    """Return True if *base / user_component* stays within *base* after resolution.
+
+    Use this to reject path-traversal attempts (e.g. ``../../etc/passwd``)
+    before performing any file I/O with user-supplied path fragments.
+    """
+    try:
+        resolved = (base / user_component).resolve()
+        return resolved.is_relative_to(base.resolve())
+    except (ValueError, OSError):
+        return False
+
+
+def _normalize_slug(name: str) -> str:
+    """Normalize input to slug format.
+
+    On Windows, characters that NTFS forbids in filenames (``<>:"|?*``) are
+    stripped so slugs derived from titles (e.g. ``Say "Goodbye"``) always
+    yield creatable files. POSIX slugs are left unchanged — the same
+    characters remain legal there and existing content must keep its names.
+
+    Raises:
+        ValueError: If *name* contains path separators (``/``, ``\\``),
+            null bytes, or traversal sequences (``..``), or if a non-empty
+            *name* normalizes to an empty string (e.g. a Windows title made
+            up entirely of forbidden characters like ``???``) — an empty
+            slug would collapse ``Path(base) / slug`` to *base* itself.
+            An empty *name* is left as-is and returns ``""`` unchanged.
+    """
+    if "/" in name or "\\" in name or "\0" in name:
+        raise ValueError(
+            f"Invalid name: contains path separator or null byte: {name!r}"
+        )
+    slug = name.lower().replace(" ", "-").replace("_", "-")
+    if _IS_WINDOWS:
+        for ch in _WINDOWS_INVALID_FILENAME_CHARS:
+            slug = slug.replace(ch, "")
+    # Traversal check runs after the Windows strip: removing characters can
+    # itself assemble ".." (e.g. '."."'), which must still be rejected.
+    if ".." in slug:
+        raise ValueError(
+            f"Invalid name: contains path traversal sequence: {name!r}"
+        )
+    # A non-empty name that strips down to nothing (e.g. '???' on Windows,
+    # once the NTFS-forbidden chars are removed) must not silently pass:
+    # Path(base) / "" resolves to base itself, not a new file. An
+    # already-empty name is a legitimate pass-through (pinned above).
+    if name and not slug:
+        raise ValueError(f"Invalid name: normalizes to an empty slug: {name!r}")
+    return slug
+
+
+# The album directory shape, written down once. Every album mirrors this same
+# relative path under content_root, audio_root and documents_root.
+#
+# Two callers want the layout truncated rather than whole, so the segments above
+# ``{genre}`` are named first and the full shape is built from them. The
+# truncation is then a shared prefix rather than string surgery on a rendered
+# template, which would couple to the literal ``{genre}`` token.
+_ALBUMS_SEGMENTS = ("artists", "{artist}", "albums")
+ALBUM_LAYOUT_SEGMENTS = (*_ALBUMS_SEGMENTS, "{genre}", "{album}")
+ALBUM_LAYOUT = "/".join(ALBUM_LAYOUT_SEGMENTS)
+
+# Raised for a lexical rejection as well as for a failed resolved-confinement
+# check, so the wording deliberately does not claim anything was resolved.
+PATH_ESCAPES_ROOT = "Path escapes root directory"
+
+
+def _reject_unsafe_segments(*values: str) -> None:
+    """Reject any segment that would not stay one level down when joined.
+
+    The lexical half of the album-path guard, applied to caller-supplied values
+    *before* the layout is rendered. Checking before rendering rather than after
+    matters: splitting the rendered template would turn genre="/etc" into a bare
+    "etc" segment and hand back a confined-but-wrong path. develop rejected that
+    input, and a wrong path is a worse failure mode than an error.
+
+    A segment is rejected when it is ``..``, carries a path separator or a null
+    byte, or carries a **Windows drive prefix**. The drive case is the one shape
+    of absolute segment the separator check cannot see: ``D:evil`` is not ``..``
+    and carries neither a separator nor a null byte, so it passed — and ``Path``
+    then discarded everything to its left, so genre="D:evil" resolved to
+    ``D:evil\\al``, outside the root and with no error raised (#538). UNC paths
+    (``\\\\server\\share``) were already caught by the backslash check.
+
+    ``PureWindowsPath`` runs on every platform, not just Windows, so which
+    runner sees the input does not decide whether the guarantee holds. It
+    recognises only a drive prefix — a single character followed by ``:`` — so a
+    colon elsewhere in the name (``AC:DC``) stays the legal POSIX directory name
+    it has always been.
+
+    An empty value is skipped: ``Path("a") / ""`` has always collapsed, and a
+    missing genre is a caller bug rather than a traversal.
+
+    Raises:
+        ValueError: With ``PATH_ESCAPES_ROOT``, which the MCP error boundary
+            surfaces to the user verbatim.
+    """
+    for value in values:
+        if value and (
+            value == ".."
+            or "/" in value
+            or "\\" in value
+            or "\0" in value
+            or PureWindowsPath(value).drive
+        ):
+            raise ValueError(PATH_ESCAPES_ROOT)
+
+
+def _album_dir(
+    root: str | Path,
+    *,
+    artist: str,
+    genre: str,
+    album: str,
+    subdir: str = "",
+    confine: bool = True,
+) -> Path:
+    """Resolve one album's directory under *root*, with the traversal guards applied.
+
+    This is the guarded resolution that ``core.py:resolve_path`` performs;
+    ``resolve_path`` is the MCP-tool wrapper around it. It lives here, beside
+    ``_normalize_slug`` and ``_is_path_confined``, so that the helper a caller
+    reaches for is the one that carries the guards — #529 removed a
+    ``tools/shared/paths.py`` that interpolated the slug straight in, and the
+    stated risk was precisely that a contributor would reach for the unguarded
+    variant.
+
+    *root* is whichever of content_root, audio_root or documents_root is
+    wanted; the shape below it is identical for all three.
+
+    Args:
+        root: Root directory from config.
+        artist: Artist name from config.
+        genre: Genre slug.
+        album: Album slug. Normalized here — callers need not pre-normalize,
+            and passing an already-normalized slug is idempotent.
+        subdir: Optional child directory, e.g. ``"tracks"``. Included in the
+            confinement check rather than appended after it.
+        confine: Also require the *resolved* path to stay within *root*.
+
+            This is a per-call-site decision, not a global one, because only
+            ``resolve_path`` ever applied it: pass what the site did before.
+            ``True`` at ``resolve_path``. ``False`` at the sites that operate on
+            an album directory that already exists, because such a directory is
+            allowed to be a symlink pointing outside its root
+            (``test_symlinked_audio_dir_passes``) and resolving rejects that
+            supported layout. The lexical guard below applies either way.
+
+            Defaults to ``True`` so a new caller who forgets fails closed and
+            loudly — a break gets found, a silently dropped guard does not.
+
+    Returns:
+        The resolved directory. Not created.
+
+    Raises:
+        ValueError: *album* contains a path separator, a null byte or a
+            traversal sequence (from ``_normalize_slug``); *artist*, *genre* or
+            *subdir* is a traversal, carries a separator or carries a drive
+            prefix (from ``_reject_unsafe_segments``); or, under ``confine``,
+            the result escapes *root* despite all of that.
+    """
+    normalized = _normalize_slug(album)
+
+    # Lexical guard, always on. _normalize_slug already rejects traversal and
+    # separators in the album slug, but artist and genre come from config and
+    # state without passing through it, and subdir is a caller literal.
+    _reject_unsafe_segments(artist, genre, subdir)
+
+    relative = ALBUM_LAYOUT.format(artist=artist, genre=genre, album=normalized)
+    base = Path(root)
+    for segment in [*relative.split("/"), subdir]:
+        if not segment:
+            # An empty genre collapses, exactly as Path("a") / "" always has.
+            continue
+        base = base / segment
+
+    # Resolved confinement, opt-out. This is the check resolve_path has always
+    # applied, and it catches what the lexical pass cannot: a symlink *inside*
+    # the album path that points outside the root.
+    if confine and not base.resolve().is_relative_to(Path(root).resolve()):
+        raise ValueError(PATH_ESCAPES_ROOT)
+
+    return base
+
+
+def _albums_dir(root: str | Path, *, artist: str) -> Path:
+    """Directory holding every genre for one artist — the layout above ``{genre}``.
+
+    Used by the callers that sweep across genres, because album slugs are
+    globally unique rather than unique per genre (#392).
+
+    ``artist`` gets the same lexical guard ``_album_dir`` applies to it. It is
+    trusted config either way — the user's own ``artist_name``, not a tool
+    argument — but the truncation renders the same ``{artist}`` segment, and a
+    guard that depends on which of the two helpers a caller happened to reach
+    for is the failure mode #529 was opened about. Callers that append an album
+    slug use ``_is_path_confined`` or ``_album_dir``.
+
+    Raises:
+        ValueError: *artist* is a traversal, carries a separator or a null byte,
+            or carries a drive prefix (from ``_reject_unsafe_segments``).
+    """
+    _reject_unsafe_segments(artist)
+    return Path(root).joinpath(*(s.format(artist=artist) for s in _ALBUMS_SEGMENTS))
+
+
+def _genre_dir(root: str | Path, *, artist: str, genre: str) -> Path:
+    """Directory holding every album of one genre — ``_album_dir``'s parent.
+
+    Guards both segments: *artist* through ``_albums_dir``, *genre* here.
+
+    Raises:
+        ValueError: Either segment is a traversal, carries a separator or a null
+            byte, or carries a drive prefix (from ``_reject_unsafe_segments``).
+    """
+    _reject_unsafe_segments(genre)
+    return _albums_dir(root, artist=artist) / genre
+
+
+def _json_sanitize(value: Any) -> Any:
+    """Recursively replace non-finite floats (inf/-inf/nan) with None.
+
+    json.dumps emits the literal tokens ``Infinity``/``-Infinity``/``NaN``
+    for these by default (allow_nan=True), and ``default=`` never fires for
+    floats (only for non-serializable *types*). Those tokens are invalid per
+    the JSON spec and are rejected by strict parsers — JavaScript
+    ``JSON.parse`` and the MCP client — so a single non-finite float (e.g. a
+    silent track's -inf LUFS) corrupts the entire response. ``null`` is the
+    standard JS replacement (``JSON.stringify(Infinity) === "null"``).
+
+    numpy float64 is a subclass of ``float``, so the ``isinstance`` check
+    covers the values produced by the mastering/analysis tools.
+    """
+    if isinstance(value, float):
+        return value if math.isfinite(value) else None
+    if isinstance(value, dict):
+        return {k: _json_sanitize(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_json_sanitize(v) for v in value]
+    return value
+
+
+def _safe_json(data: Any) -> str:
+    """Serialize data to JSON with error fallback.
+
+    Non-finite floats are sanitized to ``null`` first (see _json_sanitize)
+    so the output is always valid JSON for strict parsers. If json.dumps()
+    still fails (e.g., circular references, non-serializable types), returns
+    a JSON error object instead of crashing.
+    """
+    try:
+        return json.dumps(_json_sanitize(data), default=str)
+    except (TypeError, ValueError, OverflowError, RecursionError) as e:
+        # RecursionError: _json_sanitize walks the structure before dumps, so a
+        # circular reference trips it here rather than as the ValueError that
+        # json.dumps would otherwise raise. Catch it to keep the no-crash contract.
+        return json.dumps({"error": f"JSON serialization failed: {e}"})
+
+
+def _json_error_boundary(fn: Any) -> Any:
+    """Wrap an MCP tool handler so a ValueError becomes a structured JSON error.
+
+    Many handlers normalize a user-supplied slug via _normalize_slug, which
+    raises ValueError on path separators / null bytes / traversal. Handlers
+    that call it directly (rather than through the guarded _find_album_or_error
+    / _resolve_audio_dir / _find_track_or_error helpers) would otherwise let
+    that ValueError escape to the MCP layer as an opaque tool error. This
+    boundary, installed once at registration, guarantees every tool — current
+    and future — returns clean JSON instead (#443).
+
+    Only ValueError is caught: it is the documented slug-validation signal.
+    Unexpected exceptions still propagate so real bugs are not masked.
+    """
+    if inspect.iscoroutinefunction(fn):
+        @functools.wraps(fn)
+        async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
+            try:
+                return await fn(*args, **kwargs)
+            except ValueError as exc:
+                return _safe_json({"error": str(exc)})
+        return async_wrapper
+
+    @functools.wraps(fn)
+    def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
+        try:
+            return fn(*args, **kwargs)
+        except ValueError as exc:
+            return _safe_json({"error": str(exc)})
+    return sync_wrapper
+
+
+def install_error_boundary(mcp: Any) -> None:
+    """Wrap ``mcp.tool`` so every registered handler gets _json_error_boundary.
+
+    Call once BEFORE the per-module ``register(mcp)`` calls. FastMCP builds
+    each tool's input schema from the handler signature via
+    ``inspect.signature``, which follows ``functools.wraps``' ``__wrapped__``,
+    so the boundary leaves the generated tool schema unchanged (#443).
+    """
+    original_tool = mcp.tool
+
+    def tool(*args: Any, **kwargs: Any) -> Any:
+        decorator = original_tool(*args, **kwargs)
+
+        def wrapping_decorator(fn: Any) -> Any:
+            return decorator(_json_error_boundary(fn))
+
+        return wrapping_decorator
+
+    mcp.tool = tool
+
+
+def _update_frontmatter_block(
+    file_path: Path, key: str, values: dict[str, Any]
+) -> tuple[bool, str | None]:
+    """Add or update a top-level YAML frontmatter block in a markdown file.
+
+    Parses the ``---`` delimited frontmatter, sets *key* to *values* using
+    ``yaml.safe_load`` / ``yaml.dump``, and writes back.  The rest of the
+    file is preserved unchanged.
+
+    Args:
+        file_path: Path to a ``.md`` file with ``---`` frontmatter.
+        key: Top-level key to set (e.g. ``"sheet_music"``).
+        values: Dict of sub-keys to write under *key*.
+
+    Returns:
+        ``(True, None)`` on success, ``(False, error_string)`` on failure.
+    """
+    import yaml
+
+    try:
+        text = file_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError) as exc:
+        return False, f"Cannot read {file_path}: {exc}"
+
+    if not text.startswith("---"):
+        return False, f"{file_path} has no YAML frontmatter"
+
+    lines = text.split("\n")
+    end_index = -1
+    for i, line in enumerate(lines[1:], 1):
+        if line.strip() == "---":
+            end_index = i
+            break
+
+    if end_index == -1:
+        return False, f"Cannot find closing --- in {file_path}"
+
+    frontmatter_text = "\n".join(lines[1:end_index])
+    try:
+        fm = yaml.safe_load(frontmatter_text) or {}
+    except yaml.YAMLError as exc:
+        return False, f"Cannot parse frontmatter YAML in {file_path}: {exc}"
+
+    if not isinstance(fm, dict):
+        return False, (
+            f"Frontmatter in {file_path} is not a mapping "
+            f"(got {type(fm).__name__})"
+        )
+
+    fm[key] = values
+
+    new_fm_text = yaml.dump(
+        fm, default_flow_style=False, allow_unicode=True, sort_keys=False,
+    ).rstrip("\n")
+
+    rest_of_file = "\n".join(lines[end_index + 1:])
+    new_text = "---\n" + new_fm_text + "\n---\n" + rest_of_file
+
+    try:
+        atomic_write_text(file_path, new_text)
+    except OSError as exc:
+        return False, f"Cannot write {file_path}: {exc}"
+
+    return True, None
+
+
+# Pre-compiled patterns for section extraction
+_RE_SECTION = re.compile(r'^(#{1,3})\s+(.+)$', re.MULTILINE)
+_RE_CODE_BLOCK = re.compile(r'```(?:[^\n]*\n)(.*?)```|```(.*?)```', re.DOTALL)
+
+
+def _extract_markdown_section(text: str, heading: str) -> str | None:
+    """Extract content under a specific markdown heading.
+
+    Returns the text between the target heading and the next heading
+    of equal or higher level, or end of file.
+    """
+    matches = list(_RE_SECTION.finditer(text))
+    target_idx = None
+    target_level = None
+
+    for i, m in enumerate(matches):
+        level = len(m.group(1))  # number of # chars
+        title = m.group(2).strip()
+        if title.lower() == heading.lower():
+            target_idx = i
+            target_level = level
+            break
+
+    if target_idx is None:
+        return None
+
+    start = matches[target_idx].end()
+
+    # Find next heading at same or higher level
+    for m in matches[target_idx + 1:]:
+        level = len(m.group(1))
+        assert target_level is not None
+        if level <= target_level:
+            end = m.start()
+            return text[start:end].strip()
+
+    # No next heading — return rest of file
+    return text[start:].strip()
+
+
+def _extract_code_block(section_text: str) -> str | None:
+    """Extract the first code block from section text.
+
+    Handles both fenced code blocks with language identifiers
+    and plain fenced blocks.
+    """
+    match = _RE_CODE_BLOCK.search(section_text)
+    if match:
+        # group(1) = content after lang+newline; group(2) = inline content
+        content = match.group(1) if match.group(1) is not None else (match.group(2) or "")
+        return content.strip()
+    return None
+
+
+# ---------------------------------------------------------------------------
+# Shared regex patterns — used by lyrics analysis, cross-track repetition, etc.
+# ---------------------------------------------------------------------------
+
+# Maximum text input length for text analysis tools (50,000 chars ≈ 10x a long song)
+MAX_TEXT_INPUT_LENGTH = 50_000
+
+
+def _check_text_length(text: str, tool_name: str) -> str | None:
+    """Return a JSON error string if *text* exceeds MAX_TEXT_INPUT_LENGTH, else None."""
+    if len(text) > MAX_TEXT_INPUT_LENGTH:
+        return _safe_json({
+            "error": (
+                f"Input too long ({len(text):,} chars). "
+                f"{tool_name} accepts at most {MAX_TEXT_INPUT_LENGTH:,} characters."
+            ),
+        })
+    return None
+
+
+# Section tag pattern — matches [Verse 1], [Chorus], etc.
+_SECTION_TAG_RE = re.compile(r'^\[.*\]$')
+
+# Word tokeniser — extracts alphabetic words (with internal apostrophes)
+_WORD_TOKEN_RE = re.compile(r"[a-zA-Z']+")
+
+# Stopwords: English function words + common song filler + ubiquitous song vocabulary.
+# These appear so often across tracks that flagging them is noise, not signal.
+_CROSS_TRACK_STOPWORDS = frozenset({
+    # English function words
+    "a", "an", "the", "and", "or", "but", "nor", "so", "yet", "for",
+    "in", "on", "at", "to", "of", "by", "up", "as", "if", "is", "it",
+    "be", "am", "are", "was", "were", "been", "being", "do", "did",
+    "does", "done", "has", "had", "have", "having", "he", "she", "we",
+    "me", "my", "her", "his", "its", "our", "us", "they", "them",
+    "their", "you", "your", "who", "what", "that", "this", "with",
+    "from", "not", "no", "can", "will", "would", "could", "should",
+    "may", "might", "shall", "just", "how", "when", "where", "why",
+    "all", "each", "every", "some", "any", "than", "then", "too",
+    "also", "very", "more", "most", "much", "many", "such", "own",
+    "same", "other", "about", "into", "over", "after", "before",
+    "through", "between", "under", "again", "out", "off", "here",
+    "there", "which", "these", "those", "only", "im", "ive", "ill",
+    "id", "dont", "wont", "cant", "didnt", "isnt", "wasnt", "youre",
+    "youve", "youll", "youd", "hes", "shes", "weve", "theyre",
+    "theyve", "theyll", "aint", "gonna", "wanna", "gotta",
+    # Common song filler / vocables
+    "oh", "ooh", "ah", "ahh", "yeah", "yea", "hey", "na", "la",
+    "da", "uh", "huh", "mmm", "whoa", "wo", "yo",
+    # Ubiquitous song vocabulary — too common to flag
+    "love", "heart", "baby", "night", "day", "time", "life", "way",
+    "feel", "know", "see", "come", "go", "get", "got", "let", "take",
+    "make", "say", "said", "back", "down", "like", "right", "left",
+    "good", "new", "now", "one", "two", "still", "never", "ever",
+    "keep", "need", "want", "look", "think", "thought", "mind",
+    "world", "man", "eye", "eyes", "hand", "hands",
+})
+
+
+def _find_album_or_error(album_slug: str) -> tuple[str, dict[str, Any] | None, str | None]:
+    """Find album in state cache, return (normalized_slug, album_data, error_json).
+
+    If album found: (slug, data, None)
+    If not found: (slug, None, error_json_string)
+    If the slug is malformed: (raw_slug, None, error_json_string) — the
+    ValueError _normalize_slug raises on path separators / null bytes /
+    traversal is converted to a structured error so callers never leak it to
+    the MCP layer (#443).
+    """
+    state = cache.get_state()
+    albums = state.get("albums", {})
+    try:
+        normalized = _normalize_slug(album_slug)
+    except ValueError as exc:
+        return album_slug, None, _safe_json({"found": False, "error": str(exc)})
+    album = albums.get(normalized)
+
+    if not album:
+        return normalized, None, _safe_json({
+            "found": False,
+            "error": f"Album '{album_slug}' not found",
+            "available_albums": list(albums.keys()),
+        })
+
+    return normalized, album, None
+
+
+def _parse_pronunciation_table(section_text: str) -> list[dict[str, str]]:
+    """Parse ``| Word/Phrase | Pronunciation | Reason |`` table rows.
+
+    The header row is matched by its FIRST CELL only, and separator rows by
+    cell content — substring filters on the whole line drop legitimate data
+    rows like "Wordsworth" and false-pass the pronunciation checks (#384).
+    """
+    entries: list[dict[str, str]] = []
+    for line in section_text.split("\n"):
+        if not line.startswith("|"):
+            continue
+        # Separator row: cells made only of dashes/colons (|-----|:---:|)
+        if set(line) <= {"|", "-", ":", " "}:
+            continue
+        parts = [p.strip() for p in line.split("|")]
+        if len(parts) >= 4:
+            word = parts[1].strip()
+            phonetic = parts[2].strip()
+            if word.lower() in ("word/phrase", "word"):
+                continue
+            if word and word != "—" and phonetic and phonetic != "—":
+                entries.append({"word": word, "phonetic": phonetic})
+    return entries
+
+
+def _find_slug_dirs(albums_root: Path, slug: str) -> list[Path]:
+    """Find existing album dirs named exactly `slug` under every genre (#392).
+
+    Literal comparison via iterdir — glob() would treat metacharacters in
+    the slug (e.g. '*') as patterns and could match unrelated albums.
+    """
+    if not albums_root.is_dir():
+        return []
+    return sorted(
+        genre_dir / slug
+        for genre_dir in albums_root.iterdir()
+        if genre_dir.is_dir() and (genre_dir / slug).is_dir()
+    )
+
+
+def _find_track_or_error(tracks: dict[str, Any], track_slug: str, album_slug: str = "") -> tuple[str, dict[str, Any] | None, str | None]:
+    """Find track in tracks dict by exact match or prefix match.
+
+    If track found: (matched_slug, track_data, None)
+    If not found: (slug, None, error_json_string)
+    If the slug is malformed: (raw_slug, None, error_json_string) — the
+    _normalize_slug ValueError is converted to a structured error (#443).
+    """
+    try:
+        normalized = _normalize_slug(track_slug)
+    except ValueError as exc:
+        return track_slug, None, _safe_json({"found": False, "error": str(exc)})
+    track_data = tracks.get(normalized)
+    if track_data:
+        return normalized, track_data, None
+
+    # Prefix match
+    prefix_matches = {s: d for s, d in tracks.items() if s.startswith(normalized)}
+    if len(prefix_matches) == 1:
+        matched_slug = next(iter(prefix_matches))
+        return matched_slug, prefix_matches[matched_slug], None
+    elif len(prefix_matches) > 1:
+        return normalized, None, _safe_json({
+            "found": False,
+            "error": f"Multiple tracks match '{track_slug}': {', '.join(sorted(prefix_matches.keys()))}",
+        })
+    else:
+        ctx = f" in album '{album_slug}'" if album_slug else ""
+        return normalized, None, _safe_json({
+            "found": False,
+            "error": f"Track '{track_slug}' not found{ctx}.",
+            "available_tracks": list(tracks.keys()),
+        })
+
+
+def _resolve_audio_dir(album_slug: str, subfolder: str = "") -> tuple[str | None, Path | None]:
+    """Resolve album slug to audio directory path.
+
+    Returns (error_json_or_None, Path_or_None).
+    """
+    state = cache.get_state()
+    config = state.get("config", {})
+    audio_root = config.get("audio_root", "")
+    artist = config.get("artist_name", "")
+    if not audio_root or not artist:
+        return _safe_json({"error": "audio_root or artist_name not configured"}), None
+    try:
+        normalized = _normalize_slug(album_slug)
+    except ValueError as exc:
+        return _safe_json({"error": str(exc)}), None
+    albums = state.get("albums", {})
+    album_data = albums.get(normalized, {})
+    genre = album_data.get("genre", "")
+    if not genre:
+        return _safe_json({
+            "error": f"Genre not found for album '{album_slug}'. Ensure album exists in state.",
+        }), None
+    # confine=False preserves this funnel's prior behaviour: it never had a
+    # resolved check, and an album's audio directory is allowed to be a symlink
+    # pointing outside audio_root — the layout validate_album_structure passes
+    # (test_symlinked_audio_dir_passes) must resolve here too, since every audio
+    # tool (master, polish, qc, transcribe, promo, sheet music) comes through
+    # this function. The lexical traversal guard still applies.
+    #
+    # The catch is the contract: this returns (error_json_or_None, Path_or_None),
+    # and every caller branches on the first element. A raise would skip all of
+    # those structured error paths, exactly as the _normalize_slug catch above
+    # exists to prevent.
+    try:
+        audio_path = _album_dir(
+            audio_root, artist=artist, genre=genre, album=normalized, confine=False,
+        )
+    except ValueError as exc:
+        return _safe_json({"error": str(exc)}), None
+    if subfolder:
+        if not _is_path_confined(audio_path, subfolder):
+            return _safe_json({
+                "error": "Invalid subfolder: path must not escape the album directory",
+                "subfolder": subfolder,
+            }), None
+        audio_path = audio_path / subfolder
+    if not audio_path.is_dir():
+        return _safe_json({
+            "error": f"Audio directory not found: {audio_path}",
+            "suggestion": "Check album slug or download audio first.",
+        }), None
+    return None, audio_path
+
+
+# ---------------------------------------------------------------------------
+# Shared constants — used by multiple handler modules
+# ---------------------------------------------------------------------------
+
+# Map user-friendly section names to markdown headings
+_SECTION_NAMES = {
+    "style": "Style Box",
+    "style-box": "Style Box",
+    "lyrics": "Lyrics Box",
+    "lyrics-box": "Lyrics Box",
+    "streaming": "Streaming Lyrics",
+    "streaming-lyrics": "Streaming Lyrics",
+    "pronunciation": "Pronunciation Notes",
+    "pronunciation-notes": "Pronunciation Notes",
+    "concept": "Concept",
+    "source": "Source",
+    "original-quote": "Original Quote",
+    "musical-direction": "Musical Direction",
+    "production-notes": "Production Notes",
+    "generation-log": "Generation Log",
+    "phonetic-review": "Phonetic Review Checklist",
+    "mood": "Mood & Imagery",
+    "mood-imagery": "Mood & Imagery",
+    "lyrical-approach": "Lyrical Approach",
+    "exclude": "Exclude Styles",
+    "exclude-styles": "Exclude Styles",
+}
+
+# Canonical streaming platform names and accepted aliases
+_STREAMING_PLATFORMS = {
+    "soundcloud": "soundcloud",
+    "spotify": "spotify",
+    "apple_music": "apple_music",
+    "apple-music": "apple_music",
+    "applemusic": "apple_music",
+    "youtube_music": "youtube_music",
+    "youtube-music": "youtube_music",
+    "youtubemusic": "youtube_music",
+    "amazon_music": "amazon_music",
+    "amazon-music": "amazon_music",
+    "amazonmusic": "amazon_music",
+}
+
+
+# Template placeholder markers — if streaming lyrics contain these, the section
+# hasn't been filled in yet.
+_STREAMING_PLACEHOLDER_MARKERS = [
+    "Plain lyrics here",
+    "Capitalize first letter of each line",
+    "No end punctuation",
+    "Write out all repeats fully",
+    "Blank lines between sections only",
+]
+
+# Sections whose markdown content should be extracted as a code block
+_CODE_BLOCK_SECTIONS = frozenset({"Style Box", "Exclude Styles", "Lyrics Box", "Streaming Lyrics", "Original Quote"})
+
+
+def get_plugin_version() -> str:
+    """Return the plugin version string from .claude-plugin/plugin.json.
+
+    Reads ``PLUGIN_ROOT / ".claude-plugin" / "plugin.json"`` and returns the
+    ``version`` field as a string.  Returns ``"unknown"`` on any failure
+    (PLUGIN_ROOT is None, file missing, JSON malformed, field absent).
+
+    This is intentionally a simple helper — use it wherever a plain version
+    string is needed.  For the full stored-vs-current comparison tool, see
+    ``handlers.health.get_plugin_version`` (the async MCP tool).
+    """
+    if PLUGIN_ROOT is None:
+        return "unknown"
+    manifest = PLUGIN_ROOT / ".claude-plugin" / "plugin.json"
+    try:
+        data = json.loads(manifest.read_text(encoding="utf-8"))
+        return str(data.get("version", "unknown"))
+    except (OSError, json.JSONDecodeError):
+        return "unknown"
+
+
+def is_album_released(album_slug: str) -> bool:
+    """Return True when the album's cached status is ``Released``.
+
+    Consumed by ``master_album``'s freeze-decision stage — frozen mode
+    is the default for Released albums so re-mastering never drifts
+    from what shipped.
+
+    Safe to call before the cache is fully initialized (returns ``False``
+    for any lookup that can't resolve — missing cache, invalid slug,
+    corrupt state, missing album, or any non-"Released" status).
+    """
+    if cache is None:
+        return False
+    try:
+        normalized = _normalize_slug(album_slug)
+    except ValueError:
+        # Invalid slug (path separators, null bytes, traversal) can't
+        # match any album. Safe default.
+        return False
+    try:
+        state = cache.get_state()
+    except (OSError, json.JSONDecodeError, ValueError):
+        return False
+    if not state:
+        return False
+    albums = state.get("albums", {})
+    entry = albums.get(normalized)
+    if not isinstance(entry, dict):
+        return False
+    return entry.get("status") == ALBUM_RELEASED
+
+
+def _find_wav_source_dir(audio_dir: Path) -> Path:
+    """Return originals/ if it exists, else album root (legacy fallback)."""
+    originals = audio_dir / "originals"
+    if originals.is_dir():
+        return originals
+    return audio_dir
+
+
+def _derive_title_from_slug(slug: str) -> str:
+    """Derive a display title from a slug.
+
+    Strips leading track number prefix (e.g., "01-") and converts hyphens
+    to spaces with title case.
+
+    Examples:
+        "01-my-track-name" -> "My Track Name"
+        "my-album"         -> "My Album"
+    """
+    # Strip leading track number prefix like "01-", "02-"
+    stripped = re.sub(r'^\d+-', '', slug)
+    return stripped.replace('-', ' ').title()

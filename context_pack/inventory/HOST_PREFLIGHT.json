@@ -1,0 +1,22 @@
+{
+  "gpu": {
+    "mps_available": true,
+    "mps_built": true
+  },
+  "videoQueues": [
+    {
+      "port": 8188,
+      "status": "unreachable at audit time"
+    },
+    {
+      "port": 8288,
+      "status": "unreachable at audit time"
+    },
+    {
+      "port": 8388,
+      "running": 0,
+      "pending": 0
+    }
+  ],
+  "checked_at": "2026-10-23T20:59:38.050Z"
+}

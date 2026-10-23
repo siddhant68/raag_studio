@@ -1,0 +1,105 @@
+group,key,label,choices,default,release,execution
+Intent,brief,Describe your music,Required free text,,P0,Planner and project policy
+Intent,view,Controls view,Simple; Shape; Producer; Engine,Simple,P0,Planner and project policy
+Intent,mode,Voices or instruments,Auto; Instruments; Wordless; Lyrics; Spoken,Auto,P0,Planner and project policy
+Intent,purpose,Use,Listening; Film; Reel; Background; Game; Song,Auto,P0,Planner and project policy
+Intent,mood,Feeling,Peaceful; Romantic; Yearning; Joyful; Epic; Dark; Custom,Auto,P0,Planner and project policy
+Intent,energy,Energy,Gentle; Flowing; Energetic; Intense,Auto,P0,Planner and project policy
+Intent,palette,Sound world,Acoustic; Electronic; Orchestral; Indian; Fusion,Auto,P0,Planner and project policy
+Intent,duration_seconds,Length,Auto or allowed seconds,Auto,P0,Planner and project policy
+Intent,avoid,Avoid,Free text or tags,None,P0,Planner and project policy
+Intent,inspiration,Inspiration,Mood/theme/reference with provenance,None,P0,Planner and project policy
+Instruments,instruments.ids,Instruments,Searchable catalogue with aliases,Auto,P0,"Soft musical direction, review required"
+Instruments,instruments.role,Role,Lead; Answer; Harmony; Rhythm; Bass; Drone; Texture; Accent,Auto,P0,"Soft musical direction, review required"
+Instruments,instruments.priority,Importance,Essential; Preferred; Optional,Preferred,P0,"Soft musical direction, review required"
+Instruments,instruments.presence,Presence,Subtle; Balanced; Featured,Auto,P0,"Soft musical direction, review required"
+Instruments,instruments.tone,Tone,Warm; Airy; Bright; Dark; Round; Rough,Auto,P0,"Soft musical direction, review required"
+Instruments,instruments.delivery,Performance,Simple; Lyrical; Expressive; Ornate; Agile,Auto,P0,"Soft musical direction, review required"
+Instruments,instruments.density,Phrase activity,Sparse; Balanced; Busy,Auto,P0,"Soft musical direction, review required"
+Instruments,instruments.register,Register,Low; Middle; High,Auto,P0,"Soft musical direction, review required"
+Instrument detail,instruments.articulation,Playing style,Instrument-specific connected/short/plucked/bowed/etc,Auto,P1,Soft direction; exact control needs score or isolated part
+Instrument detail,bansuri.ornaments,Flute ornaments,Grace notes; Slides; Runs; Trills; None,Auto,P1,Soft direction; exact control needs score or isolated part
+Instrument detail,bansuri.breathing,Flute phrasing,Long lyrical; Short agile; Balanced,Auto,P1,Soft direction; exact control needs score or isolated part
+Instrument detail,guitar.technique,Guitar technique,Fingerpick; Strum; Muted; Slide,Auto,P1,Soft direction; exact control needs score or isolated part
+Instrument detail,strings.technique,Strings technique,Legato; Pizzicato; Tremolo; Short accents,Auto,P1,Soft direction; exact control needs score or isolated part
+Instrument detail,brass.technique,Brass technique,Sustained; Swell; Short accents; Muted,Auto,P1,Soft direction; exact control needs score or isolated part
+Instrument detail,synth.kind,Synth character,Pad; Pluck; Growl; Bass; Noise,Auto,P1,Soft direction; exact control needs score or isolated part
+Instrument detail,instrument.sections,When it plays,Named sections,Auto,P1,Soft direction; exact control needs score or isolated part
+Instrument detail,instrument.relationship,Relationship,Answer; Support; Double; Countermelody,Auto,P1,Soft direction; exact control needs score or isolated part
+Voices,voices.lead,Lead voice,None; Solo; Duet; Ensemble,Auto,P0,Soft direction with explicit mode validation
+Voices,voices.tone,Vocal tone,Warm; Breathier; Clear; Powerful; Raw,Auto,P0,Soft direction with explicit mode validation
+Voices,voices.register,Voice register,Low; Middle; High; Mixed,Auto,P0,Soft direction with explicit mode validation
+Voices,voices.delivery,Delivery,Gentle; Sustained; Expressive; Rhythmic; Spoken,Auto,P0,Soft direction with explicit mode validation
+Voices,choir.enabled,Background voices,Auto; Off; On,Auto,P0,Soft direction with explicit mode validation
+Voices,choir.scale,Choir scale,Solo; Duet; Small; Chamber; Large; Massed,Auto,P0,Soft direction with explicit mode validation
+Voices,choir.target_count,Requested singer count,Approximate target only,Auto,P0,Soft direction with explicit mode validation
+Voices,choir.content,What voices sing,Ooh/aah; Hum; Chant; Specified words,Auto,P0,Soft direction with explicit mode validation
+Voices,choir.relationship,Choir role,Held harmony; Follow melody; Answer; Counterline,Auto,P0,Soft direction with explicit mode validation
+Voices,choir.presence,Choir prominence,Subtle; Blended; Featured,Auto,P0,Soft direction with explicit mode validation
+Voice detail,choir.sections,Choir entrances,Named sections,Auto,P1,Soft direction; exact voices and notes need score/tracks
+Voice detail,choir.distribution,Voice distribution,Low; High; Mixed; SATB,Auto,P1,Soft direction; exact voices and notes need score/tracks
+Voice detail,voices.vibrato,Vibrato,Subtle; Moderate; Strong,Auto,P1,Soft direction; exact voices and notes need score/tracks
+Voice detail,voices.melisma,Vocal ornamentation,Syllabic; Some runs; Ornate,Auto,P1,Soft direction; exact voices and notes need score/tracks
+Voice detail,voices.duet_pattern,Duet interaction,Alternate; Unison; Harmony; Answer,Auto,P1,Soft direction; exact voices and notes need score/tracks
+Lyrics,lyrics.policy,Lyric policy,None; Write; Exact; Adapt; Inspired,Auto,P0,Text policy exact; performed words require review
+Lyrics,lyrics.text,Your lyrics,Conditional exact source text,None,P0,Text policy exact; performed words require review
+Lyrics,lyrics.language,Language,Hindi; English; Other experimental,Auto,P0,Text policy exact; performed words require review
+Lyrics,lyrics.script,Script,Native; Roman; Mixed,Auto,P0,Text policy exact; performed words require review
+Lyrics,lyrics.topic,Theme/story,Free text,From brief,P0,Text policy exact; performed words require review
+Lyrics,lyrics.perspective,Perspective,I; You; We; Storyteller,Auto,P0,Text policy exact; performed words require review
+Lyrics,lyrics.style,Writing style,Simple; Conversational; Poetic,Auto,P0,Text policy exact; performed words require review
+Lyrics,lyrics.hook,Refrain/hook,User text or AI suggestion,Auto,P0,Text policy exact; performed words require review
+Lyrics,lyrics.locked_lines,Keep these lines,Line identifiers,None,P0,Text policy exact; performed words require review
+Lyrics,lyrics.allowed_changes,Allowed changes,None; Meter; Rhyme; Structure; Broad rewrite,None in Exact,P0,Text policy exact; performed words require review
+Lyrics,lyrics.explicitness,Language tone,Clean; Mature when appropriate,Clean,P0,Text policy exact; performed words require review
+Lyrics,lyrics.forbidden_words,Words to avoid,User list,None,P0,Text policy exact; performed words require review
+Lyrics detail,lyrics.imagery,Imagery,Literal; Concrete; Metaphorical; Custom,Auto,P1,Drafting policy and review aids
+Lyrics detail,lyrics.rhyme,Rhyme density,Loose; Medium; Strong,Auto,P1,Drafting policy and review aids
+Lyrics detail,lyrics.pronunciation,Pronunciation notes,"Separate hints, not source replacement",None,P1,Drafting policy and review aids
+Lyrics detail,lyrics.languages_by_section,Code switching,Language assigned per section/line,None,P1,Drafting policy and review aids
+Lyrics detail,lyrics.repeat_policy,Repetition,Preserve; Suggest; Allow marked repeats,Preserve in Exact,P1,Drafting policy and review aids
+Music and form,tempo.bpm,Tempo,Auto or supported BPM,Auto,P0,"Soft direction or target metadata, not exact music"
+Music and form,rhythm.feel,Rhythmic feel,Straight; Swing; Half-time; Double-time,Auto,P0,"Soft direction or target metadata, not exact music"
+Music and form,rhythm.busyness,Drum activity,Sparse; Steady; Busy,Auto,P0,"Soft direction or target metadata, not exact music"
+Music and form,melody.character,Melodic direction,Lyrical; Catchy; Playful; Exploratory,Auto,P0,"Soft direction or target metadata, not exact music"
+Music and form,melody.variation,Theme variation,Subtle; Moderate; Adventurous,Auto,P0,"Soft direction or target metadata, not exact music"
+Music and form,arrangement.density,Arrangement size,Sparse; Balanced; Full,Auto,P0,"Soft direction or target metadata, not exact music"
+Music and form,arrangement.arc,Development,Steady; Gradual build; Quiet middle; Contrast,Auto,P0,"Soft direction or target metadata, not exact music"
+Music and form,ending.kind,Ending,Resolve; Thin out; Stop; Unresolved,Auto,P0,"Soft direction or target metadata, not exact music"
+Producer detail,rhythm.meter,Meter,4/4; 3/4; 6/8; Other if supported,Auto,P1,Mostly soft direction; exactness needs score/timeline/tracks
+Producer detail,rhythm.syncopation,Syncopation,Low; Medium; High,Auto,P1,Mostly soft direction; exactness needs score/timeline/tracks
+Producer detail,rhythm.pattern,Repeated pattern,Ostinato; Drone; Pulse; None,Auto,P1,Mostly soft direction; exactness needs score/timeline/tracks
+Producer detail,harmony.key,Key,Supported tonic/mode,Auto,P1,Mostly soft direction; exactness needs score/timeline/tracks
+Producer detail,harmony.colour,Harmony colour,Simple; Rich; Tense; Modal,Auto,P1,Mostly soft direction; exactness needs score/timeline/tracks
+Producer detail,harmony.progression,Chord progression,Named chord sequence,Auto,P1,Mostly soft direction; exactness needs score/timeline/tracks
+Producer detail,harmony.modulation,Key change,None; Subtle; Dramatic,Auto,P1,Mostly soft direction; exactness needs score/timeline/tracks
+Producer detail,melody.range,Melodic range,Narrow; Moderate; Wide,Auto,P1,Mostly soft direction; exactness needs score/timeline/tracks
+Producer detail,melody.counterline,Countermelody,None; Subtle; Prominent,Auto,P1,Mostly soft direction; exactness needs score/timeline/tracks
+Producer detail,structure.sections,Sections,Named section cards with approximate durations,Auto,P1,Mostly soft direction; exactness needs score/timeline/tracks
+Producer detail,structure.climax,High point,Early; Middle; Late; Custom,Auto,P1,Mostly soft direction; exactness needs score/timeline/tracks
+Producer detail,structure.silence,Breathing space,Sparse gaps; Break; Full texture,Auto,P1,Mostly soft direction; exactness needs score/timeline/tracks
+Producer detail,transition.kind,Transitions,Swell; Fill; Drop; Quiet pause; Smooth,Auto,P1,Mostly soft direction; exactness needs score/timeline/tracks
+Real audio controls,export.format,Export,MP3; WAV,MP3 and WAV,P0,Actual whole-mix processing and project operations
+Real audio controls,export.sample_rate,Sample rate,Supported output sample rates,48 kHz for local master,P0,Actual whole-mix processing and project operations
+Real audio controls,master.target_lufs,Playback level,Supported target,-16 LUFS starting preset,P0,Actual whole-mix processing and project operations
+Real audio controls,master.true_peak,Peak ceiling,Supported dBTP ceiling,-1.5 dBTP starting preset,P0,Actual whole-mix processing and project operations
+Real audio controls,master.fade,Whole-mix fades,Seconds,Auto,P0,Actual whole-mix processing and project operations
+Real audio controls,job.takes,Number of takes,1; 2; User bounded,1,P0,Actual whole-mix processing and project operations
+Real audio controls,job.budget,Cost/time ceiling,Configured limits,Local first,P0,Actual whole-mix processing and project operations
+Real audio controls,project.favourite,Favourite version,Immutable asset reference,None,P0,Actual whole-mix processing and project operations
+Real audio controls,project.locks,Keep these choices,Explicit fields,None,P0,Actual whole-mix processing and project operations
+Advanced mix,mix.part_gain,Instrument level,dB on an available track,Unchanged,P1,Actual only on usable tracks; otherwise creative guidance
+Advanced mix,mix.part_pan,Position,Left/centre/right on track,Unchanged,P1,Actual only on usable tracks; otherwise creative guidance
+Advanced mix,mix.part_reverb,Space,Dry; Room; Hall on track,Unchanged,P1,Actual only on usable tracks; otherwise creative guidance
+Advanced mix,mix.part_eq,Tone shaping,Track EQ,Unchanged,P1,Actual only on usable tracks; otherwise creative guidance
+Advanced mix,mix.part_compression,Dynamics processing,Track compressor,Unchanged,P1,Actual only on usable tracks; otherwise creative guidance
+Advanced mix,mix.part_delay,Echo,Track delay,Unchanged,P1,Actual only on usable tracks; otherwise creative guidance
+Advanced mix,mix.automation,Changes over time,Track parameter curves,None,P1,Actual only on usable tracks; otherwise creative guidance
+Exploration,reference.hum,Hum a melody,Audio input,None,P2,Needs new evaluated route or experimental workflow
+Exploration,reference.keep_melody,Preserve motif,Score/reference binding,None,P2,Needs new evaluated route or experimental workflow
+Exploration,structure.cue_points,Video events,Timestamped cue list,None,P2,Needs new evaluated route or experimental workflow
+Exploration,harmony.raga,Raga direction,Named raga with support status,Auto,P2,Needs new evaluated route or experimental workflow
+Exploration,rhythm.tala,Tala direction,Named tala with support status,Auto,P2,Needs new evaluated route or experimental workflow
+Exploration,novelty.budget,Surprise amount,One optional unusual element,Off,P2,Needs new evaluated route or experimental workflow
+Exploration,ending.loop,Seamless loop,Loop target plus boundary validation,Off,P2,Needs new evaluated route or experimental workflow
+Exploration,repair.region,Repair only here,Declared edit region and handles,None,P2,Needs new evaluated route or experimental workflow

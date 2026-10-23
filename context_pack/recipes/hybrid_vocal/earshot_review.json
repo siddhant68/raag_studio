@@ -1,0 +1,507 @@
+{
+  "measure": {
+    "duration": 44.2,
+    "peak_dbfs": -1.5,
+    "true_peak_dbtp": -1.5,
+    "rms_dbfs": -17.1,
+    "lufs": -14.1,
+    "short_term_max_lufs": -11.8,
+    "lra_lu": 6.6,
+    "clipped_samples": 0,
+    "dc": 0.0002,
+    "noise_floor_dbfs": -63.2,
+    "dynamic_range_db": 54.8,
+    "digital_silence_frac": 0.0016,
+    "side_to_mid_db": -11.1,
+    "correlation": 0.857,
+    "attack_at": 0.031,
+    "peak_at": 30.432,
+    "attack_ms": 233.0,
+    "decay_ms": 9172.0,
+    "centroid_hz": 288,
+    "rolloff95_hz": 581,
+    "bands_db": {
+      "sub": -32.3,
+      "low": -1.2,
+      "lowmid": -6.4,
+      "mid": -19.9,
+      "presence": -24.9,
+      "air": -24.8,
+      "top": -40.8
+    },
+    "bandwidth_hz": 20480,
+    "flatness": 0.0003,
+    "brightness_hz": 1636,
+    "tonal_peak_ratio_db": 55.0,
+    "harmonic_ratio": 0.897,
+    "f0_hz": 110.2,
+    "onsets": [
+      0.046,
+      0.801,
+      2.38,
+      2.786,
+      3.17,
+      3.541,
+      3.959,
+      4.342,
+      4.748,
+      5.074,
+      5.712,
+      6.316,
+      6.711,
+      7.117,
+      7.895,
+      8.278,
+      8.719,
+      9.079,
+      10.344,
+      10.635,
+      11.471,
+      12.26,
+      12.55,
+      12.725,
+      13.816,
+      14.164,
+      14.582,
+      15.418,
+      16.556,
+      16.962,
+      17.763,
+      18.564,
+      18.947,
+      19.307,
+      19.691,
+      20.132,
+      20.283,
+      20.503,
+      20.898,
+      21.664,
+      22.848,
+      23.208,
+      23.29,
+      23.615,
+      23.789,
+      23.917,
+      24.88,
+      25.275,
+      25.681,
+      26.413,
+      26.924,
+      27.237,
+      27.667,
+      28.015,
+      28.421,
+      28.804,
+      29.222,
+      29.629,
+      29.931,
+      31.208,
+      31.579,
+      31.939,
+      32.253,
+      32.752,
+      33.135,
+      35.132,
+      35.84,
+      35.956,
+      36.618,
+      36.711
+    ],
+    "onset_count": 70,
+    "onsets_per_s": 1.58
+  },
+  "description": {
+    "path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/sonic_pi_hindi_20261023/takes/vocal_01_23102601/16fc49a6-c790-c0c6-6bb8-3d018f8e1efa.wav",
+    "start": 10,
+    "end": 20,
+    "duration": 10.0,
+    "measurements": {
+      "duration": 10.0,
+      "peak_dbfs": -2.8,
+      "true_peak_dbtp": -2.7,
+      "rms_dbfs": -18.6,
+      "lufs": -16.3,
+      "lra_lu": 4.6,
+      "attack_ms": 0.0,
+      "decay_ms": 1680.0,
+      "brightness_hz": 1351,
+      "bandwidth_hz": 20480,
+      "noise_floor_dbfs": -35.6,
+      "flatness": 0.0004,
+      "harmonic_ratio": 0.888,
+      "f0_hz": 123.3,
+      "onset_count": 16,
+      "onsets_per_s": 1.6,
+      "width": "side/mid -10 dB",
+      "digital_silence_frac": 0.0001
+    },
+    "shape": "busy, 1.6 onsets/s, tonal, pitch ~123 Hz (B2) (attack 0 ms, decays in 1680 ms)",
+    "top_tags": [
+      {
+        "term": "a sub bass drop",
+        "category": "impacts",
+        "z": 2.56,
+        "cosine": 0.137,
+        "verdict": "plausible"
+      },
+      {
+        "term": "an electrical hum",
+        "category": "ambience",
+        "z": 1.81,
+        "cosine": 0.037,
+        "verdict": "no match"
+      },
+      {
+        "term": "birds singing in the morning",
+        "category": "ambience",
+        "z": 1.6,
+        "cosine": -0.005,
+        "verdict": "no match"
+      },
+      {
+        "term": "a phone vibration buzz",
+        "category": "ui",
+        "z": 1.48,
+        "cosine": 0.032,
+        "verdict": "no match"
+      },
+      {
+        "term": "a bird chirping",
+        "category": "everyday",
+        "z": 1.45,
+        "cosine": -0.008,
+        "verdict": "no match"
+      }
+    ],
+    "music_hints": [
+      {
+        "term": "singing vocals",
+        "category": "voice",
+        "z": 3.05,
+        "cosine": 0.155
+      },
+      {
+        "term": "indie pop music",
+        "category": "music_genre",
+        "z": 2.79,
+        "cosine": 0.228
+      },
+      {
+        "term": "jazz music",
+        "category": "music_genre",
+        "z": 2.76,
+        "cosine": 0.164
+      },
+      {
+        "term": "sad and melancholic music",
+        "category": "music_mood",
+        "z": 2.61,
+        "cosine": 0.196
+      },
+      {
+        "term": "calm and relaxing music",
+        "category": "music_mood",
+        "z": 2.28,
+        "cosine": 0.135
+      }
+    ],
+    "tags": {
+      "transitions": [
+        {
+          "term": "a reverse cymbal swell",
+          "z": 1.1,
+          "cosine": 0.041
+        },
+        {
+          "term": "a rising riser building tension",
+          "z": 0.07,
+          "cosine": -0.023
+        },
+        {
+          "term": "a soft air whoosh",
+          "z": -0.0,
+          "cosine": -0.074
+        }
+      ],
+      "impacts": [
+        {
+          "term": "a sub bass drop",
+          "z": 2.56,
+          "cosine": 0.137
+        },
+        {
+          "term": "a low rumble",
+          "z": 1.13,
+          "cosine": 0.001
+        },
+        {
+          "term": "a big drum hit",
+          "z": 1.13,
+          "cosine": -0.006
+        }
+      ],
+      "ui": [
+        {
+          "term": "a phone vibration buzz",
+          "z": 1.48,
+          "cosine": 0.032
+        },
+        {
+          "term": "an error buzz",
+          "z": 0.11,
+          "cosine": -0.06
+        },
+        {
+          "term": "a notification ding",
+          "z": -0.28,
+          "cosine": -0.061
+        }
+      ],
+      "keyboard": [
+        {
+          "term": "a soft key release click",
+          "z": -0.92,
+          "cosine": -0.127
+        },
+        {
+          "term": "a single mechanical keyboard key press",
+          "z": -1.8,
+          "cosine": -0.154
+        },
+        {
+          "term": "an enter key press",
+          "z": -1.81,
+          "cosine": -0.123
+        }
+      ],
+      "foley": [
+        {
+          "term": "a mouth pop",
+          "z": 1.18,
+          "cosine": 0.072
+        },
+        {
+          "term": "footsteps on gravel",
+          "z": 1.04,
+          "cosine": -0.065
+        },
+        {
+          "term": "footsteps on wood",
+          "z": 0.61,
+          "cosine": -0.07
+        }
+      ],
+      "water": [
+        {
+          "term": "a water drop",
+          "z": 0.66,
+          "cosine": 0.045
+        },
+        {
+          "term": "bubbles underwater",
+          "z": 0.59,
+          "cosine": -0.026
+        },
+        {
+          "term": "being underwater",
+          "z": 0.46,
+          "cosine": -0.021
+        }
+      ],
+      "nature": [
+        {
+          "term": "insects buzzing",
+          "z": 1.14,
+          "cosine": 0.017
+        },
+        {
+          "term": "an apple falling on grass",
+          "z": 0.68,
+          "cosine": -0.014
+        },
+        {
+          "term": "footsteps on grass",
+          "z": 0.6,
+          "cosine": -0.059
+        }
+      ],
+      "chimes": [
+        {
+          "term": "a singing bowl",
+          "z": 0.7,
+          "cosine": -0.055
+        },
+        {
+          "term": "a music box melody",
+          "z": 0.58,
+          "cosine": 0.027
+        },
+        {
+          "term": "a sustained glass harp tone",
+          "z": -0.01,
+          "cosine": -0.108
+        }
+      ],
+      "ambience": [
+        {
+          "term": "an electrical hum",
+          "z": 1.81,
+          "cosine": 0.037
+        },
+        {
+          "term": "birds singing in the morning",
+          "z": 1.6,
+          "cosine": -0.005
+        },
+        {
+          "term": "a city street with traffic",
+          "z": 1.01,
+          "cosine": -0.065
+        }
+      ],
+      "everyday": [
+        {
+          "term": "a bird chirping",
+          "z": 1.45,
+          "cosine": -0.008
+        },
+        {
+          "term": "a power drill",
+          "z": 1.09,
+          "cosine": -0.01
+        },
+        {
+          "term": "a knock on a door",
+          "z": 1.01,
+          "cosine": -0.023
+        }
+      ],
+      "music_genre": [
+        {
+          "term": "indie pop music",
+          "z": 2.79,
+          "cosine": 0.228
+        },
+        {
+          "term": "jazz music",
+          "z": 2.76,
+          "cosine": 0.164
+        },
+        {
+          "term": "drum and bass music",
+          "z": 2.18,
+          "cosine": 0.104
+        }
+      ],
+      "music_mood": [
+        {
+          "term": "sad and melancholic music",
+          "z": 2.61,
+          "cosine": 0.196
+        },
+        {
+          "term": "calm and relaxing music",
+          "z": 2.28,
+          "cosine": 0.135
+        },
+        {
+          "term": "romantic music",
+          "z": 2.22,
+          "cosine": 0.204
+        }
+      ],
+      "instruments": [
+        {
+          "term": "a vocal chop",
+          "z": 2.27,
+          "cosine": 0.185
+        },
+        {
+          "term": "a bass guitar",
+          "z": 1.61,
+          "cosine": 0.088
+        },
+        {
+          "term": "a deep sub bass",
+          "z": 1.42,
+          "cosine": 0.061
+        }
+      ],
+      "voice": [
+        {
+          "term": "singing vocals",
+          "z": 3.05,
+          "cosine": 0.155
+        },
+        {
+          "term": "a voice-over narration",
+          "z": 2.15,
+          "cosine": 0.072
+        },
+        {
+          "term": "a man speaking",
+          "z": 1.37,
+          "cosine": -0.082
+        }
+      ],
+      "quality": [
+        {
+          "term": "a boomy sound",
+          "z": 1.65,
+          "cosine": 0.104
+        },
+        {
+          "term": "a warm sound",
+          "z": 1.34,
+          "cosine": 0.113
+        },
+        {
+          "term": "a distant sound",
+          "z": 1.23,
+          "cosine": -0.023
+        }
+      ],
+      "production": [
+        {
+          "term": "a pure sine wave tone",
+          "z": 1.49,
+          "cosine": 0.068
+        },
+        {
+          "term": "a professionally mixed and mastered music track",
+          "z": 0.72,
+          "cosine": 0.159
+        },
+        {
+          "term": "a low quality recording with hiss",
+          "z": 0.55,
+          "cosine": -0.044
+        }
+      ]
+    },
+    "audioset": [
+      {
+        "label": "Music",
+        "p": 0.788
+      },
+      {
+        "label": "Mantra",
+        "p": 0.406
+      },
+      {
+        "label": "Vocal music",
+        "p": 0.115
+      },
+      {
+        "label": "Singing",
+        "p": 0.092
+      },
+      {
+        "label": "Humming",
+        "p": 0.085
+      }
+    ],
+    "character": [],
+    "summary": "10.00 s busy, 1.6 onsets/s, tonal, pitch ~123 Hz (B2) (attack 0 ms, decays in 1680 ms). Music (AudioSet Music 0.79). Unvalidated hints - genre: indie pop music (z +2.7), jazz music (z +2.7); mood (wrong for ~1 in 5 tracks in a test): sad and melancholic music (z +2.6), calm and relaxing music (z +2.2). Sounds most like: a sub bass drop (z +2.5), an electrical hum (z +1.8), birds singing in the morning (z +1.6) [plausible reading]. Other readings: a phone vibration buzz (ui, z +1.4), a bird chirping (everyday, z +1.4). AudioSet: Music 0.79, Mantra 0.41, Vocal music 0.12. peak -2.8 dBFS, -16.3 LUFS, brightness 1.4 kHz, bandwidth 20.5 kHz, noise floor -36 dBFS, side/mid -10 dB."
+  }
+}

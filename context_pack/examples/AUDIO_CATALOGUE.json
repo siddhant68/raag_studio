@@ -1,0 +1,209 @@
+[
+  {
+    "id": "yamuna",
+    "file": "examples/accepted/Yamuna_at_Dawn.mp3",
+    "status": "Strongly accepted",
+    "user_feedback": "yamuna at dawn is such a melody man",
+    "note": "Favourite instrumental anchor; use the flute_focus take, seed 24102633.",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/bansuri_journeys_20261024/Yamuna_at_Dawn.mp3",
+    "sha256": "9c402555885648d7dd3672ca1a46c5ccd2c0c817a840d9a4e94e4ebe953b6e40",
+    "audio_metadata": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "mp3",
+          "sample_rate": "48000",
+          "channels": 2
+        }
+      ],
+      "format": {
+        "duration": "168.000000"
+      }
+    }
+  },
+  {
+    "id": "daylight",
+    "file": "examples/accepted/Daylight.mp3",
+    "status": "Accepted",
+    "user_feedback": "very enjoyable",
+    "note": "Ensemble and wordless chorus anchor, selected take 01 seed 24102601.",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/daylight_20261024/Daylight.mp3",
+    "sha256": "809d756e7029c9c96cd176efc707afb2ae78a0764eb09a5d52fb79a4ae4551dc",
+    "audio_metadata": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "mp3",
+          "sample_rate": "48000",
+          "channels": 2
+        }
+      ],
+      "format": {
+        "duration": "132.000000"
+      }
+    }
+  },
+  {
+    "id": "thodi",
+    "file": "examples/accepted/Thodi_Der_Aur.mp3",
+    "status": "Accepted with diction caveat",
+    "user_feedback": "amazing man; previous iteration was really good",
+    "note": "Preferred Hindi melody/emotion. Pronunciation was unclear in places; not fully solved.",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/thodi_der_aur_20261022/Thodi_Der_Aur.mp3",
+    "sha256": "2de1768b706578cbfc0d0e05b8bcc660a27e8246ffe92b2d9e5c88800a0b027c",
+    "audio_metadata": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "mp3",
+          "sample_rate": "48000",
+          "channels": 2
+        }
+      ],
+      "format": {
+        "duration": "152.000000"
+      }
+    }
+  },
+  {
+    "id": "remix_01",
+    "file": "examples/rejected/01_Concatenation_Feedback.mp3",
+    "status": "Rejected for requested remix",
+    "user_feedback": "it feel like you just concatenated the two",
+    "note": "Insufficient musical reinterpretation.",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/castamere_ashes_20261022/The_Lion_and_the_Fire.mp3",
+    "sha256": "343f1f1ec09d3e9e4bc461c03b36e3858a9529686a8f5b44671903cfa01741ea",
+    "audio_metadata": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "mp3",
+          "sample_rate": "48000",
+          "channels": 2
+        }
+      ],
+      "format": {
+        "duration": "62.000000"
+      }
+    }
+  },
+  {
+    "id": "remix_02",
+    "file": "examples/rejected/02_Random_Mix_Feedback.mp3",
+    "status": "Rejected for requested remix",
+    "user_feedback": "this was nothing, just random mix",
+    "note": "Extra rhythm and chopping did not create coherent development.",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/archive/attempt_02/The_Lion_and_the_Fire_Reimagined.mp3",
+    "sha256": "4b66e4d1e3fd385d84335208221a0f57829916de0f1e13679a315c177be9e7dc",
+    "audio_metadata": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "mp3",
+          "sample_rate": "48000",
+          "channels": 2
+        }
+      ],
+      "format": {
+        "duration": "70.000000"
+      }
+    }
+  },
+  {
+    "id": "remix_03",
+    "file": "examples/rejected/03_Model_Remix_Still_Rejected.mp3",
+    "status": "Rejected for requested remix",
+    "user_feedback": "still bad",
+    "note": "A source-preserving model/arrangement workflow also failed the creative brief.",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/remix_studio_20261022/remix/A_Crown_of_Ash_and_Rain.mp3",
+    "sha256": "f7e9b2c9a4f18ef2b04417a0349838fead31bbe6d46f5d56d737b54f4790fca1",
+    "audio_metadata": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "mp3",
+          "sample_rate": "48000",
+          "channels": 2
+        }
+      ],
+      "format": {
+        "duration": "94.760000"
+      }
+    }
+  },
+  {
+    "id": "hybrid",
+    "file": "examples/rejected/04_Sonic_Pi_Hybrid_Recitation_Feedback.mp3",
+    "status": "Rejected as song replacement",
+    "user_feedback": "lyrics were not music, just someone reading; music was clearer, voice was clearer, but no melody",
+    "note": "Actual Sonic Pi backing plus separately generated/separated vocal; clarity did not preserve musicality.",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/sonic_pi_hindi_20261023/Thodi_Der_Aur_Sonic_Pi_Test.mp3",
+    "sha256": "b484ea73b671ca545b6784348cfe63c641eff16733f366e32db26b8df539a9a0",
+    "audio_metadata": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "mp3",
+          "sample_rate": "48000",
+          "channels": 2
+        }
+      ],
+      "format": {
+        "duration": "53.226313"
+      }
+    }
+  },
+  {
+    "id": "moonlit",
+    "file": "examples/unreviewed/Moonlit_Raas.mp3",
+    "status": "No explicit listener verdict",
+    "user_feedback": null,
+    "note": "Delivered alongside Yamuna; do not transfer Yamuna approval to this recording.",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/bansuri_journeys_20261024/Moonlit_Raas.mp3",
+    "sha256": "9a89e0535e91f6c365633948d8cefefc2325b72a61d2b4a891b3728edf5097bc",
+    "audio_metadata": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "mp3",
+          "sample_rate": "48000",
+          "channels": 2
+        }
+      ],
+      "format": {
+        "duration": "144.000000"
+      }
+    }
+  },
+  {
+    "id": "backing",
+    "file": "examples/components/Sonic_Pi_Backing.mp3",
+    "status": "Component only",
+    "user_feedback": null,
+    "note": "Actual Sonic Pi instrumental; not a trained singer and not itself labelled a rejected song.",
+    "original_path": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/sonic_pi_hindi_20261023/Sonic_Pi_Backing.mp3",
+    "sha256": "38d55853a1092839ef944656b1132ff04471ee38363dc5889481a2d4c66c4af0",
+    "audio_metadata": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "mp3",
+          "sample_rate": "48000",
+          "channels": 2
+        }
+      ],
+      "format": {
+        "duration": "53.226313"
+      }
+    }
+  }
+]

@@ -1,0 +1,51 @@
+[project]
+name = "ableton-mcp-pro"
+version = "1.0.0"
+description = "Full control of Ableton Live through AI assistants via the Model Context Protocol"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+    {name = "nicholasbien"}
+]
+license = {text = "MIT"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "mcp[cli]>=1.3.0",
+]
+
+[project.optional-dependencies]
+ai = [
+    "midigenai @ git+https://github.com/nicholasbien/midigenai@main",
+    "torch",
+    "miditok",
+    "symusic",
+    "huggingface_hub",
+]
+midi = [
+    "mido",
+    "python-rtmidi",
+]
+analysis = [
+    "numpy",
+    "scipy",
+    "soundfile",
+    "pyloudnorm",
+]
+
+[project.scripts]
+ableton-mcp-pro = "MCP_Server.server:main"
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["MCP_Server"]
+
+[project.urls]
+"Homepage" = "https://github.com/nicholasbien/ableton-mcp-pro"
+"Bug Tracker" = "https://github.com/nicholasbien/ableton-mcp-pro/issues"

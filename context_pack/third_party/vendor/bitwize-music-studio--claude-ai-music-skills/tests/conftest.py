@@ -1,0 +1,280 @@
+"""Shared pytest fixtures for plugin and unit tests."""
+
+import sys
+from pathlib import Path
+from typing import Any, Dict
+
+import pytest
+
+# Ensure project root is on sys.path for imports
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from tests.fixtures.audio import (
+    make_bass,
+    make_bright,
+    make_clicks_and_pops,
+    make_clipping,
+    make_drums,
+    make_full_mix,
+    make_noisy,
+    make_phase_partial,
+    make_phase_problem,
+    make_silent_gaps,
+    make_vocal,
+    write_wav,
+)
+from tools.state.parsers import parse_frontmatter
+
+
+@pytest.fixture(autouse=True)
+def _isolate_state_cache(monkeypatch, tmp_path):
+    """Redirect the state-cache indexer away from the real ~/.bitwize-music cache.
+
+    Many flows funnel through ``tools.state.indexer.write_state``/``read_state``
+    (master_album's status_update stage, rename, streaming URL updates, album
+    status transitions, cache rebuilds, ...). Several call sites import
+    ``write_state`` lazily inside the calling function
+    (``from tools.state.indexer import write_state``), so patching a *different*
+    module's attribute (e.g. ``server.write_state``) does not intercept them —
+    only patching the globals ``write_state`` itself reads
+    (``tools.state.indexer.CACHE_DIR`` / ``STATE_FILE`` / ``LOCK_FILE``) works
+    regardless of how/where the function was imported. A test file that forgot
+    (or incorrectly targeted) this patch was silently clobbering a developer's
+    real state.json with fixture data on every full-suite run. This autouse
+    fixture makes every test safe by default; tests that need a specific cache
+    path (e.g. test_indexer.py) can still monkeypatch.setattr(indexer, ...)
+    themselves afterward — that simply overrides this for that test.
+
+    The MCP server module needs the same treatment separately: server.py does
+    ``from tools.state.indexer import STATE_FILE, CONFIG_FILE`` — a by-VALUE
+    copy — and StateCache._is_stale() / _update_mtimes() stat those module
+    globals, so patching the indexer alone still leaves server-module code
+    statting the developer's real ~/.bitwize-music files (read-only, but a
+    concurrent session touching them mid-test can spuriously flip _is_stale).
+    Test files load server.py under assorted sys.modules names via
+    importlib.util.spec_from_file_location ("state_server",
+    "state_server_features", "state_server_streaming", ...), so match loaded
+    modules by __file__ rather than by name and patch every copy.
+    """
+    import tools.state.indexer as indexer_mod
+
+    cache_dir = tmp_path / "_isolated_state_cache"
+    monkeypatch.setattr(indexer_mod, "CACHE_DIR", cache_dir)
+    monkeypatch.setattr(indexer_mod, "STATE_FILE", cache_dir / "state.json")
+    monkeypatch.setattr(indexer_mod, "LOCK_FILE", cache_dir / "state.lock")
+
+    server_py = str(
+        (PROJECT_ROOT / "servers" / "bitwize-music-server" / "server.py").resolve()
+    )
+    for module in list(sys.modules.values()):
+        module_file = getattr(module, "__file__", None)
+        # Cheap basename short-circuit before the resolve() so the scan stays
+        # a string comparison for the thousands of non-matching modules.
+        if not module_file or not module_file.endswith("server.py"):
+            continue
+        if str(Path(module_file).resolve()) != server_py:
+            continue
+        monkeypatch.setattr(module, "STATE_FILE", cache_dir / "state.json")
+        monkeypatch.setattr(module, "CONFIG_FILE", cache_dir / "config.yaml")
+
+
+@pytest.fixture(autouse=True)
+def _reset_warned_bad_values():
+    """Reset the shared coercers' once-per-process warn dedup (#556).
+
+    `tools.shared.config.coerce_yaml_bool`/`coerce_yaml_float` now warn on
+    a given (setting, bad value) pair only once per process, to stop a
+    persistently bad override from logging identical text once per stem
+    per track. That is a real process-lifetime cache — exactly the kind
+    of global state that makes test order matter: two tests in different
+    files asserting "this bad value warns" for the *same* (context,
+    value) pair would see only the first one actually log, since the
+    dedup set is shared across the whole pytest session. Clearing it
+    before every test keeps each test's warning assertions independent of
+    what ran before it, while still exercising the real dedup logic
+    within any single test.
+    """
+    import tools.shared.config as shared_config
+    shared_config._WARNED_BAD_VALUES.clear()
+
+
+@pytest.fixture(scope="session")
+def project_root() -> Path:
+    """Path to the repository root."""
+    return PROJECT_ROOT
+
+
+@pytest.fixture(scope="session")
+def skills_dir(project_root) -> Path:
+    """Path to skills/ directory."""
+    return project_root / "skills"
+
+
+@pytest.fixture(scope="session")
+def templates_dir(project_root) -> Path:
+    """Path to templates/ directory."""
+    return project_root / "templates"
+
+
+@pytest.fixture(scope="session")
+def reference_dir(project_root) -> Path:
+    """Path to reference/ directory."""
+    return project_root / "reference"
+
+
+@pytest.fixture(scope="session")
+def genres_dir(project_root) -> Path:
+    """Path to genres/ directory."""
+    return project_root / "genres"
+
+
+@pytest.fixture(scope="session")
+def config_dir(project_root) -> Path:
+    """Path to config/ directory."""
+    return project_root / "config"
+
+
+@pytest.fixture(scope="session")
+def all_skill_dirs(skills_dir) -> list:
+    """List of all skill directory paths."""
+    if not skills_dir.exists():
+        return []
+    return sorted(
+        d for d in skills_dir.iterdir()
+        if d.is_dir() and not d.name.startswith('.')
+    )
+
+
+@pytest.fixture(scope="session")
+def all_skill_frontmatter(all_skill_dirs) -> Dict[str, Dict[str, Any]]:
+    """Dict of skill_name -> parsed frontmatter for all skills."""
+    skills = {}
+    for skill_dir in all_skill_dirs:
+        skill_md = skill_dir / "SKILL.md"
+        if not skill_md.exists():
+            skills[skill_dir.name] = {'_error': 'Missing SKILL.md'}
+            continue
+
+        content = skill_md.read_text(encoding="utf-8")
+        frontmatter = parse_frontmatter(content)
+
+        if not frontmatter and not content.startswith('---'):
+            frontmatter = {'_error': 'No frontmatter (missing opening ---)'}
+        elif not frontmatter and content.startswith('---'):
+            frontmatter = {'_error': 'No frontmatter (missing closing ---)'}
+
+        frontmatter['_path'] = str(skill_md)
+        frontmatter['_content'] = content
+        skills[skill_dir.name] = frontmatter
+
+    return skills
+
+
+@pytest.fixture(scope="session")
+def claude_md_content(project_root) -> str:
+    """Contents of CLAUDE.md."""
+    claude_file = project_root / "CLAUDE.md"
+    if claude_file.exists():
+        return claude_file.read_text(encoding="utf-8")
+    return ""
+
+
+# ---------------------------------------------------------------------------
+# Audio fixtures — see tests/fixtures/audio/__init__.py for generators
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture
+def vocal_wav(tmp_path):
+    """Formant-shaped vocal with sibilant bursts."""
+    data, rate = make_vocal()
+    return write_wav(str(tmp_path / "vocal.wav"), data, rate)
+
+
+@pytest.fixture
+def drums_wav(tmp_path):
+    """Sharp transients with exponential decay."""
+    data, rate = make_drums()
+    return write_wav(str(tmp_path / "drums.wav"), data, rate)
+
+
+@pytest.fixture
+def bass_wav(tmp_path):
+    """80 Hz fundamental + harmonics."""
+    data, rate = make_bass()
+    return write_wav(str(tmp_path / "bass.wav"), data, rate)
+
+
+@pytest.fixture
+def full_mix_wav(tmp_path):
+    """Layered vocal + drums + bass mix."""
+    data, rate = make_full_mix()
+    return write_wav(str(tmp_path / "full_mix.wav"), data, rate)
+
+
+@pytest.fixture
+def clipping_wav(tmp_path):
+    """Hard-clipped signal (should fail QC)."""
+    data, rate = make_clipping()
+    return write_wav(str(tmp_path / "clipping.wav"), data, rate)
+
+
+@pytest.fixture
+def phase_problem_wav(tmp_path):
+    """Phase-inverted stereo (should fail mono compat)."""
+    data, rate = make_phase_problem()
+    return write_wav(str(tmp_path / "phase_problem.wav"), data, rate)
+
+
+@pytest.fixture
+def bright_wav(tmp_path):
+    """Excessive high-frequency energy (should trigger tinniness)."""
+    data, rate = make_bright()
+    return write_wav(str(tmp_path / "bright.wav"), data, rate)
+
+
+@pytest.fixture
+def noisy_wav(tmp_path):
+    """Signal with elevated noise floor."""
+    data, rate = make_noisy()
+    return write_wav(str(tmp_path / "noisy.wav"), data, rate)
+
+
+@pytest.fixture
+def clicks_and_pops_wav(tmp_path):
+    """Tonal bed + musical transients + injected single-sample spikes."""
+    data, rate = make_clicks_and_pops()
+    return write_wav(str(tmp_path / "clicks_and_pops.wav"), data, rate)
+
+
+@pytest.fixture
+def silent_gaps_wav(tmp_path):
+    """2s audio + 1s silent gap + 2s audio (should fail silence QC)."""
+    data, rate = make_silent_gaps()
+    return write_wav(str(tmp_path / "silent_gaps.wav"), data, rate)
+
+
+@pytest.fixture
+def phase_partial_wav(tmp_path):
+    """90-degree phase shift on R channel — partial cancellation in mono."""
+    data, rate = make_phase_partial()
+    return write_wav(str(tmp_path / "phase_partial.wav"), data, rate)
+
+
+@pytest.fixture
+def stem_dir(tmp_path):
+    """Directory with per-stem WAV files for mixing tests."""
+    stems = tmp_path / "stems" / "01-test-track"
+    stems.mkdir(parents=True)
+
+    for name, generator in [
+        ("vocals", make_vocal),
+        ("drums", make_drums),
+        ("bass", make_bass),
+    ]:
+        data, rate = generator(duration=1.5)
+        write_wav(str(stems / f"{name}.wav"), data, rate)
+
+    return str(stems)

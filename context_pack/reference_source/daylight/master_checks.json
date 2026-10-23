@@ -1,0 +1,45 @@
+{
+  "selected_take": "take_01_24102601",
+  "native": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/music/daylight_20261024/takes/take_01_24102601/7b2b194a-fe3e-d80d-8738-15f86cd58124.wav",
+  "duration_seconds": 132.0,
+  "sample_rate": 48000,
+  "channels": 2,
+  "finite": true,
+  "clipped_samples": 0,
+  "first_pass": {
+    "input_i": "-15.06",
+    "input_tp": "-1.45",
+    "input_lra": "11.30",
+    "input_thresh": "-25.74",
+    "output_i": "-13.90",
+    "output_tp": "-1.50",
+    "output_lra": "10.30",
+    "output_thresh": "-24.45",
+    "normalization_type": "dynamic",
+    "target_offset": "-2.10"
+  },
+  "master": {
+    "input_i": "-15.03",
+    "input_tp": "-1.50",
+    "input_lra": "11.30",
+    "input_thresh": "-25.65",
+    "output_i": "-15.97",
+    "output_tp": "-2.44",
+    "output_lra": "11.30",
+    "output_thresh": "-26.59",
+    "normalization_type": "linear",
+    "target_offset": "-0.03"
+  },
+  "decoded_mp3": {
+    "input_i": "-16.01",
+    "input_tp": "-2.46",
+    "input_lra": "11.30",
+    "input_thresh": "-26.68",
+    "output_i": "-13.90",
+    "output_tp": "-1.50",
+    "output_lra": "10.30",
+    "output_thresh": "-24.45",
+    "normalization_type": "dynamic",
+    "target_offset": "-2.10"
+  }
+}

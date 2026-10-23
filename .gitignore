@@ -1,0 +1,12 @@
+.env
+.venv/
+node_modules/
+__pycache__/
+.DS_Store
+app/frontend/dist/
+data/*
+!data/README.md
+runs/*
+!runs/README.md
+Raag_Studio_Handoff.zip
+*.partial/
