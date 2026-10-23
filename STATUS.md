@@ -1,7 +1,7 @@
 # STATUS (single source of truth for resumed sessions)
 
 state: PHASE_1_BUILD
-heartbeat_utc: 2026-10-23T21:52:21Z   # orchestrator updates this; see ORCHESTRATION.md for the lock rule
+heartbeat_utc: 2026-10-23T22:19:52Z   # orchestrator updates this; see ORCHESTRATION.md for the lock rule
 active_session: orchestrator-original
 
 Spec: context_pack/docs/PRD_v2_MVP.md (milestones M0..M7). Decisions: context_pack/docs/IMPLEMENTATION_DECISIONS.md. Rules: ORCHESTRATION.md.
@@ -14,7 +14,7 @@ Spec: context_pack/docs/PRD_v2_MVP.md (milestones M0..M7). Decisions: context_pa
 | M0 | Engine harness, preflight, measurements (GPU) | DONE (orchestrator re-ran preflight and ffprobe on all 5 takes: OK). AT-M0-08 [H] pending user. | owns app/engine/, scripts/preflight.py, context_pack/docs/ENGINE_MEASUREMENTS.md |
 | M1 | Compiler, recipes, rule planner, capabilities.json (no GPU) | DONE (orchestrator re-ran 119 tests: pass). AT-M1-10 [H] pending user (context_pack/docs/M1_CAPTION_COMPARISON.md). | owns app/backend/{compiler,planner,plan_schema,capabilities}*, app/recipes/, app/tests/test_m1*, fixtures; creates app/.venv |
 | M2 | Backend vertical slice (db, queue, worker, API, export) | DONE (orchestrator re-ran 321 tests: pass; ffprobe of 3 real takes OK; no stray processes). AT-M2-11 [H] pending user. API shapes: app/backend/API_NOTES.md | |
-| M3 | No-build frontend, MVP-1 complete | TODO (needs M2) | |
+| M3 | No-build frontend, MVP-1 complete | IN PROGRESS (Sonnet agent launched; also does planner wiring + 1 real take; owns app/web, report -> reports/M3.md) | |
 | M4 | Providers (claude -p / API OFF by default), chips/patch | DONE standalone (274 tests pass incl. M1; orchestrator re-ran). Wiring into API pending after M2: use backend.providers.registry get_planner(settings)/plan_with_status() in a thread. AT-M4-07 [H] pending user. | mechanical tests only |
 | M5 | Lyrics duration fit, language labels, disk meter, prune, taste ledger | PARTIAL (lyric_fit + labels in M1; prune/disk meter in M2; taste ledger endpoint + UI in M3) | |
 | M6 | Experiment harness only (no GPU arms) | DONE harness (E3/E4/E5 flagged engine_ready:false: run_takes only does text2music). No GPU arms run. | |
