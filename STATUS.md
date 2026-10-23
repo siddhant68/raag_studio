@@ -1,7 +1,7 @@
 # STATUS (single source of truth for resumed sessions)
 
 state: PHASE_1_BUILD
-heartbeat_utc: 2026-10-23T21:29:30Z   # orchestrator updates this; see ORCHESTRATION.md for the lock rule
+heartbeat_utc: 2026-10-23T21:52:21Z   # orchestrator updates this; see ORCHESTRATION.md for the lock rule
 active_session: orchestrator-original
 
 Spec: context_pack/docs/PRD_v2_MVP.md (milestones M0..M7). Decisions: context_pack/docs/IMPLEMENTATION_DECISIONS.md. Rules: ORCHESTRATION.md.
@@ -12,12 +12,12 @@ Spec: context_pack/docs/PRD_v2_MVP.md (milestones M0..M7). Decisions: context_pa
 | --- | --- | --- | --- |
 | Phase 0 | PRD critique + v2 plan + decisions | DONE | reviewed by orchestrator |
 | M0 | Engine harness, preflight, measurements (GPU) | DONE (orchestrator re-ran preflight and ffprobe on all 5 takes: OK). AT-M0-08 [H] pending user. | owns app/engine/, scripts/preflight.py, context_pack/docs/ENGINE_MEASUREMENTS.md |
-| M1 | Compiler, recipes, rule planner, capabilities.json (no GPU) | IN PROGRESS (Sonnet sub-agent launched 21:29Z; report -> reports/M1.md) | owns app/backend/{compiler,planner,plan_schema,capabilities}*, app/recipes/, app/tests/test_m1*, fixtures; creates app/.venv |
-| M2 | Backend vertical slice (db, queue, worker, API, export) | TODO (needs M0+M1) | |
+| M1 | Compiler, recipes, rule planner, capabilities.json (no GPU) | DONE (orchestrator re-ran 119 tests: pass). AT-M1-10 [H] pending user (context_pack/docs/M1_CAPTION_COMPARISON.md). | owns app/backend/{compiler,planner,plan_schema,capabilities}*, app/recipes/, app/tests/test_m1*, fixtures; creates app/.venv |
+| M2 | Backend vertical slice (db, queue, worker, API, export) | IN PROGRESS (Sonnet agent launched; report -> reports/M2.md; uses 3 render takes) | |
 | M3 | No-build frontend, MVP-1 complete | TODO (needs M2) | |
-| M4 | Providers (claude -p / API OFF by default), chips/patch | TODO | mechanical tests only |
-| M5 | Lyrics duration fit, language labels, disk meter, prune, taste ledger | TODO | |
-| M6 | Experiment harness only (no GPU arms) | TODO | |
+| M4 | Providers (claude -p / API OFF by default), chips/patch | IN PROGRESS (agent shared with M6 harness; report -> reports/M4_M6.md; owns app/backend/providers, app/experiments) | mechanical tests only |
+| M5 | Lyrics duration fit, language labels, disk meter, prune, taste ledger | PARTIAL (lyric_fit + labels in M1; prune/disk meter in M2; taste ledger endpoint + UI in M3) | |
+| M6 | Experiment harness only (no GPU arms) | IN PROGRESS (same agent as M4) | |
 | Final | README run instructions, MORNING_SUMMARY.md | TODO | |
 
 ## Render ledger (cap ~12 takes; planned 9, see IMPLEMENTATION_DECISIONS.md)
@@ -59,6 +59,11 @@ Takes used: 5 of ~12. Remaining planned: M2-04 (3), M3 e2e (1), 3 spare.
 ## Blockers
 
 - (none)
+
+## Next after M2 lands
+
+1. Verify M2 myself (pytest, one curl round trip with RAAG_ENGINE=fake; check ledger entry for real 3 takes).
+2. Wire M4 registry into settings/planning path (small follow-up agent), then M3 frontend agent (owns app/web/), then integration test with ONE real take (last planned render), then README + MORNING_SUMMARY.md.
 
 ## Resume hint
 
