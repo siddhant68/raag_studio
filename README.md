@@ -54,22 +54,45 @@ archiving. Do not delete existing approved source projects.
 
 ## Run
 
-The backend (M2) is a FastAPI app on `127.0.0.1:8477`; renders run ACE-Step turbo in a subprocess
-(shared ACE python, MPS only, never CPU). Use only the app venv for the API:
-`app/.venv` (Python 3.12; packages pinned in `app/requirements.txt`).
+Raag Studio is a FastAPI app plus a hand-written web page, both on `127.0.0.1:8477` (this computer only). Renders
+run ACE-Step turbo in a subprocess (shared ACE python, Apple GPU only, never CPU). The API uses its own venv,
+`app/.venv` (Python 3.12; packages in `app/requirements.txt`). The page has no build step and makes no outside requests.
 
 ```sh
-python3 scripts/preflight.py        # MPS, disk >= 5 GiB, :8388 video queue idle, weights, ffmpeg
+python3 scripts/preflight.py        # GPU, disk >= 5 GiB, :8388 video queue idle, weights, ffmpeg
 scripts/start.sh                    # background server; pid in data/server.pid, log in data/server.log
-curl -s http://127.0.0.1:8477/api/system
-scripts/stop.sh                     # kills only the pid in data/server.pid (checks it is uvicorn)
+open http://127.0.0.1:8477/         # the app: Create, Library, Settings
+scripts/stop.sh                     # stops only the pid in data/server.pid (checks it is uvicorn)
 ```
+
+Using it: type a feeling or a little story and press **Create** (everything else is optional and stays Auto).
+You get a plan (what leads, what supports, with a reason for each choice), a progress strip, then your takes.
+Play them, mark favourites, say what to change with the quick chips, ask for **Another take**, and save MP3 or WAV.
+The Library keeps every song with its plan, seeds and the exact request that was sent.
 
 - Data: `data/raag.db` (SQLite, WAL). Audio: `runs/<song_id>/<round_id>/` (native FLAC, MP3 previews,
   request.json, result.json, engine.log), exports in `runs/<song_id>/exports/`. Override with
   `RAAG_DATA_DIR`, `RAAG_RUNS_DIR`, `RAAG_PORT`.
 - One render at a time; a render waits (reason `mac_busy`) while the ComfyUI video queue on `:8388` is busy.
-- API reference for the web UI: `app/backend/API_NOTES.md`. M2 report: `reports/M2.md`.
-- Tests (CPU only, fake engine, temp dirs; no real render): `app/.venv/bin/python -m pytest app/tests -q`.
-  The fake engine (`RAAG_ENGINE=fake`, `app/engine/fake_engine.py`) exists only for tests, labels every response
-  `engine:"fake"`, and is never a real render. Without that variable the app always uses the real engine.
+- API reference: `app/backend/API_NOTES.md` (plus the read-only `/api/recipes`, `/api/capabilities`, `/api/instruments`,
+  `/api/ledger`, `/api/storage` added in M3, see `reports/M3.md`). Reports: `reports/M2.md`, `reports/M3.md`.
+- Tests (CPU only, fake engine, temp dirs; no real render): `app/.venv/bin/python -m pytest app/tests -q`
+  (includes the UI logic tests, which run `node --test`). The fake engine (`RAAG_ENGINE=fake`) exists only for tests,
+  labels every response `engine:"fake"`, shows a red banner in the page, and is never a real render. Without that
+  variable the app always uses the real engine.
+
+### Status and limits (honest list)
+
+- The planner is **Basic rules** (keywords on this computer). It cannot read stories or analogies and cannot write
+  lyrics. Smart planners (`claude -p`, Anthropic API) are built but **off**; the web page cannot turn them on. Turning
+  one on is a deliberate `PUT /api/settings` that you make yourself, and it sends your brief text to Anthropic.
+- **Nothing has been listened to by a human yet.** "Technical checks passed" only means the file is not broken
+  (right length, not silent, not clipped). Whether it is good music is your verdict.
+- Hindi singing is **experimental** and English sung words are **untested**. Exact lyrics are sent unchanged; only
+  listening tells you whether they were sung correctly. Instrumental and wordless voices come first.
+- Controls are creative direction, not guarantees: no per-instrument volume, no exact singer counts, no melody lock.
+- "More like this", cover, repaint and similar edits are not offered (experiments).
+- Disk is tight (about 30 GiB free). Clean-up of old full-quality audio is manual and asks first; nothing is deleted
+  automatically.
+- The page was checked by hand in Chrome and the built-in browser at desktop and phone widths; there is no automated
+  browser test, and keyboard use and screen readers were not tested with real assistive tools.

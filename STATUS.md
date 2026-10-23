@@ -1,8 +1,8 @@
 # STATUS (single source of truth for resumed sessions)
 
-state: PHASE_1_BUILD
-heartbeat_utc: 2026-10-23T22:19:52Z   # orchestrator updates this; see ORCHESTRATION.md for the lock rule
-active_session: orchestrator-original
+state: COMPLETE
+heartbeat_utc: 2026-10-23T22:48:35Z   # orchestrator updates this; see ORCHESTRATION.md for the lock rule
+active_session: idle
 
 Spec: context_pack/docs/PRD_v2_MVP.md (milestones M0..M7). Decisions: context_pack/docs/IMPLEMENTATION_DECISIONS.md. Rules: ORCHESTRATION.md.
 
@@ -14,11 +14,11 @@ Spec: context_pack/docs/PRD_v2_MVP.md (milestones M0..M7). Decisions: context_pa
 | M0 | Engine harness, preflight, measurements (GPU) | DONE (orchestrator re-ran preflight and ffprobe on all 5 takes: OK). AT-M0-08 [H] pending user. | owns app/engine/, scripts/preflight.py, context_pack/docs/ENGINE_MEASUREMENTS.md |
 | M1 | Compiler, recipes, rule planner, capabilities.json (no GPU) | DONE (orchestrator re-ran 119 tests: pass). AT-M1-10 [H] pending user (context_pack/docs/M1_CAPTION_COMPARISON.md). | owns app/backend/{compiler,planner,plan_schema,capabilities}*, app/recipes/, app/tests/test_m1*, fixtures; creates app/.venv |
 | M2 | Backend vertical slice (db, queue, worker, API, export) | DONE (orchestrator re-ran 321 tests: pass; ffprobe of 3 real takes OK; no stray processes). AT-M2-11 [H] pending user. API shapes: app/backend/API_NOTES.md | |
-| M3 | No-build frontend, MVP-1 complete | IN PROGRESS (Sonnet agent launched; also does planner wiring + 1 real take; owns app/web, report -> reports/M3.md) | |
+| M3 | No-build frontend, MVP-1 complete | DONE (orchestrator re-ran 344 tests; screenshots reviewed; start/stop smoke test OK). AT-M3-08 [H] pending user. | |
 | M4 | Providers (claude -p / API OFF by default), chips/patch | DONE standalone (274 tests pass incl. M1; orchestrator re-ran). Wiring into API pending after M2: use backend.providers.registry get_planner(settings)/plan_with_status() in a thread. AT-M4-07 [H] pending user. | mechanical tests only |
 | M5 | Lyrics duration fit, language labels, disk meter, prune, taste ledger | PARTIAL (lyric_fit + labels in M1; prune/disk meter in M2; taste ledger endpoint + UI in M3) | |
 | M6 | Experiment harness only (no GPU arms) | DONE harness (E3/E4/E5 flagged engine_ready:false: run_takes only does text2music). No GPU arms run. | |
-| Final | README run instructions, MORNING_SUMMARY.md | TODO | |
+| Final | README run instructions, MORNING_SUMMARY.md | DONE (README Run + MORNING_SUMMARY.md; scheduled task disabled) | |
 
 ## Render ledger (cap ~12 takes; planned 9, see IMPLEMENTATION_DECISIONS.md)
 
@@ -30,7 +30,9 @@ Spec: context_pack/docs/PRD_v2_MVP.md (milestones M0..M7). Decisions: context_pa
 
 | 6-8 | 22:11Z | M2 real create via API: 'A peaceful bansuri at dawn, gentle tabla, no singing, about two minutes', takes=3, 120 s | 41189026, 229770212, 150836115 | runs/01M5ND3X5WAH9EPB3H8YCP86PW/01M5ND3X5WAH9EPB3H8YCP86PY/ | technical OK (take 3: silence warning 5.08%); not listened; 68.5 s total |
 
-Takes used: 8 of ~12. Remaining: M3 e2e (1 take), 3 spare.
+| 9 | 22:43Z | M3 real create: 'the quiet right after rain, someone playing flute on the ghat, tabla barely there', takes=1, 90 s | 1512086130 | runs/01M5NEXVHMGTJWE12SE7N4FCNB/ | technical OK; not listened |
+
+Takes used: 9 of ~12.
 
 ## Environment notes
 

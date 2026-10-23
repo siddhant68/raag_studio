@@ -19,7 +19,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
-from . import exports
+from . import exports, ui_api
 from .db import Database
 from .events import EventBus, format_sse
 from .jobs import Service
@@ -121,9 +121,10 @@ def create_app(config: Optional[Config] = None) -> FastAPI:
         return JSON({"error": {"code": code, "message": str(exc.detail)}}, status_code=exc.status_code)
 
     # ------------------------------------------------------------------ songs
+    # Planning may call a smart provider (up to 60 s); run it in a worker thread so the event loop (SSE) never blocks.
     @app.post("/api/songs", status_code=202)
-    def create_song(body: CreateSongBody, idempotency_key: Optional[str] = Header(default=None)):
-        return svc.create_song(body, idempotency_key)
+    async def create_song(body: CreateSongBody, idempotency_key: Optional[str] = Header(default=None)):
+        return await asyncio.to_thread(svc.create_song, body, idempotency_key)
 
     @app.get("/api/songs")
     def list_songs():
@@ -134,12 +135,12 @@ def create_app(config: Optional[Config] = None) -> FastAPI:
         return svc.song_detail(song_id)
 
     @app.post("/api/songs/{song_id}/plan")
-    def plan_only(song_id: str, body: Optional[PlanOnlyBody] = None):
-        return svc.plan_only(song_id, body or PlanOnlyBody())
+    async def plan_only(song_id: str, body: Optional[PlanOnlyBody] = None):
+        return await asyncio.to_thread(svc.plan_only, song_id, body or PlanOnlyBody())
 
     @app.post("/api/songs/{song_id}/rounds", status_code=202)
-    def create_round(song_id: str, body: RoundBody, idempotency_key: Optional[str] = Header(default=None)):
-        return svc.create_round(song_id, body, idempotency_key)
+    async def create_round(song_id: str, body: RoundBody, idempotency_key: Optional[str] = Header(default=None)):
+        return await asyncio.to_thread(svc.create_round, song_id, body, idempotency_key)
 
     @app.patch("/api/songs/{song_id}/controls")
     def patch_controls(song_id: str, body: dict[str, Any]):
@@ -225,11 +226,33 @@ def create_app(config: Optional[Config] = None) -> FastAPI:
 
     @app.get("/api/settings")
     def get_settings():
-        return {"settings": svc.settings()}
+        return {"settings": svc.settings(), "planner": ui_api.planner_view(svc)}
 
     @app.put("/api/settings")
     def put_settings(body: dict[str, Any]):
-        return {"settings": svc.update_settings(body)}
+        settings = svc.update_settings(body)
+        return {"settings": settings, "planner": ui_api.planner_view(svc)}
+
+    # ------------------------------------------------------------------ read-only data for the web UI (M3)
+    @app.get("/api/recipes")
+    def recipes():
+        return ui_api.recipes_view()
+
+    @app.get("/api/capabilities")
+    def capabilities_endpoint():
+        return ui_api.capabilities_view()
+
+    @app.get("/api/instruments")
+    def instruments():
+        return ui_api.instruments_view()
+
+    @app.get("/api/ledger")
+    def ledger():
+        return ui_api.ledger_view(svc)
+
+    @app.get("/api/storage")
+    def storage_info():
+        return ui_api.storage_view(svc)
 
     @app.post("/api/admin/prune")
     def prune(body: PruneBody):

@@ -40,6 +40,22 @@ EXPERIMENTAL_MESSAGE = ("Variation, cover and repaint are experimental and not e
                         "Use 'another' (new takes from the same plan) or 'refine' (updated plan).")
 
 
+def planner_status(planner: Planner, outcome: Any = None) -> dict:
+    """Facts about who produced a plan, stored on the card so the UI can show a badge and a fallback banner.
+
+    `outcome` is a registry PlanOutcome / PatchOutcome (smart providers wrap Basic in a FallbackPlanner). A plain
+    BasicPlanner has no outcome object: it never falls back.
+    """
+    if outcome is None:
+        return {"fallback": False, "reason": None, "code": None, "banner": None,
+                "requested_provider": planner.name, "requested_label": planner.label,
+                "used_provider": planner.name, "used_label": planner.label}
+    return {"fallback": bool(outcome.fallback), "reason": outcome.fallback_reason, "code": outcome.fallback_code,
+            "banner": outcome.banner, "requested_provider": outcome.requested_provider,
+            "requested_label": outcome.requested_label, "used_provider": outcome.used_provider,
+            "used_label": outcome.used_label}
+
+
 def sha256_text(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
@@ -263,7 +279,7 @@ class Service:
     @staticmethod
     def _card_summary(card: dict) -> dict:
         keys = ("provider", "provider_label", "is_llm", "fallback", "matched", "notes", "unsupported",
-                "needs_user_input", "applied", "changes", "notice")
+                "needs_user_input", "applied", "changes", "notice", "planner_status")
         return {k: card[k] for k in keys if k in card}
 
     def _plan_from_body(self, brief: str, controls: Controls, supplied: Optional[dict]) -> tuple[Plan, dict, str]:
@@ -277,12 +293,18 @@ class Service:
                           "is_llm": False, "notes": ["Plan supplied by you; no planner was run."]}, "user_edit"
         planner = self.planner()
         try:
-            card = planner.plan(brief, controls)
+            if hasattr(planner, "plan_with_status"):          # smart provider wrapped in the Basic fallback
+                outcome = planner.plan_with_status(brief, controls)
+                card, status = outcome.card, planner_status(planner, outcome)
+            else:                                              # plain Basic planner: cannot fall back
+                card, status = planner.plan(brief, controls), planner_status(planner)
         except PlannerError as exc:
             raise ApiError(409, exc.code, exc.message)
         except ValueError as exc:
             raise ApiError(422, "invalid_brief", str(exc))
-        return card.plan, card.model_dump(mode="json"), PLAN_SOURCE.get(card.provider, "rules")
+        card_dict = card.model_dump(mode="json")
+        card_dict["planner_status"] = status
+        return card.plan, card_dict, PLAN_SOURCE.get(card.provider, "rules")
 
     # ------------------------------------------------------------------ songs
     def create_song(self, body: CreateSongBody, header_key: Optional[str]) -> dict:
@@ -413,15 +435,23 @@ class Service:
             if not text:
                 raise ApiError(422, "nothing_to_change", "Say what to change or tap a chip.")
             request_text = text
+            planner = self.planner()
             try:
-                patch = self.planner().patch(plan, text)
+                if hasattr(planner, "patch_with_status"):
+                    outcome = planner.patch_with_status(plan, text)
+                    patch, pstatus = outcome.patch, planner_status(planner, outcome)
+                else:
+                    patch, pstatus = planner.patch(plan, text), planner_status(planner)
             except PlannerError as exc:
                 raise ApiError(409, exc.code, exc.message)
             if not patch.applied:
                 raise ApiError(422, "nothing_to_change", "That change could not be applied.",
                                unsupported=patch.unsupported)
             plan = patch.plan
-            new_plan_row = (patch.model_dump(mode="json"), PLAN_SOURCE.get(patch.provider, "rules"))
+            patch_card = patch.model_dump(mode="json")
+            patch_card["planner_status"] = pstatus
+            patch_card.setdefault("provider_label", pstatus["used_label"])
+            new_plan_row = (patch_card, PLAN_SOURCE.get(patch.provider, "rules"))
         takes = body.takes or plan.takes
         compiled, request, _ = self._compile(plan, takes)
         self._admit()
