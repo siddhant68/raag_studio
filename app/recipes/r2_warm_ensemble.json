@@ -1,0 +1,177 @@
+{
+  "id": "r2_warm_ensemble",
+  "display_name": "Warm ensemble with wordless choir",
+  "status": "accepted",
+  "experimental": false,
+  "hidden_until_rated": false,
+  "source_piece": "Daylight",
+  "evidence": "context_pack/recipes/daylight/request.json",
+  "caveat": "A starting point Siddhant liked, not a proven rule.",
+  "plan_defaults": {
+    "voice_mode": "wordless",
+    "voices": {
+      "singer": "auto",
+      "background": "choir",
+      "language": "en"
+    },
+    "lyrics": {
+      "policy": "none",
+      "text": null,
+      "topic": null
+    },
+    "avoid": [],
+    "flavour": null,
+    "fullness": "balanced",
+    "takes": 3,
+    "duration_s": 132,
+    "lead": {
+      "instrument": "piano",
+      "style": "singing"
+    },
+    "supports": [
+      {
+        "instrument": "bansuri",
+        "role": "answer",
+        "presence": "gentle"
+      },
+      {
+        "instrument": "acoustic_guitar",
+        "role": "harmony",
+        "presence": "gentle"
+      },
+      {
+        "instrument": "strings",
+        "role": "harmony",
+        "presence": "gentle"
+      },
+      {
+        "instrument": "bass",
+        "role": "harmony",
+        "presence": "gentle"
+      },
+      {
+        "instrument": "light_percussion",
+        "role": "rhythm",
+        "presence": "sparse"
+      }
+    ],
+    "feeling": [
+      "tender",
+      "warm"
+    ],
+    "pace": {
+      "bucket": "medium",
+      "bpm": 88
+    },
+    "key": "D major",
+    "arc": "quiet_middle_bloom"
+  },
+  "finish": {
+    "fade_in_duration": 0.08,
+    "fade_out_duration": 3.0
+  },
+  "slots": {
+    "opening": {
+      "default": "Melodious cinematic acoustic pop led by {lead_ens}{with_supports}{voice_with}."
+    },
+    "melody": "Memorable recurring melody{feeling_clause}.",
+    "lead_phrases": {
+      "piano": "a lyrical piano hook"
+    },
+    "tone": {
+      "piano": "Warm piano tone"
+    },
+    "techniques": {
+      "piano": {
+        "singing": [
+          "smooth chord changes",
+          "expressive sustained notes",
+          "breathing phrases"
+        ]
+      }
+    },
+    "support_phrases": {
+      "bansuri": "warm flute",
+      "acoustic_guitar": "fingerpicked guitar",
+      "strings": "legato strings",
+      "bass": "round bass",
+      "light_percussion": "soft groove"
+    },
+    "tail": {
+      "wordless": "Wordless voices only."
+    },
+    "arcs": {
+      "quiet_middle_bloom": [
+        {
+          "text": "tender opening"
+        },
+        {
+          "text": "flowing verse"
+        },
+        {
+          "text": "soaring choir chorus"
+        },
+        {
+          "text": "quiet bridge"
+        },
+        {
+          "text": "richer final chorus"
+        }
+      ]
+    }
+  },
+  "lyric_skeleton": {
+    "sections": [
+      {
+        "tag": "Intro",
+        "body": "instrumental"
+      },
+      {
+        "tag": "Verse",
+        "body": "instrumental"
+      },
+      {
+        "tag": "Chorus",
+        "body": "vowels",
+        "block": "chorus"
+      },
+      {
+        "tag": "Verse",
+        "body": "instrumental"
+      },
+      {
+        "tag": "Bridge",
+        "body": "instrumental"
+      },
+      {
+        "tag": "Chorus",
+        "body": "vowels",
+        "block": "chorus"
+      },
+      {
+        "tag": "Final Chorus",
+        "body": "vowels",
+        "block": "final_chorus"
+      },
+      {
+        "tag": "Outro",
+        "body": "instrumental"
+      }
+    ],
+    "vowel_blocks": {
+      "chorus": [
+        "Ooh, ooh, aah",
+        "Ooh, aah, ooh",
+        "Aah, aah, ooh",
+        "Ooh, ooh, aah"
+      ],
+      "final_chorus": [
+        "Ooh, ooh, aah",
+        "Aah, aah, ooh",
+        "Ooh, aah, ooh",
+        "Ooh, ooh, aah"
+      ]
+    }
+  },
+  "example_lyrics": null
+}

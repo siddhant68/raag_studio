@@ -1,0 +1,107 @@
+{
+  "id": "r3_hindi_ballad",
+  "display_name": "Hindi ballad",
+  "status": "accepted_with_caveat",
+  "experimental": true,
+  "hidden_until_rated": false,
+  "source_piece": "Thodi Der Aur",
+  "evidence": "context_pack/recipes/thodi/request.json",
+  "caveat": "Hindi singing: one heard take, diction imperfect. Experimental.",
+  "plan_defaults": {
+    "voice_mode": "sung",
+    "voices": {
+      "singer": "male",
+      "background": "none",
+      "language": "hi"
+    },
+    "lyrics": {
+      "policy": "write",
+      "text": null,
+      "topic": null
+    },
+    "avoid": [],
+    "flavour": null,
+    "fullness": "balanced",
+    "takes": 3,
+    "duration_s": 152,
+    "lead": {
+      "instrument": "acoustic_guitar",
+      "style": "simple"
+    },
+    "supports": [
+      {
+        "instrument": "piano",
+        "role": "harmony",
+        "presence": "gentle"
+      },
+      {
+        "instrument": "bass",
+        "role": "harmony",
+        "presence": "gentle"
+      },
+      {
+        "instrument": "light_percussion",
+        "role": "rhythm",
+        "presence": "gentle"
+      },
+      {
+        "instrument": "strings",
+        "role": "harmony",
+        "presence": "gentle"
+      }
+    ],
+    "feeling": [
+      "tender",
+      "yearning"
+    ],
+    "pace": {
+      "bucket": "slow",
+      "bpm": 76
+    },
+    "key": "D major",
+    "arc": "slow_build"
+  },
+  "finish": {
+    "fade_in_duration": 0.04,
+    "fade_out_duration": 2.0
+  },
+  "slots": {
+    "opening": {
+      "sung": "{Language} romantic acoustic pop ballad: {voice_phrase} over {ensemble}."
+    },
+    "melody": "Soaring memorable chorus melody{feeling_clause}, with sunset warmth.",
+    "lead_phrases": {
+      "acoustic_guitar": "fingerpicked steel-string guitar"
+    },
+    "support_phrases": {
+      "piano": "felt piano",
+      "bass": "round bass",
+      "light_percussion": "brushed drums",
+      "strings": "swelling strings"
+    },
+    "tail": {
+      "sung": "Vocal forward, natural phrasing, polished spacious mix, no rap."
+    },
+    "arcs": {
+      "slow_build": [
+        {
+          "text": "brief intro"
+        },
+        {
+          "text": "rising verse into a wide chorus"
+        },
+        {
+          "text": "quiet bridge"
+        },
+        {
+          "text": "fuller final chorus"
+        },
+        {
+          "text": "gentle outro"
+        }
+      ]
+    }
+  },
+  "lyric_skeleton": null,
+  "example_lyrics": "[Intro]\n\n[Verse 1]\nतेरी चाय का आधा प्याला\nअब भी मेज़ पे रखा है\nखिड़की से जो धूप गिरी थी\nतेरे बालों में उलझी है\n\n[Pre-Chorus]\nजाने क्या है तेरी हँसी में\nकहने को कुछ याद नहीं\n\n[Chorus]\nथोड़ी देर और, यहीं ठहर\nतेरे होने से घर लगे ये शहर\nजो कहना था, वो कह न सका\nमेरी आँखों में देख ज़रा\nथोड़ी देर और, यहीं ठहर\n\n[Verse 2]\nतेरी उँगली मेरी हथेली पर\nचुपके से कुछ लिखती है\nबाहर सारी सड़कें भागें\nमेरी दुनिया बैठी है\n\n[Bridge]\nकल की बातें कल कर लेंगे\nआज तो बस ये शाम रहे\nकप में थोड़ी चाय बची है\nहोंठों पर तेरा नाम रहे\n\n[Chorus]\nथोड़ी देर और, यहीं ठहर\nतेरे होने से घर लगे ये शहर\nजो कहना था, वो कह न सका\nदिल की बात सुन ले ज़रा\nथोड़ी देर और, यहीं ठहर\n\n[Outro]\nथोड़ी देर और\nयहीं ठहर"
+}

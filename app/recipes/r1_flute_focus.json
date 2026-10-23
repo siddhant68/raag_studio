@@ -1,0 +1,97 @@
+{
+  "id": "r1_flute_focus",
+  "display_name": "Flute focus",
+  "status": "accepted",
+  "experimental": false,
+  "hidden_until_rated": false,
+  "source_piece": "Yamuna at Dawn",
+  "evidence": "context_pack/recipes/yamuna/request.json",
+  "caveat": "A starting point Siddhant liked, not a proven rule.",
+  "plan_defaults": {
+    "voice_mode": "instrumental",
+    "voices": {
+      "singer": "auto",
+      "background": "none",
+      "language": "en"
+    },
+    "lyrics": {
+      "policy": "none",
+      "text": null,
+      "topic": null
+    },
+    "avoid": [],
+    "flavour": null,
+    "fullness": "balanced",
+    "takes": 3,
+    "duration_s": 168,
+    "lead": {
+      "instrument": "bansuri",
+      "style": "singing"
+    },
+    "supports": [
+      {
+        "instrument": "tabla",
+        "role": "rhythm",
+        "presence": "gentle"
+      },
+      {
+        "instrument": "tanpura",
+        "role": "drone",
+        "presence": "gentle"
+      },
+      {
+        "instrument": "santoor",
+        "role": "texture",
+        "presence": "sparse"
+      }
+    ],
+    "feeling": [
+      "tender",
+      "luminous"
+    ],
+    "pace": {
+      "bucket": "medium",
+      "bpm": 82
+    },
+    "key": "D major",
+    "arc": "quiet_middle_bloom"
+  },
+  "finish": {
+    "fade_in_duration": 0.08,
+    "fade_out_duration": 3.0
+  },
+  "slots": {
+    "opening": {
+      "instrumental": "Instrumental {lead_solo}{with_supports}."
+    },
+    "melody": "Beautiful recurring melody{feeling_clause}.",
+    "support_phrases": {
+      "tanpura": {
+        "gentle": "tanpura drone"
+      }
+    },
+    "arcs_lead_only": "bansuri",
+    "arcs": {
+      "quiet_middle_bloom": [
+        {
+          "text": "spacious solo opening"
+        },
+        {
+          "text": "flowing tabla pulse",
+          "needs": "tabla"
+        },
+        {
+          "text": "exposed flute interlude"
+        },
+        {
+          "text": "intricate flute improvisation"
+        },
+        {
+          "text": "peaceful cadence"
+        }
+      ]
+    }
+  },
+  "lyric_skeleton": null,
+  "example_lyrics": null
+}

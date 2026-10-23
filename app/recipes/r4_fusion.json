@@ -1,0 +1,125 @@
+{
+  "id": "r4_fusion",
+  "display_name": "Fusion (unrated)",
+  "status": "unrated",
+  "experimental": true,
+  "hidden_until_rated": true,
+  "source_piece": "Moonlit Raas",
+  "evidence": "context_pack/recipes/moonlit/request.json",
+  "caveat": "Unrated: do not transfer approval from the other recipes. Hidden until Siddhant rates it. Moonlit had 7 instruments (adds sitar and bass); this default keeps the 4 most defining so the caption budget holds.",
+  "plan_defaults": {
+    "voice_mode": "instrumental",
+    "voices": {
+      "singer": "auto",
+      "background": "none",
+      "language": "en"
+    },
+    "lyrics": {
+      "policy": "none",
+      "text": null,
+      "topic": null
+    },
+    "avoid": [],
+    "flavour": null,
+    "fullness": "balanced",
+    "takes": 3,
+    "duration_s": 144,
+    "lead": {
+      "instrument": "bansuri",
+      "style": "ornate"
+    },
+    "supports": [
+      {
+        "instrument": "tabla",
+        "role": "rhythm",
+        "presence": "gentle"
+      },
+      {
+        "instrument": "ghatam",
+        "role": "rhythm",
+        "presence": "gentle"
+      },
+      {
+        "instrument": "santoor",
+        "role": "texture",
+        "presence": "gentle"
+      },
+      {
+        "instrument": "violin",
+        "role": "answer",
+        "presence": "gentle"
+      }
+    ],
+    "feeling": [
+      "joyful",
+      "sparkling"
+    ],
+    "pace": {
+      "bucket": "lively",
+      "bpm": 104
+    },
+    "key": "G major",
+    "arc": "quiet_middle_bloom"
+  },
+  "finish": {
+    "fade_in_duration": 0.08,
+    "fade_out_duration": 3.0
+  },
+  "slots": {
+    "opening": {
+      "instrumental": "Joyful Indian acoustic fusion instrumental led by {lead_ens}{with_supports}."
+    },
+    "lead_priority": {
+      "instrumental": "Clear solo {lead_lower} foreground; accompaniment leaves space."
+    },
+    "melody": "Resolving into a beautiful recurring melody{feeling_clause}.",
+    "lead_phrases": {
+      "bansuri": "a virtuoso bamboo bansuri"
+    },
+    "tone": {
+      "bansuri": "Playful rhythmic flute phrasing"
+    },
+    "techniques": {
+      "bansuri": {
+        "ornate": [
+          "graceful pitch glides",
+          "sparkling fast taans and trills",
+          "octave leaps"
+        ]
+      }
+    },
+    "support_phrases": {
+      "ghatam": "ghatam groove",
+      "santoor": "nimble santoor",
+      "sitar": "plucked sitar",
+      "violin": "answering solo violin",
+      "bass": "soft round bass",
+      "tabla": "tabla"
+    },
+    "tail": {
+      "instrumental": "No vocals."
+    },
+    "arcs_lead_only": "bansuri",
+    "arcs": {
+      "quiet_middle_bloom": [
+        {
+          "text": "gentle opening"
+        },
+        {
+          "text": "dancing refrain"
+        },
+        {
+          "text": "quiet flute interlude"
+        },
+        {
+          "text": "exhilarating finale"
+        },
+        {
+          "text": "graceful cadence"
+        }
+      ]
+    }
+  },
+  "lyric_skeleton": null,
+  "example_lyrics": null
+}
