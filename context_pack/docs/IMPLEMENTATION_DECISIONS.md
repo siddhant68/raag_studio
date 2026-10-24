@@ -41,3 +41,7 @@
 
 - Tests labelled [H] (human) are never signed off by an agent; they stay "pending user" in STATUS.md.
 - GPU tests ([M-GPU]) must run from a native shell; if MPS is unavailable in the agent's sandbox, record the blocker and do not fall back to CPU.
+
+## Decision 2026-10-24 (user): choir vs instrumental wording
+
+With Voice on Auto, a deliberate Choir pick overrides "instrumental"/"no voices" wording in the brief (plan gets wordless voices, reason explains how to undo: set Voice to Instrumental). Confirmed by the user; no code change.
