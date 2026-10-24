@@ -18,13 +18,14 @@ sys.path.insert(0, str(APP))
 
 from fastapi.testclient import TestClient  # noqa: E402
 
+from backend import media  # noqa: E402
 from backend.main import create_app  # noqa: E402
 from backend.settings import Config  # noqa: E402
 
 BRIEF = "A peaceful bansuri at dawn, gentle tabla, no singing, about two minutes"
 TERMINAL = ("succeeded", "failed", "cancelled")
-FFMPEG = "/opt/homebrew/bin/ffmpeg"
-FFPROBE = "/opt/homebrew/bin/ffprobe"
+FFMPEG = media.tool("ffmpeg")      # PATH first, then /opt/homebrew/bin
+FFPROBE = media.tool("ffprobe")
 
 
 def free_port() -> int:

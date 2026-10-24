@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from test_m2_support import (client_for, create_and_wait, decodes_clean, ffprobe, loudness, make_wav)
+from test_m2_support import (FFMPEG, client_for, create_and_wait, decodes_clean, ffprobe, loudness, make_wav)
 
 from backend import media
 
@@ -198,7 +198,7 @@ def test_export_validation_and_fade_shape(tmp_path):
 
 
 def loudness_of_window(path, start, length):
-    done = subprocess.run(["/opt/homebrew/bin/ffmpeg", "-hide_banner", "-nostats", "-ss", str(start), "-t", str(length),
+    done = subprocess.run([FFMPEG, "-hide_banner", "-nostats", "-ss", str(start), "-t", str(length),
                            "-i", str(path), "-af", "volumedetect", "-f", "null", "-"], capture_output=True, text=True)
     import re
     return float(re.search(r"mean_volume: (-?[0-9.]+) dB", done.stderr).group(1)), None
@@ -227,7 +227,7 @@ def test_technical_checks_catch_breakage(tmp_path):
     assert media.technical_checks(short, 3.2)["status"] == "passed"      # within 0.25 s
 
     mono = tmp_path / "mono.wav"
-    subprocess.run(["/opt/homebrew/bin/ffmpeg", "-y", "-v", "error", "-f", "lavfi", "-i", "sine=frequency=300:duration=3",
+    subprocess.run([FFMPEG, "-y", "-v", "error", "-f", "lavfi", "-i", "sine=frequency=300:duration=3",
                     "-ar", "44100", "-ac", "1", str(mono)], check=True)
     assert set(media.technical_checks(mono, 3.0)["failures"]) == {"sample_rate", "channels"}
 

@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from test_m2_support import (BRIEF, client_for, create_and_wait, create_body, make_config, wait_job)
+from test_m2_support import (BRIEF, FFPROBE, client_for, create_and_wait, create_body, make_config, wait_job)
 
 from backend.main import create_app
 from backend.settings import Config
@@ -279,7 +279,7 @@ def test_every_response_is_labelled_fake_and_exports_stay_fake(tmp_path):
         assert download.headers["content-type"] == "audio/mpeg"
         # the file itself says so (tag survives the export)
         import subprocess
-        tags = subprocess.run(["/opt/homebrew/bin/ffprobe", "-v", "error", "-show_entries", "format_tags=comment",
+        tags = subprocess.run([FFPROBE, "-v", "error", "-show_entries", "format_tags=comment",
                                "-of", "csv=p=0", str(c.svc.storage.abs(c.svc.db.one("SELECT path FROM exports")[0]))],
                               capture_output=True, text=True).stdout
         assert "FAKE" in tags

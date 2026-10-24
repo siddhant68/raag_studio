@@ -1,9 +1,0 @@
-{
-  "model": "v2.5",
-  "duration_s": 90,
-  "variants": 1,
-  "lyrics_mode": "Custom",
-  "reference": null,
-  "finetune": null,
-  "estimated_credits": 1350
-}
