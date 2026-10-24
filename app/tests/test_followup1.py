@@ -239,3 +239,17 @@ def test_wordless_without_background_voices_is_an_adjustment():
     arr = compiler.compile(plan)["compile_report"]["arrangement"]
     bg = [a for a in arr["adjustments"] if a["field"] == "voices.background"]
     assert bg and bg[0]["requested"] == "none" and bg[0]["effective"] == "light" and "wordless" in bg[0]["reason"]
+
+
+# --------------------------------------------------------------------------- planner state shown after it is switched
+def test_planner_block_follows_the_setting_and_the_help_text_is_not_stale(tmp_path):
+    with client_for(tmp_path) as c:                       # no song is created, so no provider is ever called
+        off = c.get("/api/settings").json()["planner"]
+        assert off["write_for_me"]["enabled"] is False and "off" in off["how_to_enable"].lower()
+        r = c.put("/api/settings", json={"planner_provider": "claude_cli", "planner_smart_enabled": True})
+        assert r.status_code == 200
+        on = c.get("/api/settings").json()["planner"]
+        assert on["provider"] == "claude_cli" and on["write_for_me"] == {"enabled": True, "reason": None}
+        assert "smart planner is on" in on["how_to_enable"] and "Smart planners are off" not in on["how_to_enable"]
+        back = c.put("/api/settings", json={"planner_provider": "basic", "planner_smart_enabled": False}).json()["planner"]
+        assert back["write_for_me"]["enabled"] is False and "Smart planners are off" in back["how_to_enable"]

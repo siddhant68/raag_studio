@@ -117,3 +117,10 @@ so I changed those two expectations to `needs_user_input` includes lyrics. Basic
   lyrics control, but a beginner will likely type them in the brief. Worth a UI hint or detection (not done).
 - e15 (self-contradictory "instrumental only, with a big choir singing"): it chose a wordless choir and said so in a note, consistent with the recorded choir precedence.
 - This measures whether the plan matches the brief. It does not show the music is better. The blind Basic-versus-smart listening comparison (M4) is still the real test and is unrun.
+
+## Addendum 3: "Write for me" looked off after the planner was switched on
+Cause: the page reads the planner state once when it loads, so a tab opened before `PUT /api/settings` kept the Basic state (the server already
+reported `write_for_me.enabled: true`). Reproduced in the built-in browser on an isolated server. Fix: the page reloads settings on window focus
+and when the tab becomes visible, and repaints the Create form if the planner or "Write for me" changed (`main.js`, `create.js`). The settings
+help text was also stale ("Smart planners are off" while one was on); it now follows the setting. Verified in the browser (disabled -> enabled
+after a focus event, badge updated) and by a test; suite 400 passing.

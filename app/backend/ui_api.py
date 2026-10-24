@@ -107,7 +107,11 @@ def planner_view(svc) -> dict[str, Any]:
             "smart_enabled": settings["planner_smart_enabled"],
             "providers": provider_status(settings),
             "write_for_me": lyrics_status(svc.planner()),
-            "how_to_enable": ("Smart planners are off. They stay off until you change the setting yourself "
+            "how_to_enable": ("A smart planner is on. Your brief text and control choices go to Anthropic. This page never "
+                              "changes it; to switch it off use PUT /api/settings with planner_provider=basic and "
+                              "planner_smart_enabled=false."
+                              if effective != "basic" else
+                              "Smart planners are off. They stay off until you change the setting yourself "
                               "(PUT /api/settings with planner_provider and planner_smart_enabled=true). "
                               "This page never turns them on. Enabling one sends only your brief text and "
                               "control choices to Anthropic.")}

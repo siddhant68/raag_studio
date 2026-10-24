@@ -32,6 +32,8 @@ export function enter() {
 }
 
 export function currentState() { return state; }
+/** Settings were reloaded (the planner can be switched outside the page): repaint what depends on it. */
+export function onPlannerChanged() { paint(); }
 
 // ------------------------------------------------------------------------------------------ builders
 function buildRecipeCards() {

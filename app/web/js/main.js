@@ -67,6 +67,14 @@ async function boot() {
   await route();
   refreshSystem();
   setInterval(() => { if (!document.hidden) refreshSystem(); }, 15000);
+  // The planner is switched outside the page (PUT /api/settings): pick that up without a manual reload.
+  const syncPlanner = async () => {
+    const before = JSON.stringify(store.planner && [store.planner.provider, store.planner.write_for_me]);
+    try { await loadSettings(); } catch (err) { return; }
+    if (before !== JSON.stringify(store.planner && [store.planner.provider, store.planner.write_for_me])) create.onPlannerChanged();
+  };
+  window.addEventListener("focus", syncPlanner);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) syncPlanner(); });
   announce("Raag Studio is ready.");
 }
 
