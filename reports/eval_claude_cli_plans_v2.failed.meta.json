@@ -1,0 +1,98 @@
+{
+  "e01": {
+    "fallback": true,
+    "reason": "Claude (local CLI) exited with code 1: Failed to authenticate: OAuth session expired and could not be refreshed"
+  },
+  "e02": {
+    "fallback": true,
+    "reason": "Claude (local CLI) exited with code 1: Failed to authenticate: OAuth session expired and could not be refreshed"
+  },
+  "e03": {
+    "fallback": true,
+    "reason": "Claude (local CLI) exited with code 1: Failed to authenticate: OAuth session expired and could not be refreshed"
+  },
+  "e04": {
+    "fallback": true,
+    "reason": "Claude (local CLI) exited with code 1: Failed to authenticate: OAuth session expired and could not be refreshed"
+  },
+  "e05": {
+    "fallback": true,
+    "reason": "Claude (local CLI) exited with code 1: Failed to authenticate: OAuth session expired and could not be refreshed"
+  },
+  "e06": {
+    "fallback": true,
+    "reason": "Claude (local CLI) exited with code 1: Failed to authenticate: OAuth session expired and could not be refreshed"
+  },
+  "e07": {
+    "fallback": true,
+    "reason": "Claude (local CLI) exited with code 1: Failed to authenticate: OAuth session expired and could not be refreshed"
+  },
+  "e08": {
+    "fallback": true,
+    "reason": "Claude (local CLI) exited with code 1: Failed to authenticate: OAuth session expired and could not be refreshed"
+  },
+  "e09": {
+    "fallback": true,
+    "reason": "Claude (local CLI) exited with code 1: Failed to authenticate: OAuth session expired and could not be refreshed"
+  },
+  "e10": {
+    "fallback": true,
+    "reason": "Claude (local CLI) exited with code 1: Failed to authenticate: OAuth session expired and could not be refreshed"
+  },
+  "e11": {
+    "fallback": true,
+    "reason": "Claude (local CLI) exited with code 1: Failed to authenticate: OAuth session expired and could not be refreshed"
+  },
+  "e12": {
+    "fallback": true,
+    "reason": "Claude (local CLI) exited with code 1: Failed to authenticate: OAuth session expired and could not be refreshed"
+  },
+  "e13": {
+    "fallback": true,
+    "reason": "Claude (local CLI) exited with code 1: Failed to authenticate: OAuth session expired and could not be refreshed"
+  },
+  "e14": {
+    "fallback": true,
+    "reason": "Claude (local CLI) exited with code 1: Failed to authenticate: OAuth session expired and could not be refreshed"
+  },
+  "e15": {
+    "fallback": true,
+    "reason": "Claude (local CLI) exited with code 1: Failed to authenticate: OAuth session expired and could not be refreshed"
+  },
+  "e16": {
+    "fallback": true,
+    "reason": "Claude (local CLI) exited with code 1: Failed to authenticate: OAuth session expired and could not be refreshed"
+  },
+  "e17": {
+    "fallback": true,
+    "reason": "Claude (local CLI) exited with code 1: Failed to authenticate: OAuth session expired and could not be refreshed"
+  },
+  "e18": {
+    "fallback": true,
+    "reason": "Claude (local CLI) exited with code 1: Failed to authenticate: OAuth session expired and could not be refreshed"
+  },
+  "e19": {
+    "fallback": true,
+    "reason": "Claude (local CLI) exited with code 1: Failed to authenticate: OAuth session expired and could not be refreshed"
+  },
+  "e20": {
+    "fallback": true,
+    "reason": "Claude (local CLI) exited with code 1: Failed to authenticate: OAuth session expired and could not be refreshed"
+  },
+  "e21": {
+    "fallback": true,
+    "reason": "Claude (local CLI) exited with code 1: Failed to authenticate: OAuth session expired and could not be refreshed"
+  },
+  "e22": {
+    "fallback": true,
+    "reason": "Claude (local CLI) exited with code 1: Failed to authenticate: OAuth session expired and could not be refreshed"
+  },
+  "e23": {
+    "fallback": true,
+    "reason": "Claude (local CLI) exited with code 1: Failed to authenticate: OAuth session expired and could not be refreshed"
+  },
+  "e24": {
+    "fallback": true,
+    "reason": "Claude (local CLI) exited with code 1: Failed to authenticate: OAuth session expired and could not be refreshed"
+  }
+}

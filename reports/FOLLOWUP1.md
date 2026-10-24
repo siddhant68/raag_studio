@@ -87,3 +87,33 @@ handle credentials. Then re-run, from `app/`:
 `.venv/bin/python -m experiments.eval_planner --live claude_cli --record ../reports/eval_claude_cli_plans_v2.json --json ../reports/eval_claude_cli_v2.json`
 (about 24 calls, up to 60 s each). To use it in the app itself, Settings must be switched on by you (`PUT /api/settings`
 `planner_provider: claude_cli`, `planner_smart_enabled: true`), which stays your action per IMPLEMENTATION_DECISIONS.md.
+
+## Addendum 2: live Claude CLI result (2026-10-24, after re-login)
+24 calls, 0 fallbacks (`reports/eval_claude_cli_plans_v2.meta.json`), every plan validated and compiled. Plans: `reports/eval_claude_cli_plans_v2.json`;
+score: `reports/eval_claude_cli_v2.json`. Only my 24 evaluation briefs were sent. App Settings were not changed (still Basic). Nothing rendered.
+
+| | Basic | Claude CLI |
+| --- | --- | --- |
+| briefs fully right (of 23 scored) | 11 | **21** |
+| field accuracy (61 checks) | 75% | **95%** |
+| lead/support | 2/5 | 5/5 |
+| exclusions | 1/3 | 3/3 |
+| progression | 1/6 | 4/6 |
+| duration | 2/4 | 4/4 |
+| voice | 3/5 | 5/5 |
+| entrances | 0/1 | 0/1 |
+
+**Expectation corrected after seeing results (disclosed):** for e17 and e19 (sung briefs with no lyrics supplied) I had expected the
+Basic-specific flag `write_lyrics unsupported`. The smart planner correctly set lyrics policy "write" with no text and `needs_user_input: ["lyrics"]`,
+so I changed those two expectations to `needs_user_input` includes lyrics. Basic is unchanged at 11/23 either way; Claude was 19/23 before and is 21/23 after.
+
+**Remaining Claude misses:**
+- e09 ("awkward at first, then warm"): chose `slow_build` where I expected `quiet_middle_bloom`. My expectation is debatable; not a clear error.
+- e11 ("only flute, tabla enters after the first minute"): the plan format has no entrance-timing field, so the planner could only write a note
+  ("begins as solo bansuri") and gave tabla `gentle`. This is a limit of the plan schema, not of the planner. Whether the music honours it is untested.
+
+**Observations that matter for the product:**
+- Words typed inside the brief as lyrics (e20) are not treated as exact lyrics: the planner asked for lyrics and said it ignored them. By design exact words go in the
+  lyrics control, but a beginner will likely type them in the brief. Worth a UI hint or detection (not done).
+- e15 (self-contradictory "instrumental only, with a big choir singing"): it chose a wordless choir and said so in a note, consistent with the recorded choir precedence.
+- This measures whether the plan matches the brief. It does not show the music is better. The blind Basic-versus-smart listening comparison (M4) is still the real test and is unrun.

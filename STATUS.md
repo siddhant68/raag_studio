@@ -86,5 +86,5 @@ round's plan, recipe reset, `/plan` null refusal, sung-Choir wording, independen
 Next: (1) human listening on the existing unreviewed app takes (paths in the handoff, section 7), (2) the user's decision on enabling a
 smart planner (still OFF; see IMPLEMENTATION_DECISIONS.md), then record smart-planner plans and score them with
 `python -m experiments.eval_planner --plans ...` from `app/`, (3) only then spend the remaining ~3 takes on a listening trial.
-Smart-planner evaluation: authorised by the user 2026-10-24 but blocked: the local `claude` OAuth session has expired (all 24 live calls fell back).
-User must re-login (`claude` then `/login`) and re-run the command in reports/FOLLOWUP1.md (Addendum). App Settings still Basic.
+Smart-planner evaluation: authorised by the user and run 2026-10-24 (Claude CLI, 24 calls, 0 fallbacks): 21/23 briefs fully right vs Basic 11/23
+(reports/FOLLOWUP1.md Addendum 2). App Settings still Basic; enabling it in the app is the user's action. Blind listening comparison not yet run.

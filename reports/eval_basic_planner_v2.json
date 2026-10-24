@@ -338,12 +338,12 @@
         "voice_mode": true,
         "language": true,
         "singer": true,
-        "unsupported_kinds": true
+        "needs_user_input": true
       },
       "failed": [],
       "compiles": true,
       "compile_note": "asks for lyrics (expected for sung)",
-      "note": null
+      "note": "expectation changed after the first smart-planner run: 'write_lyrics unsupported' is Basic-specific; any planner must leave the user with no lyrics to sing, i.e. needs_user_input includes lyrics"
     },
     {
       "id": "e18",
@@ -375,12 +375,12 @@
         "language": true,
         "singer": true,
         "supports_include": true,
-        "unsupported_kinds": true
+        "needs_user_input": true
       },
       "failed": [],
       "compiles": true,
       "compile_note": "asks for lyrics (expected for sung)",
-      "note": null
+      "note": "expectation changed after the first smart-planner run: 'write_lyrics unsupported' is Basic-specific; any planner must leave the user with no lyrics to sing, i.e. needs_user_input includes lyrics"
     },
     {
       "id": "e20",
