@@ -24,8 +24,8 @@ from . import compiler
 from .db import Database, dumps, loads, now_iso, ulid
 from .events import EventBus
 from .plan_schema import BUCKET_DEFAULT_BPM, Plan, bucket_for_bpm
-from .planner_base import Controls, Planner, PlannerError
-from .planner_rules import BasicPlanner
+from .planner_base import Controls, Planner, PlannerError, plan_changes
+from .planner_rules import BasicPlanner, choir_pick_of
 from .schemas import ApiError, CreateSongBody, PlanOnlyBody, RoundBody
 from .settings import DEFAULT_SETTINGS, Config, validate_settings
 from .storage import Storage
@@ -157,6 +157,53 @@ def apply_controls(plan: Plan, ctl: dict[str, Any]) -> Plan:
         return Plan.model_validate(d)
     except ValidationError as exc:
         raise ApiError(422, "invalid_plan", _first_error(exc), fields=_errors(exc))
+
+
+def adopt_auto(d: dict, auto: dict, key: str, merged: dict) -> None:
+    """Put the Auto value of control `key` into plan dict `d`, with Auto's provenance (no longer 'you').
+
+    `auto` is the plan the planner makes for the brief and the controls that are STILL set (`merged`), so a
+    field that another remaining control also feeds (pace bucket + BPM, lead + style) keeps that control's value.
+    Fields not belonging to `key` (other controls, chip changes) are left alone.
+    """
+    prov, auto_prov = d["provenance"], auto["provenance"]
+
+    def take(field: str) -> None:
+        if field in auto_prov:
+            prov[field] = auto_prov[field]
+        else:
+            prov.pop(field, None)
+
+    if key == "voice":
+        for f in ("voice_mode", "lyrics", "voices"):
+            d[f] = auto[f]
+            take(f)
+    elif key == "lead":
+        d["lead"]["instrument"] = auto["lead"]["instrument"]
+        take("lead")
+        if "instruments" in merged:                       # supports are still yours: only drop the new lead from them
+            d["supports"] = [s for s in d["supports"] if s["instrument"] != d["lead"]["instrument"]]
+        else:
+            d["supports"] = auto["supports"]
+            take("supports")
+    elif key == "instruments":
+        d["supports"] = [s for s in auto["supports"] if s["instrument"] != d["lead"]["instrument"]]
+        take("supports")
+    elif key == "style":
+        d["lead"]["style"] = auto["lead"]["style"]
+        take("lead")
+    elif key in ("pace", "bpm"):
+        d["pace"] = auto["pace"]
+        take("pace")
+    elif key in ("singer", "background", "language"):
+        d["voices"][key] = auto["voices"][key]
+        take("voices")
+    elif key in ("duration_s", "takes", "recipe_id", "feeling", "avoid", "fullness", "arc", "key"):
+        d[key] = auto[key]
+        take(key)
+    elif key == "lyrics_text":
+        d["lyrics"] = auto["lyrics"]
+        take("lyrics")
 
 
 class Service:
@@ -374,11 +421,21 @@ class Service:
                 "card": self._card_summary(card), "compile_report": report, "compile_error": compile_error}
 
     def patch_controls(self, song_id: str, patch: dict[str, Any]) -> dict:
-        """PATCH /controls: apply user edits to the latest plan as a NEW revision (no render)."""
+        """PATCH /controls: apply user edits to the latest plan as a NEW revision (no render).
+
+        A value sets the control (provenance 'you'). null puts the control back to Auto: the field is recomputed the
+        way the planner would have chosen it for the brief and the controls that are still set, with that
+        recomputation's provenance, so the plan, the stored controls and the next round all agree.
+        """
         self._song(song_id)
+        unknown = sorted(k for k in patch if k not in Controls.model_fields)
+        if unknown:
+            raise ApiError(422, "invalid_controls", f"{unknown[0]}: not a control", fields=[
+                {"loc": [k], "msg": "Extra inputs are not permitted"} for k in unknown])
         prev = self.latest_plan(song_id)
         prev_controls = loads(prev["controls_json"], {})
         merged = dict(prev_controls)
+        resets = [k for k, v in patch.items() if v is None]
         for key, value in patch.items():
             if value is None:
                 merged.pop(key, None)                        # null = back to Auto
@@ -386,8 +443,26 @@ class Service:
                 merged[key] = value
         controls = make_controls(merged)                     # validates every field
         changed = {k: v for k, v in patch.items() if v is not None}
-        plan = apply_controls(Plan.model_validate(loads(prev["card_json"])["plan"]),
-                              make_controls(changed).model_dump(exclude_none=True))
+        old_plan = Plan.model_validate(loads(prev["card_json"])["plan"])
+        plan = apply_controls(old_plan, make_controls(changed).model_dump(exclude_none=True))
+        # Choir is voices: adding or removing it as lead/support moves an Auto voice mode (never an explicit one).
+        choir_moved = "voice" not in merged and choir_pick_of(Controls.model_validate(prev_controls)) != choir_pick_of(controls)
+        if resets or choir_moved:
+            auto = self._plan_from_body(old_plan.brief, controls, None)[0].model_dump(mode="json")
+            d = plan.model_dump(mode="json")
+            for key in resets:
+                adopt_auto(d, auto, key, merged)
+            if choir_moved:
+                adopt_auto(d, auto, "voice", merged)
+            try:
+                plan = Plan.model_validate(d)
+            except ValidationError as exc:
+                raise ApiError(422, "invalid_plan", _first_error(exc), fields=_errors(exc))
+        def source_of(field: str) -> str:                    # 'you' only while the field is still a choice of yours
+            p = plan.provenance.get(field.split(".")[0])
+            return "you" if p and p.source == "you" else "rule"
+
+        changes = plan_changes(old_plan, plan, source_of)
         try:
             report = compiler.compile(plan)["compile_report"]
         except compiler.CompileError as exc:
@@ -395,13 +470,16 @@ class Service:
             note = {"code": exc.code, "message": exc.message}
         else:
             note = None
+        notes = ["Controls edited by you."]
+        if resets:
+            notes.append("Back to Auto: " + ", ".join(resets) + ".")
         card = {"plan": plan.model_dump(mode="json"), "provider": "user", "provider_label": "Your edits",
-                "is_llm": False, "changes": sorted(changed), "notes": ["Controls edited by you."]}
+                "is_llm": False, "changes": changes, "notes": notes}
         with self.db.tx() as c:
             rev = c.execute("SELECT COALESCE(MAX(rev),0)+1 FROM plans WHERE song_id=?", (song_id,)).fetchone()[0]
             plan_id = self._insert_plan(c, song_id, rev, "user_edit", card, controls.model_dump(exclude_none=True),
                                         plan, plan.brief)
-        return {"song_id": song_id, "plan_id": plan_id, "plan_rev": rev, "plan": card["plan"],
+        return {"song_id": song_id, "plan_id": plan_id, "plan_rev": rev, "plan": card["plan"], "changes": changes,
                 "compile_report": report, "compile_error": note}
 
     # ------------------------------------------------------------------ rounds
@@ -413,14 +491,15 @@ class Service:
         if replay:
             return replay
         song = self._song(song_id)
-        prev = self.latest_plan(song_id)
-        prev_card = loads(prev["card_json"])
-        plan = Plan.model_validate(prev_card["plan"])
-        if body.from_take:
-            owner = self.db.one("SELECT r.song_id FROM takes t JOIN rounds r ON r.id=t.round_id WHERE t.id=?",
-                                (body.from_take,))
+        prev = self.latest_plan(song_id)                    # base plan: the newest revision ...
+        if body.from_take:                                  # ... unless a take is named: then THAT take's plan
+            owner = self.db.one("SELECT r.song_id, r.plan_id FROM takes t JOIN rounds r ON r.id=t.round_id "
+                                "WHERE t.id=?", (body.from_take,))
             if not owner or owner["song_id"] != song_id:
                 raise ApiError(404, "take_not_found", "from_take is not a take of this song.")
+            prev = self.db.one("SELECT * FROM plans WHERE id=?", (owner["plan_id"],))
+        prev_card = loads(prev["card_json"])
+        plan = Plan.model_validate(prev_card["plan"])
         new_plan_row: Optional[tuple] = None
         request_text = body.request_text
         if body.kind == "refine":

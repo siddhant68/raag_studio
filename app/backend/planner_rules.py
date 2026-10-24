@@ -15,7 +15,7 @@ from typing import Any, Optional
 
 from . import compiler, copyright_policy
 from .plan_schema import BUCKET_DEFAULT_BPM, INSTRUMENT_IDS, Plan, bucket_for_bpm
-from .planner_base import (BriefCard, Controls, LyricsDraft, Planner, PlanPatch, UnsupportedByPlanner)
+from .planner_base import (BriefCard, Controls, LyricsDraft, Planner, PlanPatch, UnsupportedByPlanner, change_entry)
 
 # --------------------------------------------------------------------------- vocabulary
 INSTRUMENT_ALIASES: dict[str, list[str]] = {
@@ -43,7 +43,9 @@ MELODIC = ["bansuri", "sitar", "santoor", "violin", "cello", "piano", "acoustic_
 INDIAN_LEADS = {"bansuri", "sitar", "santoor", "tabla", "ghatam", "tanpura", "harmonium"}
 ROLE = {"bansuri": "answer", "tabla": "rhythm", "tanpura": "drone", "santoor": "texture", "sitar": "texture",
         "ghatam": "rhythm", "violin": "answer", "cello": "harmony", "strings": "harmony", "piano": "harmony",
-        "acoustic_guitar": "harmony", "bass": "harmony", "light_percussion": "rhythm", "harmonium": "drone"}
+        "acoustic_guitar": "harmony", "bass": "harmony", "light_percussion": "rhythm", "harmonium": "drone",
+        "choir": "harmony"}
+assert set(ROLE) == set(INSTRUMENT_IDS)
 
 STRONG_INSTRUMENTAL = [
     r"\binstrumental\b", r"\bno\s+(?:vocals?|voices?|words|lyrics)\b",
@@ -103,6 +105,19 @@ NUM_WORDS = {"one": 1, "a": 1, "an": 1, "two": 2, "three": 3, "four": 4, "ek": 1
              "chaar": 4, "एक": 1, "दो": 2, "तीन": 3, "चार": 4, "dedh": 1.5, "डेढ़": 1.5, "डेढ": 1.5, "dhai": 2.5,
              "ढाई": 2.5, "half": 0.5, "five": 5, "paanch": 5, "पाँच": 5, "पांच": 5}
 MIN_S, MAX_S = 10, 240
+
+
+def choir_pick_of(ctl: Controls) -> Optional[str]:
+    """'lead' or 'support' when the user picked choir in the instrument controls, else None."""
+    if ctl.lead == "choir":
+        return "lead"
+    if ctl.instruments and "choir" in ctl.instruments:
+        return "support"
+    return None
+
+
+def choir_pick_text(pick: str) -> str:
+    return "the lead" if pick == "lead" else "a supporting sound"
 
 
 # --------------------------------------------------------------------------- text helpers
@@ -187,6 +202,7 @@ class BasicPlanner(Planner):
             notes.append(u["message"])
 
         # --- voice
+        choir_pick = choir_pick_of(ctl)
         mode, voice_why = self._voice(text, ctl, matched)
         # --- instruments
         mentions, avoid = self._instruments(text, matched)
@@ -240,7 +256,10 @@ class BasicPlanner(Planner):
         # arc / fullness / style
         self._arc_fullness_style(data, put, ctl, text, matched)
         # voices
-        self._voices(data, put, ctl, mode, text, choir_in_brief, notes)
+        self._voices(data, put, ctl, mode, text, choir_in_brief, choir_pick, notes)
+        if choir_pick and mode == "instrumental":
+            notes.append(f"You picked choir as {choir_pick_text(choir_pick)} but chose Instrumental, so the voices are "
+                         "left out and the piece stays instrumental. Change Voice to Wordless voices to hear the choir.")
         # lyrics policy
         needs: list[str] = []
         if mode == "sung":
@@ -294,6 +313,13 @@ class BasicPlanner(Planner):
             h = _find_any(text, pats)
             return h[0][2] if h else None
         strong, weak, wl, sg = first(STRONG_INSTRUMENTAL), first(WEAK_INSTRUMENTAL), first(WORDLESS), first(SUNG)
+        pick = choir_pick_of(ctl)
+        if pick and not (sg and not (strong or weak)):
+            # Choir is voices, not an instrument: picking it with Voice on Auto means wordless voices (PRD 5.2).
+            why = f"you picked choir as {choir_pick_text(pick)}, and a choir is voices, so I added wordless voices"
+            if strong or weak:
+                why += f" (your brief said '{strong or weak}'; set Voice to Instrumental to drop the choir)"
+            return "wordless", why
         if strong:
             matched.append(strong)
             return "instrumental", f"you wrote '{strong}'"
@@ -391,12 +417,14 @@ class BasicPlanner(Planner):
         else:
             order, src, why = [], "recipe", f"{rec['display_name']} default"
         if src == "recipe":
+            # the lead never doubles as a support (a picked lead may be one of the recipe's supports)
+            data["supports"] = [s for s in data["supports"] if s["instrument"] != lead]
             return
         solo = re.search(r"\b(?:just|only|solo|alone|unaccompanied)\b", text) and not order
         sups = []
         for i in order[:3]:
             m = mentions.get(i)
-            sups.append({"instrument": i, "role": ROLE[i], "presence": m["presence"] if m else "gentle"})
+            sups.append({"instrument": i, "role": ROLE.get(i, "texture"), "presence": m["presence"] if m else "gentle"})
         if len(order) > 3:
             notes.append("I kept the first three supports you named; the rest are left out so the lead stays clear.")
         have = {s["instrument"] for s in sups} | {lead}
@@ -471,7 +499,7 @@ class BasicPlanner(Planner):
                 matched.append(h[0][2])
                 style_done = True
 
-    def _voices(self, data, put, ctl, mode, text, choir_in_brief, notes) -> None:
+    def _voices(self, data, put, ctl, mode, text, choir_in_brief, choir_pick, notes) -> None:
         v = dict(data["voices"])
         src = "recipe"
         why = "recipe default"
@@ -492,6 +520,8 @@ class BasicPlanner(Planner):
             v["background"], src, why = ctl.background, "you", "you picked background voices"
         elif re.search(r"big\s+choir|huge\s+choir|grand\s+choir|epic\s+choir|choir\s+swell", text):
             v["background"], src, why = "big", "suggested", "you asked for a big choir"
+        elif choir_pick:
+            v["background"], src, why = "choir", "suggested", f"you picked choir as {choir_pick_text(choir_pick)}"
         elif choir_in_brief:
             v["background"], src, why = "choir", "suggested", "you wrote 'choir'"
         elif re.search(r"harmon(?:y|ies)|backing\s+vocals", text):
@@ -575,7 +605,8 @@ _BG_UP = ["none", "light", "choir", "big"]
 
 
 def _change(changes: list, field: str, old: Any, new: Any, chip: str) -> None:
-    changes.append({"field": field, "from": old, "to": new, "chip": chip})
+    """One 'what changed' entry in the standard schema (see planner_base.change_entry); `chip` only names the stamp."""
+    changes.append(change_entry(field, old, new, "chip"))
 
 
 def _stamp(data: dict, field: str, chip: str) -> None:
@@ -589,8 +620,9 @@ def _less_busy(data, changes):
         _change(changes, "fullness", old, data["fullness"], "less_busy")
         _stamp(data, "fullness", "less_busy")
     if data["supports"]:
-        gone = data["supports"].pop()
-        _change(changes, "supports", gone["instrument"], None, "less_busy")
+        before = [x["instrument"] for x in data["supports"]]
+        data["supports"].pop()
+        _change(changes, "supports", before, before[:-1], "less_busy")
         _stamp(data, "supports", "less_busy")
     return "Already as spare as it gets: nothing left to remove."
 
@@ -639,10 +671,12 @@ def _tone(add: str, remove: set[str], chip: str):
 def _different_lead(data, changes):
     if not data["supports"]:
         return "There is no other instrument to promote to lead."
+    before = [x["instrument"] for x in data["supports"]]
     old_lead, new = data["lead"], data["supports"].pop(0)
     data["lead"] = {"instrument": new["instrument"], "style": old_lead["style"]}
     data["supports"].insert(0, {"instrument": old_lead["instrument"], "role": "answer", "presence": "gentle"})
     _change(changes, "lead", old_lead["instrument"], new["instrument"], "different_lead")
+    _change(changes, "supports", before, [x["instrument"] for x in data["supports"]], "different_lead")
     _stamp(data, "lead", "different_lead")
     _stamp(data, "supports", "different_lead")
     return None

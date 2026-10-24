@@ -127,6 +127,7 @@ INSTR: dict[str, dict] = {
         "ornate": ["flowing ornamented runs", "rich sustained chords"]}),
 }
 
+DEFAULT_LEAD = "bansuri"     # lead used when a choir lead has to be dropped and no other instrument is named
 PRESENCE_WORD = {"sparse": "sparse", "gentle": "gentle", "full": "rich"}
 SINGER = {"auto": "expressive lead voice", "male": "warm expressive male lead",
           "female": "warm expressive female lead", "duet": "male and female duet leads"}
@@ -325,12 +326,24 @@ def _resolve(plan: Plan, rec: Optional[dict], rep: _Report, instrumental_flag: O
     lead = plan.lead.instrument
     bg, singer, language = plan.voices.background, plan.voices.singer, plan.voices.language
 
-    def choir_conflict(detail: str) -> None:
+    def choir_conflict(detail: str, resolution: str = "voices dropped; the piece stays instrumental") -> None:
         if not any(c["kind"] == "instrumental_with_choir" for c in rep.conflicts):
-            rep.conflict("instrumental_with_choir", detail, "voices dropped; the piece stays instrumental")
+            rep.conflict("instrumental_with_choir", detail, resolution)
+
+    plan_supports = list(plan.supports)
+    if mode == "instrumental" and lead == "choir":
+        # A choir is voices: it cannot lead an instrumental piece, and "Strictly no voices" must never sit next to
+        # a choir lead. The recipe's own lead takes over (else the first real support, else bansuri), keeping the
+        # chosen playing style, and the user is told.
+        recipe_lead = ((rec or {}).get("plan_defaults", {}).get("lead") or {}).get("instrument")
+        heir = next((s.instrument for s in plan_supports if s.instrument != "choir"), None)
+        lead = recipe_lead if recipe_lead in INSTR and recipe_lead != "choir" else (heir or DEFAULT_LEAD)
+        plan_supports = [s for s in plan_supports if s.instrument != lead]
+        choir_conflict("choir was chosen as the lead of an instrumental piece",
+                       f"voices dropped; {INSTR[lead]['short']} leads instead and the piece stays instrumental")
 
     supports: list[dict] = []
-    for s in plan.supports:
+    for s in plan_supports:
         sd = s.model_dump()
         if sd["instrument"] == lead:
             rep.warnings.append(f"{lead} is already the lead; the duplicate support was ignored.")

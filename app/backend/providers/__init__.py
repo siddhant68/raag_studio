@@ -28,7 +28,7 @@ from .. import copyright_policy
 from ..plan_schema import (BUCKET_DEFAULT_BPM, BUCKET_RANGES, INSTRUMENT_IDS, Arc, Fullness, Lead, Pace, Plan,
                            Support, VoiceMode, Voices, bucket_for_bpm)
 from ..planner_base import (BriefCard, Controls, LyricsDraft, PlanPatch, Planner, PlannerInvalidOutput,
-                            PlannerTimeout, PlannerUnavailable, UnsupportedByPlanner)
+                            PlannerTimeout, PlannerUnavailable, UnsupportedByPlanner, change_entry)
 
 PROVIDER_CLAUDE_CLI = "claude_cli"
 PROVIDER_ANTHROPIC_API = "anthropic_api"
@@ -529,7 +529,18 @@ def apply_patch_draft(plan: Plan, draft: LlmPatchDraft, request_text: str, pol: 
 
     def set_field(field: str, new: Any) -> None:
         if data.get(field) != new:
-            changes.append({"field": field, "old": data.get(field), "new": new, "chip": "free_text"})
+            old = data.get(field)
+            if field == "lead":                              # standard entries carry plain ids / bpm, not sub-objects
+                if old["instrument"] != new["instrument"]:
+                    changes.append(change_entry("lead", old["instrument"], new["instrument"], "you"))
+                if old["style"] != new["style"]:
+                    changes.append(change_entry("lead.style", old["style"], new["style"], "you"))
+            elif field == "supports":
+                changes.append(change_entry(field, [x["instrument"] for x in old], [x["instrument"] for x in new], "you"))
+            elif field == "pace":
+                changes.append(change_entry(field, old["bpm"], new["bpm"], "you"))
+            else:
+                changes.append(change_entry(field, old, new, "you"))
             data[field] = new
             data["provenance"][field] = {"source": "suggested", "reason": reason}
 

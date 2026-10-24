@@ -36,6 +36,10 @@ The web UI is served from `app/web/` at `/` (a placeholder page appears only if 
 
 Only `brief` is required (blank -> 422). All other fields are optional (Auto). `controls` is an alias of `shape`.
 Passing a full `plan` skips the planner. Unknown keys and unknown instrument ids are 422.
+Choir (instrument id `choir`, lead or support) is voices: with Voice Auto it makes the piece `wordless` (provenance
+`suggested`, reason names the choir pick). With Voice explicitly `instrumental` the choir is dropped and the user is told
+(`card.notes` and a `compile_report.conflicts` entry of kind `instrumental_with_choir`; a choir lead is replaced by the
+recipe's lead for the caption). A choir never yields "Strictly no voices." next to a choir lead.
 
 ```json
 { "song_id": "01M5...", "round_id": "01M5...", "job_id": "01M5...", "plan_id": "01M5...", "plan_rev": 1,
@@ -54,8 +58,39 @@ Passing a full `plan` skips the planner. Unknown keys and unknown instrument ids
 `compile_error` is set (with `code`, `message`) instead of failing, e.g. sung words with no lyrics (`needs_user_input`).
 
 `PATCH /api/songs/{id}/controls` body = any subset of the control keys above (`null` = back to Auto) -> 200
-`{plan_id, plan_rev, plan, compile_report, compile_error}`; new revision, source `user_edit`, touched fields get
-provenance `you`. Does not render; the next round uses the latest revision.
+`{song_id, plan_id, plan_rev, plan, changes, compile_report, compile_error}`; new revision, source `user_edit`, touched
+fields get provenance `you`. Does not render; the next round uses the latest revision. Keys are the `Controls` names
+(`voice, duration_s, takes, recipe_id, lead, instruments, feeling, pace, bpm, key, fullness, arc, style, avoid, singer,
+background, language, lyrics_text`); an unknown key (also with `null`) is 422 `invalid_controls`.
+
+- **`null` resets a control to Auto.** The stored control is removed and that field of the plan is recomputed the way the
+  planner would choose it for the brief and the controls that are still set (pace bucket and BPM, lead and style, and
+  singer/background/language each feed shared plan fields, so the one still set keeps its value). Provenance becomes the
+  recomputation's (`suggested`, `recipe` or `rule`, never `you`), and the next round uses the reset value. Other fields,
+  including chip changes, are untouched.
+- **Choir is voices.** Picking choir as `lead` or in `instruments` while Voice is Auto (no `voice` control) makes the voice
+  mode `wordless` (provenance `suggested`, reason names the choir pick) with background voices `choir`; removing the pick
+  puts the voice mode back to Auto. With Voice explicitly Instrumental the choir is dropped and reported (see below).
+
+### "What changed": one entry schema
+
+Every producer of changes returns the same entries, in `card.changes` (stored with the plan, so `GET /api/songs/{id}`
+`plans[].card.changes` has them), in the refine response `card.changes`, and in the PATCH response `changes`:
+
+```json
+{ "field": "fullness", "from": "balanced", "to": "spare", "source": "chip" }
+```
+
+- `field`: a plan field, dotted for a sub-field: `voice_mode lyrics duration_s takes recipe_id lead lead.style supports
+  feeling pace key fullness arc avoid voices.singer voices.background voices.language` (`flavour` from a smart planner).
+- `from` / `to`: plain JSON values, `null` = no value (show "Auto"). `lead` is an instrument id, `supports` a list of
+  instrument ids, `pace` a BPM number, `feeling`/`avoid` lists of words; never display names.
+- `source`: `chip` (a quick-change chip), `you` (the person's own edit or typed request; a smart-planner free-text change
+  is `you`), `rule` (recomputed automatically, e.g. a reset to Auto). For PATCH it is `you` while the field's resulting
+  provenance is `you`, otherwise `rule`.
+- Producers: the Basic planner's chips, the smart planners' free-text patch, and `PATCH /controls` (a field-by-field
+  difference of the old and new plan). The plan-only endpoint reports no changes. Older stored plans may still hold
+  `{field, from, to, chip}` or a plain list of field names; `app/web/js/logic.js formatChange` reads those too.
 
 ## Rounds (more takes)
 
@@ -63,8 +98,13 @@ provenance `you`. Does not render; the next round uses the latest revision.
 
 | body | meaning |
 | --- | --- |
-| `{"kind":"another","takes":3}` | same latest plan, new random seeds |
+| `{"kind":"another","takes":3}` | same latest plan, new random seeds. With `from_take`, the plan that take was made from instead |
 | `{"kind":"refine","chips":["less_busy"],"from_take":"<take id>"}` | `chips`: `less_busy more_melodic slower livelier warmer brighter different_lead more_voices fewer_voices`; also accepts `request_text`/`patch` (text containing chip words). New plan revision + new takes; the round stores `parent_take_id`. Show `card.notice`: "These are new performances from an updated plan..." |
+
+**Base plan of a round.** Without `from_take` the base is the song's newest plan revision. With `from_take` it is the plan
+of the round that made that take (take -> round -> plan; a take of another song is 404 `take_not_found`), so refining an
+older take does not inherit later edits. The chip patch is applied to that plan, which keeps its own controls and
+provenance; the result is stored as a NEW revision numbered after the song's newest one (revisions stay monotonic).
 | `variation`, `cover`, `repaint` | **501** `experimental_not_enabled` ("... experimental and not enabled ...") |
 
 If nothing could be applied (free text the Basic planner cannot parse): 422 `nothing_to_change` with `unsupported[]`.

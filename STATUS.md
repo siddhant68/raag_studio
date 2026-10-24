@@ -72,3 +72,7 @@ Takes used: 9 of ~12.
 ## Resume hint
 
 If M0/M1 show IN PROGRESS but no sub-agent is running (new session), check reports/M0.md and reports/M1.md and the files each owns; verify with their acceptance tests, then re-dispatch only the missing parts.
+
+## Post-release bugfix round 1 (2026-10-24)
+
+Four reviewer-reported bugs (choir crash, refine from_take plan, null reset to Auto, change-entry schema) fixed with 32 regression tests; suite = 376 passing (orchestrator re-ran; reproduced choir and reset fixes via API). Report: reports/BUGFIX_REVIEW1.md. Open design calls for the user: (1) choir pick overrides 'instrumental' words in the brief when Voice is Auto; (2) explicit Instrumental + choir lead keeps the user's pick in the plan table but compiles with the recipe lead (conflict is reported).

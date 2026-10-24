@@ -3,7 +3,7 @@ import { api, ApiProblem } from "./api.js";
 import { labelFor } from "./caps.js";
 import { $, $$, h, render, clear, show, announce } from "./dom.js";
 import {
-  CHECKS_DISCLAIMER, CHIPS, REASON_TAGS, compileReportLines, formatDuration, lineageText, newIdempotencyKey, plannerNotes,
+  CHECKS_DISCLAIMER, CHIPS, REASON_TAGS, compileReportLines, formatChanges, formatDuration, lineageText, newIdempotencyKey, plannerNotes,
   planRows, progressView, provenanceInfo, summarySentence, takeLabels, techCheckSummary,
 } from "./logic.js";
 import { store, nameOf, plannerIsSmart } from "./store.js";
@@ -180,7 +180,7 @@ function renderPlan(container, planRec, report, isTop) {
   if (extra.length) kids.push(h("ul", { class: "report" }, extra.map((m) => h("li", { class: "unsupported" }, m))));
   if (card.changes && card.changes.length) {
     kids.push(h("p", { class: "help" }, "What changed in this plan:"));
-    kids.push(h("ul", { class: "report" }, card.changes.map((c) => h("li", { class: "note" }, `${(c.chip || "").replace(/_/g, " ")}: ${c.field} ${fmt(c.old)} → ${fmt(c.new)}`))));
+    kids.push(h("ul", { class: "report" }, formatChanges(card.changes, nameOf).map((c) => h("li", { class: "note" }, c.text, h("span", { class: "help" }, ` (${c.sourceLabel})`)))));
   }
   const lines = compileReportLines(report);
   kids.push(h("h3", {}, "What was sent to the music model"));
@@ -188,8 +188,6 @@ function renderPlan(container, planRec, report, isTop) {
   else kids.push(h("p", { class: "help" }, "The prompt check runs when the next takes are made."));
   render(container, ...kids);
 }
-
-function fmt(v) { return v == null ? "none" : Array.isArray(v) ? v.join(", ") : String(v); }
 
 // ---- progress strip
 function paintProgress() {

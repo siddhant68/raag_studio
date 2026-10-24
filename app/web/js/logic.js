@@ -288,6 +288,58 @@ export function planRows(plan, nameOf = (x) => x) {
   return rows;
 }
 
+// ---- "What changed" ---------------------------------------------------------------------------------------------
+// One entry schema from every backend producer: {field, from, to, source: "chip" | "you" | "rule"}.
+const CHANGE_LABEL = {
+  voice_mode: "Voice", lyrics: "Lyrics", duration_s: "Length", takes: "Versions", recipe_id: "Starting sound",
+  lead: "Lead", "lead.style": "Playing style", supports: "Supporting instruments", feeling: "Feeling", pace: "Pace",
+  key: "Key", fullness: "How full", arc: "Story of the piece", avoid: "Avoid", flavour: "Extra flavour",
+  "voices.singer": "Singer", "voices.background": "Background voices", "voices.language": "Language",
+};
+const CHANGE_SOURCE = { chip: "quick change", you: "you", rule: "automatic" };
+const CHANGE_VOICE = { instrumental: "Instrumental", wordless: "Wordless voices", sung: "Sung words" };
+const CHANGE_WORDS = {
+  voice_mode: CHANGE_VOICE, "lead.style": STYLE_TEXT, fullness: FULL_TEXT, arc: ARC_TEXT, "voices.singer": SINGER_TEXT,
+  "voices.background": BG_TEXT, lyrics: LYRICS_TEXT,
+};
+const humanId = (x) => String(x).replace(/_/g, " ");
+
+function changeValue(field, v, nameOf) {
+  if (v === null || v === undefined) return "Auto";                    // null = no explicit value = Auto
+  if (Array.isArray(v)) {
+    if (!v.length) return "none";
+    return v.map((x) => (field === "supports" ? nameOf(x) : String(x))).join(", ");
+  }
+  if (field === "lead") return nameOf(v);
+  if (field === "pace" && typeof v === "number") return `${v} BPM`;
+  if (field === "duration_s" && typeof v === "number") return formatDuration(v);
+  const words = CHANGE_WORDS[field];
+  if (words && words[v] !== undefined) return words[v];
+  if (field === "recipe_id") return String(v).replace(/^r\d+_/, "").replace(/_/g, " ");
+  return String(v);
+}
+
+/**
+ * One "what changed" entry -> {field, label, from, to, source, sourceLabel, text}. Arrays become comma lists, null is "Auto".
+ * Also reads the two older stored shapes (a plain field-name string; {old, new, chip}) so earlier plans do not show "undefined".
+ */
+export function formatChange(entry, nameOf = humanId) {
+  const e = typeof entry === "string" ? { field: entry, legacyOnlyName: true } : (entry || {});
+  const field = String(e.field || "");
+  const label = CHANGE_LABEL[field] || humanId(field);
+  const source = CHANGE_SOURCE[e.source] ? e.source : (e.chip ? "chip" : "you");
+  const sourceLabel = CHANGE_SOURCE[source];
+  if (e.legacyOnlyName) return { field, label, from: null, to: null, source, sourceLabel, text: `${label} changed` };
+  const hasFrom = "from" in e, hasTo = "to" in e;
+  const from = changeValue(field, hasFrom ? e.from : e.old, nameOf);
+  const to = changeValue(field, hasTo ? e.to : e.new, nameOf);
+  return { field, label, from, to, source, sourceLabel, text: `${label}: ${from} → ${to}` };
+}
+
+export function formatChanges(changes, nameOf = humanId) {
+  return (changes || []).map((c) => formatChange(c, nameOf));
+}
+
 export function summarySentence(plan, nameOf = (x) => x) {
   if (!plan) return "";
   const lead = plan.lead ? nameOf(plan.lead.instrument) : "an instrument";

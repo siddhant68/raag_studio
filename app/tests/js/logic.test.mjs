@@ -192,3 +192,49 @@ test("formatting helpers", () => {
   assert.match(L.describeApiError(0, null), /cannot reach/);
   assert.equal(L.describeApiError(422, { error: { message: "brief must not be blank" } }), "brief must not be blank");
 });
+
+// ---- "What changed": one entry schema {field, from, to, source: chip|you|rule} (review bug 4: it showed "none -> none")
+test("formatChange: before and after are read from from/to, never old/new", () => {
+  const c = L.formatChange({ field: "fullness", from: "balanced", to: "spare", source: "chip" });
+  assert.equal(c.label, "How full");
+  assert.equal(c.from, "Balanced");
+  assert.equal(c.to, "Spare");
+  assert.equal(c.text, "How full: Balanced → Spare");
+  assert.equal(c.sourceLabel, "quick change");
+  assert.doesNotMatch(c.text, /none|undefined|null/i);
+});
+
+test("formatChange: arrays become comma lists, instrument ids use nameOf, null is Auto", () => {
+  const nameOf = (id) => ({ tabla: "Tabla", tanpura: "Tanpura", acoustic_guitar: "Acoustic guitar" })[id] || id;
+  const a = L.formatChange({ field: "supports", from: ["tabla", "tanpura"], to: ["acoustic_guitar"], source: "you" }, nameOf);
+  assert.equal(a.text, "Supporting instruments: Tabla, Tanpura → Acoustic guitar");
+  assert.equal(L.formatChange({ field: "supports", from: ["tabla"], to: [], source: "chip" }, nameOf).to, "none");
+  const reset = L.formatChange({ field: "key", from: null, to: "D major", source: "rule" });
+  assert.equal(reset.text, "Key: Auto → D major");
+  assert.equal(reset.sourceLabel, "automatic");
+  assert.equal(L.formatChange({ field: "feeling", from: ["peaceful", "tender"], to: ["peaceful"], source: "you" }).from, "peaceful, tender");
+  assert.equal(L.formatChange({ field: "lead", from: "piano", to: "bansuri", source: "you" }, nameOf).text, "Lead: piano → bansuri");
+});
+
+test("formatChange: field labels and value words for the other fields", () => {
+  const f = (field, from, to) => L.formatChange({ field, from, to, source: "you" }).text;
+  assert.equal(f("pace", 82, 90), "Pace: 82 BPM → 90 BPM");
+  assert.equal(f("lead.style", "simple", "ornate"), "Playing style: simple and clean → ornate, lots of decoration");
+  assert.equal(f("voice_mode", "instrumental", "wordless"), "Voice: Instrumental → Wordless voices");
+  assert.equal(f("voices.background", "none", "choir"), "Background voices: None → Choir");
+  assert.equal(f("voices.singer", "auto", "female"), "Singer: Auto → Female");
+  assert.equal(f("duration_s", 150, 90), "Length: 2:30 → 1:30");
+  assert.equal(f("arc", "steady", "slow_build"), "Story of the piece: Steady → Slow build");
+  assert.equal(f("something_new", "a", "b"), "something new: a → b");
+});
+
+test("formatChange: old stored shapes still render sensibly (plain field names, old/chip keys)", () => {
+  const plain = L.formatChange("fullness");
+  assert.equal(plain.text, "How full changed");
+  assert.equal(plain.source, "you");
+  const old = L.formatChange({ field: "pace", old: 82, new: 74, chip: "slower" });
+  assert.equal(old.text, "Pace: 82 BPM → 74 BPM");
+  assert.equal(old.source, "chip");
+  assert.deepEqual(L.formatChanges(null), []);
+  assert.deepEqual(L.formatChanges([{ field: "key", from: "D major", to: "E minor", source: "you" }]).map((c) => c.text), ["Key: D major → E minor"]);
+});
