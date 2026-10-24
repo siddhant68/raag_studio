@@ -1,0 +1,133 @@
+{
+  "schema_version": "2.0",
+  "brief": "अपनी राह — Hindi male rap with a sung hook. 120 seconds, approximately 92 BPM, 4/4. Hip-hop drums, 808 bass, piano motif and subtle sarangi. Conversational rap verses about steady effort and setbacks, contrasted with a genuinely sung chorus. Hook: “धीरे सही, मैं चल रहा / अपनी कहानी लिख रहा”. Clear Hindi, internal rhymes and rhythmic variation. Spoken-style delivery belongs in the rap verses; the chorus must be melodic.",
+  "recipe_id": null,
+  "voice_mode": "sung",
+  "duration_s": 120,
+  "lead": {
+    "instrument": "piano",
+    "style": "simple"
+  },
+  "supports": [
+    {
+      "instrument": "drum_machine",
+      "role": "rhythm",
+      "presence": "gentle"
+    },
+    {
+      "instrument": "bass_808",
+      "role": "harmony",
+      "presence": "gentle"
+    },
+    {
+      "instrument": "sarangi",
+      "role": "texture",
+      "presence": "sparse"
+    }
+  ],
+  "feeling": [
+    "determined",
+    "grounded",
+    "confident"
+  ],
+  "pace": {
+    "bucket": "medium",
+    "bpm": 92
+  },
+  "key": "C minor",
+  "arc": "steady",
+  "fullness": "balanced",
+  "voices": {
+    "singer": "male",
+    "background": "none",
+    "language": "hi"
+  },
+  "lyrics": {
+    "policy": "write",
+    "text": "[Intro]\n\n[Chorus]\nधीरे सही, मैं चल रहा\nअपनी कहानी लिख रहा\nगिर के उठा, मैं ना रुका\nहर ठोकर से कुछ सीखा\n\n[Verse 1]\nपाँच बजे की लोकल पकड़ी, जेब में बस दो सौ का नोट\nकॉपी में लिखता गया मैं, हर लाइन पे खाई चोट\nटपरी की चाय, टपकती छत, भीगी डायरी साथ में\nबारिश गिरी पन्नों पे, पर स्याही रुकी ना रात में\nना सुना दस बार स्टूडियो में, मैं हर बार मुस्कुराया\nदरवाज़ा बंद था जहाँ, वहीं मैंने बीट बजाया\nमाँ की रोटी, बाबा की चुप्पी, दोनों का मैं क़र्ज़ ढो रहा\nपर कंधे झुके नहीं मेरे, बोझ में भी बीज बो रहा\n\n[Chorus]\nधीरे सही, मैं चल रहा\nअपनी कहानी लिख रहा\nगिर के उठा, मैं ना रुका\nहर ठोकर से कुछ सीखा\n\n[Verse 2]\nलैपटॉप हैंग हुआ, उड़ गए सारे बीट मेरे\nरातभर बैठा रहा, फिर नई धुन छेड़ी सवेरे\nछोटा सा शो मिला, बीस लोग, एक टूटा माइक\nपर जब मैंने शुरू किया, सबने सुना बिना कोई लाइक\nदोस्त बोले छोड़ दे ये, कोई नौकरी पकड़ ले यार\nमैं बोला दे दो मुझे बस थोड़ा सा और इंतज़ार\nआज भी किराए का कमरा, पर दीवार पे मेरे लफ़्ज़ हैं\nकल जो मुझ पे हँसे थे, आज सुनते मेरे अल्फ़ाज़ हैं\n\n[Chorus]\nधीरे सही, मैं चल रहा\nअपनी कहानी लिख रहा\nगिर के उठा, मैं ना रुका\nहर ठोकर से कुछ सीखा\n\n[Outro]",
+    "topic": "A young man raps about steady effort and setbacks in everyday detail, and sings that slowly but surely he is writing his own story."
+  },
+  "avoid": [],
+  "flavour": "conversational rap verses with internal rhymes, a genuinely sung melodic chorus, subtle sarangi",
+  "notes_for_user": [
+    "Words I understood: piano, drums, sarangi, 808, steady.",
+    "Hindi singing is experimental: one heard take, diction imperfect.",
+    "This is the Basic planner (keyword rules, not an AI). It cannot read stories or analogies."
+  ],
+  "takes": 1,
+  "genre": "hindi_hiphop",
+  "pipeline": "song",
+  "meter": "4/4",
+  "form": "rap_song",
+  "require_sections": [],
+  "provenance": {
+    "voice_mode": {
+      "source": "you",
+      "reason": "you chose the voice"
+    },
+    "voices": {
+      "source": "you",
+      "reason": "you picked the singer; language: you picked the language"
+    },
+    "lyrics": {
+      "source": "suggested",
+      "reason": "written by Claude (local CLI); hook supplied by you"
+    },
+    "avoid": {
+      "source": "recipe",
+      "reason": "Hindi ballad default"
+    },
+    "flavour": {
+      "source": "you",
+      "reason": "from the showcase brief"
+    },
+    "fullness": {
+      "source": "recipe",
+      "reason": "Hindi ballad default"
+    },
+    "takes": {
+      "source": "you",
+      "reason": "you set versions"
+    },
+    "duration_s": {
+      "source": "you",
+      "reason": "you set the length"
+    },
+    "lead": {
+      "source": "you",
+      "reason": "you picked the playing style"
+    },
+    "supports": {
+      "source": "you",
+      "reason": "from the showcase brief"
+    },
+    "feeling": {
+      "source": "you",
+      "reason": "you picked the feeling"
+    },
+    "pace": {
+      "source": "you",
+      "reason": "you set 92 BPM"
+    },
+    "key": {
+      "source": "recipe",
+      "reason": "Desi hip-hop style"
+    },
+    "arc": {
+      "source": "suggested",
+      "reason": "you wrote 'steady'"
+    },
+    "genre": {
+      "source": "you",
+      "reason": "you picked the style"
+    },
+    "meter": {
+      "source": "you",
+      "reason": "you set the meter"
+    },
+    "form": {
+      "source": "recipe",
+      "reason": "Desi hip-hop style"
+    }
+  }
+}

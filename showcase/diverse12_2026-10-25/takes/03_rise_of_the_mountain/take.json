@@ -1,0 +1,35 @@
+{
+  "take": 3,
+  "slug": "rise_of_the_mountain",
+  "title": "Rise of the mountain",
+  "seed": 965746278,
+  "engine_profile": "shift3",
+  "profile_detail": {
+    "dit": "acestep-v15-turbo",
+    "lm": null,
+    "shift": 3.0,
+    "inference_steps": 8,
+    "thinking": false,
+    "label": "Turbo, shift 3.0 (ACE-Step's recommendation for turbo)"
+  },
+  "dit": "acestep-v15-turbo",
+  "lm": null,
+  "genre": "cinematic_orchestral",
+  "form": "cinematic",
+  "requested": {
+    "duration_s": 120,
+    "bpm": 140,
+    "meter": "4/4",
+    "voice": "instrumental",
+    "singer": null,
+    "language": null
+  },
+  "prepared_at": "2026-10-24T20:22:35+00:00",
+  "app_commit": "6bbb979",
+  "render": {
+    "status": "not_rendered"
+  },
+  "listening": {
+    "verdict": "pending"
+  }
+}

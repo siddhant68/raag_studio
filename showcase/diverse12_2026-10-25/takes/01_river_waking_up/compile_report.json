@@ -1,0 +1,201 @@
+{
+  "pipeline": "song",
+  "genre": "raag_bansuri",
+  "genre_name": "Raag: bansuri at dawn",
+  "engine_profile": "shift3",
+  "engine_profile_label": "Turbo, shift 3.0 (ACE-Step's recommendation for turbo)",
+  "char_count": 496,
+  "dropped": [],
+  "warnings": [],
+  "conflicts": [],
+  "unsupported": [],
+  "notes": [],
+  "cap": 512,
+  "slots": [
+    [
+      "genre",
+      "Hindustani classical, Indian classical instrumental."
+    ],
+    [
+      "mood",
+      "Peaceful."
+    ],
+    [
+      "instruments",
+      "Expressive bansuri bamboo flute melody leads every section, with tanpura drone, sparse tabla and sparse shimmering santoor."
+    ],
+    [
+      "techniques",
+      "Expressive meend pitch slides, delicate grace notes, fluid fast runs, octave turns."
+    ],
+    [
+      "journey",
+      "Slow alaap, pulse enters jor, main theme gat, fast taans, peaceful cadence."
+    ],
+    [
+      "production",
+      "Spacious natural recording, warm hall reverb."
+    ],
+    [
+      "flavour",
+      "tabla supports the flute without crowding it, ending quietly on the opening melody."
+    ],
+    [
+      "tail",
+      "Strictly no voices."
+    ]
+  ],
+  "lyrics": {
+    "mode": "instrumental_sections",
+    "sha256": "4cb3bbe2fd1a90535beaf495dcdef54afb64b72883e184927a8527535b4d0b37",
+    "sections": 5
+  },
+  "arrangement": {
+    "requested": {
+      "lead": "bansuri",
+      "supports": [
+        "tanpura",
+        "tabla",
+        "santoor"
+      ],
+      "voice_mode": "instrumental",
+      "background": "none"
+    },
+    "effective": {
+      "lead": "bansuri",
+      "supports": [
+        "tanpura",
+        "tabla",
+        "santoor"
+      ],
+      "voice_mode": "instrumental",
+      "background": "none"
+    },
+    "adjustments": []
+  },
+  "blueprint": {
+    "form": "raag",
+    "bpm": 78,
+    "meter": "4/4",
+    "bar_s": 3.077,
+    "target_s": 120,
+    "estimated_s": 135.4,
+    "sections": [
+      {
+        "kind": "intro",
+        "name": "Alaap",
+        "tag": "Intro",
+        "lyric": false,
+        "lines": 0,
+        "bars": 8.0,
+        "seconds": 21.8,
+        "energy": 1,
+        "hint": "slow alaap",
+        "playing": [
+          "bansuri",
+          "tanpura",
+          "santoor"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "slow alaap"
+      },
+      {
+        "kind": "verse",
+        "name": "Jor",
+        "tag": "Verse",
+        "lyric": false,
+        "lines": 0,
+        "bars": 8.0,
+        "seconds": 21.8,
+        "energy": 2,
+        "hint": "pulse enters",
+        "playing": [
+          "bansuri",
+          "tanpura",
+          "santoor"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "pulse enters"
+      },
+      {
+        "kind": "chorus",
+        "name": "Gat",
+        "tag": "Chorus",
+        "lyric": false,
+        "lines": 0,
+        "bars": 16.0,
+        "seconds": 43.6,
+        "energy": 3,
+        "hint": "main theme, tabla enters",
+        "playing": [
+          "bansuri",
+          "tanpura",
+          "tabla",
+          "santoor"
+        ],
+        "entering": [
+          "tabla"
+        ],
+        "uid": null,
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "main theme"
+      },
+      {
+        "kind": "solo",
+        "name": "Taans",
+        "tag": "Solo",
+        "lyric": false,
+        "lines": 0,
+        "bars": 8.0,
+        "seconds": 21.8,
+        "energy": 4,
+        "hint": "fast taans",
+        "playing": [
+          "bansuri",
+          "tanpura",
+          "tabla",
+          "santoor"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "fast taans"
+      },
+      {
+        "kind": "outro",
+        "name": "Cadence",
+        "tag": "Outro",
+        "lyric": false,
+        "lines": 0,
+        "bars": 4.0,
+        "seconds": 10.9,
+        "energy": 2,
+        "hint": "peaceful cadence",
+        "playing": [
+          "bansuri",
+          "tanpura",
+          "santoor"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "peaceful cadence"
+      }
+    ],
+    "lyric_slots": [],
+    "dropped": [
+      "Jhala"
+    ],
+    "changes": [],
+    "fit": "ok"
+  }
+}

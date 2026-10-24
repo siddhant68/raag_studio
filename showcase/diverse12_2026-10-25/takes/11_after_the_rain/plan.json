@@ -1,0 +1,148 @@
+{
+  "schema_version": "2.0",
+  "brief": "After the Rain — English female vocal EDM. 150 seconds, approximately 126 BPM, 4/4. Four-on-the-floor kick, sidechain-style pulsing bass/pads, arpeggiated synth and bright melodic lead. Sung verse, emotional pre-chorus, chorus/build, instrumental melodic drop, breakdown and returning final drop. Hook: “After the rain, we come alive / Your hand in mine, electric skies”. The drop should develop the song’s musical identity. Keep intelligible lyrics away from the busiest passages.",
+  "recipe_id": null,
+  "voice_mode": "sung",
+  "duration_s": 150,
+  "lead": {
+    "instrument": "synth_lead",
+    "style": "singing"
+  },
+  "supports": [
+    {
+      "instrument": "drum_machine",
+      "role": "rhythm",
+      "presence": "full"
+    },
+    {
+      "instrument": "synth_bass",
+      "role": "harmony",
+      "presence": "gentle"
+    },
+    {
+      "instrument": "synth_pad",
+      "role": "texture",
+      "presence": "gentle"
+    },
+    {
+      "instrument": "arpeggiator",
+      "role": "texture",
+      "presence": "gentle"
+    }
+  ],
+  "feeling": [
+    "euphoric",
+    "emotional",
+    "uplifting"
+  ],
+  "pace": {
+    "bucket": "lively",
+    "bpm": 126
+  },
+  "key": "F minor",
+  "arc": "slow_build",
+  "fullness": "balanced",
+  "voices": {
+    "singer": "female",
+    "background": "none",
+    "language": "en"
+  },
+  "lyrics": {
+    "policy": "write",
+    "text": "[Intro]\n\n[Verse 1]\nGutters drip along the street\nPuddles shine beneath our feet\nYour collar's wet, your laugh is loud\nThe moon breaks through a broken cloud\n\n[Pre-Chorus]\nThunder fades and I can breathe\nHold me close, don't let it leave\n\n[Chorus]\nAfter the rain, we come alive\nYour hand in mine, electric skies\nPuddles hold the streetlamp's light\nWe're awake inside the night\n\n[Drop]\n\n[Breakdown]\nI counted seconds between the cracks\nNow I'm counting your heartbeat back\nLift your face, let the light pour in\nWe're starting over, let it begin\n\n[Chorus]\nAfter the rain, we come alive\nYour hand in mine, electric skies\nPuddles hold the streetlamp's light\nWe're awake inside the night\n\n[Drop]\n\n[Outro]",
+    "topic": "Two people step out after a storm and feel alive again together; the verse is intimate, the pre-chorus emotional, the chorus lifts into the drop."
+  },
+  "avoid": [],
+  "flavour": "four-on-the-floor kick, sidechain pulse, melodic instrumental drops, vocals kept out of the drops",
+  "notes_for_user": [
+    "Words I understood: bass, pads, synth, rain.",
+    "I kept the first three supports you named; the rest are left out so the lead stays clear.",
+    "English sung words are untested.",
+    "Hindi singing is experimental: one heard take, diction imperfect.",
+    "This is the Basic planner (keyword rules, not an AI). It cannot read stories or analogies."
+  ],
+  "takes": 1,
+  "genre": "edm_house",
+  "pipeline": "song",
+  "meter": "4/4",
+  "form": "edm",
+  "require_sections": [
+    "pre_chorus",
+    "chorus",
+    "bridge"
+  ],
+  "provenance": {
+    "voice_mode": {
+      "source": "you",
+      "reason": "you chose the voice"
+    },
+    "voices": {
+      "source": "you",
+      "reason": "you picked the singer; language: you picked the language"
+    },
+    "lyrics": {
+      "source": "suggested",
+      "reason": "written by Claude (local CLI); hook supplied by you"
+    },
+    "avoid": {
+      "source": "recipe",
+      "reason": "Hindi ballad default"
+    },
+    "flavour": {
+      "source": "you",
+      "reason": "from the showcase brief"
+    },
+    "fullness": {
+      "source": "recipe",
+      "reason": "Hindi ballad default"
+    },
+    "takes": {
+      "source": "you",
+      "reason": "you set versions"
+    },
+    "duration_s": {
+      "source": "you",
+      "reason": "you set the length"
+    },
+    "lead": {
+      "source": "you",
+      "reason": "you picked the playing style"
+    },
+    "supports": {
+      "source": "you",
+      "reason": "from the showcase brief"
+    },
+    "feeling": {
+      "source": "you",
+      "reason": "you picked the feeling"
+    },
+    "pace": {
+      "source": "you",
+      "reason": "you set 126 BPM"
+    },
+    "key": {
+      "source": "recipe",
+      "reason": "EDM / progressive house style"
+    },
+    "arc": {
+      "source": "recipe",
+      "reason": "Hindi ballad default"
+    },
+    "genre": {
+      "source": "you",
+      "reason": "you picked the style"
+    },
+    "meter": {
+      "source": "you",
+      "reason": "you set the meter"
+    },
+    "form": {
+      "source": "recipe",
+      "reason": "EDM / progressive house style"
+    },
+    "require_sections": {
+      "source": "you",
+      "reason": "from the showcase brief"
+    }
+  }
+}

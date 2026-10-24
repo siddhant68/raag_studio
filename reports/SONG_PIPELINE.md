@@ -46,7 +46,7 @@ flagged if you set it.
 ```sh
 cd /Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/raag-studio
 git fetch origin && git checkout claude/intelligent-knuth-6jv48e
-app/.venv/bin/python -m pytest app/tests -q -p no:cacheprovider     # 584 tests, fake engine, no render
+app/.venv/bin/python -m pytest app/tests -q -p no:cacheprovider     # 612 tests, fake engine, no render
 scripts/start.sh && open http://127.0.0.1:8477/
 ```
 
@@ -68,6 +68,26 @@ words, the Hindi chai song, a Hindi wedding dance song, an English piano ballad)
 the new pipeline with the same brief, length, words and seed, loudness-matched and labelled A/B at random. Add
 `--conditions old,new,new_shift1` to separate the prompt change from the shift change, or `new_lm` / `new_xl`
 after downloading those models.
+
+### The showcase batch: 12 briefs, one take each (you asked for these 12 renders)
+
+`app/experiments/showcase_diverse12.json` holds the twelve briefs exactly as you wrote them, and the values set from
+them: style, lead and supports, tempo, meter, length, singer, hook, theme, and any sections the brief asks for
+(`require_sections`). `prepare` was run in the cloud session. Claude, through the app's songwriter step, wrote the
+eight lyric sheets, each supplied hook kept word for word in every chorus. `showcase/diverse12_2026-10-25/` holds
+per take the brief, plan, lyrics, every Claude draft and its check, the caption, the exact engine request and seed.
+**Nothing is rendered**: the cloud session has no Mac, no GPU and no ACE-Step weights. On the Mac:
+
+```sh
+cd app
+.venv/bin/python -m experiments.showcase prepare     # re-checks requests against your ACE source; keeps the lyrics
+.venv/bin/python -m experiments.showcase render      # resource checks, asks, 12 takes one at a time, no retries
+.venv/bin/python -m experiments.showcase publish     # commits showcase/ (MP3 copies, results) and pushes this branch
+```
+
+`render` waits while ComfyUI, the app queue or another `run_takes.py` is busy, and records a failed take as
+failed. It makes -16 LUFS / -1.5 dBTP MP3 listening copies and writes `technical_summary.md` (decoding, length,
+channels, clipping, silence). Native FLACs stay in `runs/_showcase/`. It raises the render ledger by 12.
 
 ### The bigger engine (needs your OK: downloads)
 
@@ -96,9 +116,11 @@ not called by the app, and should stay out of a public release.
 
 ## Checks run here
 
-- 584 Python tests (565 after the first commit; new: `test_song_pipeline.py`, `test_listening_batch.py`,
-  `test_personal_elevenlabs.py`) and 33 JS logic tests pass. Older tests that pin the classic compiler's
+- 612 Python tests (565 after the first commit; new: `test_song_pipeline.py`, `test_listening_batch.py`,
+  `test_personal_elevenlabs.py`, `test_showcase.py`) and 33 JS logic tests pass. Older tests that pin the classic compiler's
   contract run with `RAAG_SONG_PIPELINE=0`; three spec tests were updated for control C26 and the engine endpoint.
+- The twelve showcase requests pass the same validator. The fake-engine path of `showcase render` (scratch folder
+  only) was tested end to end: the -16 LUFS copy, the technical summary, and a failed take recorded and not retried.
 - Every listening-batch request (32, across four conditions) passes `run_takes.validate_request` against the
   `GenerationParams` fields of the pinned ACE-Step source (`ca1e85fe`), cloned read-only for the check.
 - The UI was driven in Chromium against the fake engine: Style picker (38 styles in 5 groups), a raag song map,
@@ -109,14 +131,13 @@ not called by the app, and should stay out of a public release.
 
 - Nobody has heard a note of the new pipeline. Better prompts, a song map and a recurring chorus are reasons to
   expect better songs, not proof. The listening batch is the test.
-- The songwriter's prompts and checks are tested with a scripted model, not live Claude.
+- The songwriter's prompts and checks are tested with a scripted model. Live Claude wrote the eight showcase lyric
+  sheets; whether they sing well is unheard.
 - Instrumental section tags (`[Chorus - main theme]` + `[Instrumental]`) follow the accepted Daylight layout, but
   whether ACE-Step honours them for pure instrumentals is untested.
 - The syllable counter and the gender check are heuristics. They decide when to ask for a revision, never what
   the words are.
 - Duet singing, rap flow and Hindi diction remain unverified, and so does English singing in this project.
-- Push to GitHub was refused (the Claude GitHub App is not installed on the repository); the commits are on the
-  branch in the cloud session until access is fixed.
 
 ## Decisions for you
 

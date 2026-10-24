@@ -1,0 +1,147 @@
+{
+  "schema_version": "2.0",
+  "brief": "थोड़ी देर और — Hindi romantic male solo. 150 seconds, approximately 76 BPM, 4/4. Acoustic guitar, felt piano, warm bass, brushed drums and final-chorus strings. Intimate verses, a higher melodic chorus, vulnerable bridge and warmer final return. Hook: “थोड़ी देर और मेरे पास रह / जो कह न सके, वो आज कह”. Natural Devanagari Hindi, connected singing and clear consonants. Avoid spoken narration.",
+  "recipe_id": null,
+  "voice_mode": "sung",
+  "duration_s": 150,
+  "lead": {
+    "instrument": "acoustic_guitar",
+    "style": "simple"
+  },
+  "supports": [
+    {
+      "instrument": "piano",
+      "role": "harmony",
+      "presence": "gentle"
+    },
+    {
+      "instrument": "bass",
+      "role": "harmony",
+      "presence": "gentle"
+    },
+    {
+      "instrument": "brushed_drums",
+      "role": "rhythm",
+      "presence": "gentle"
+    },
+    {
+      "instrument": "strings",
+      "role": "texture",
+      "presence": "sparse"
+    }
+  ],
+  "feeling": [
+    "tender",
+    "intimate",
+    "longing"
+  ],
+  "pace": {
+    "bucket": "slow",
+    "bpm": 76
+  },
+  "key": "D major",
+  "arc": "slow_build",
+  "fullness": "balanced",
+  "voices": {
+    "singer": "male",
+    "background": "none",
+    "language": "hi"
+  },
+  "lyrics": {
+    "policy": "write",
+    "text": "[Intro]\n\n[Verse 1]\nबालकनी में चाय ठंडी हो चली है\nतेरे दुपट्टे में शाम आधी ढली है\nघड़ी की सुई से मैं डरता रहा हूँ\nकहना था कुछ, हर बार चुप रहा हूँ\n\n[Chorus]\nथोड़ी देर और मेरे पास रह\nजो कह न सके, वो आज कह\nचुप्पी की ये दीवार आज ढह\nबरसों से रुकी हर बात बह\n\n[Verse 2]\nचाबी तूने हाथ में उठा ली\nऔर मैंने चुपके से साँस दबा ली\nबाहर गली में बारिश फिर से आई\nतेरी आँखों में भी नमी सी छाई\n\n[Bridge]\nमुझे याद है पहली बार तू हँसी थी\nमैं उसी दिन से कुछ कहना चाहता था\nडर है कि कल ये हिम्मत फिर न आएगी\nतू बस हाथ थाम ले, बाकी मैं कह दूँगा\n\n[Chorus]\nथोड़ी देर और मेरे पास रह\nजो कह न सके, वो आज कह\nचुप्पी की ये दीवार आज ढह\nबरसों से रुकी हर बात बह\n\n[Outro]",
+    "topic": "A man asks the one he loves to stay a little longer, so that what neither of them could say is finally said today. Intimate verses with small everyday details, a chorus that rises, a vulnerable bridge, a warmer final return."
+  },
+  "avoid": [
+    "spoken narration"
+  ],
+  "flavour": "connected singing with clear consonants, never spoken; strings only in the final chorus",
+  "notes_for_user": [
+    "Words I understood: strings, piano, acoustic guitar, bass, brushed drums, avoid spoken narration, romantic.",
+    "I kept the first three supports you named; the rest are left out so the lead stays clear.",
+    "Hindi singing is experimental: one heard take, diction imperfect.",
+    "This is the Basic planner (keyword rules, not an AI). It cannot read stories or analogies."
+  ],
+  "takes": 1,
+  "genre": "hindi_acoustic_ballad",
+  "pipeline": "song",
+  "meter": "4/4",
+  "form": "pop_song",
+  "require_sections": [
+    "bridge"
+  ],
+  "provenance": {
+    "voice_mode": {
+      "source": "you",
+      "reason": "you chose the voice"
+    },
+    "voices": {
+      "source": "you",
+      "reason": "you picked the singer; language: you picked the language"
+    },
+    "lyrics": {
+      "source": "suggested",
+      "reason": "written by Claude (local CLI); hook supplied by you"
+    },
+    "avoid": {
+      "source": "suggested",
+      "reason": "left out of the request (the engine may still add them)"
+    },
+    "flavour": {
+      "source": "you",
+      "reason": "from the showcase brief"
+    },
+    "fullness": {
+      "source": "recipe",
+      "reason": "Hindi ballad default"
+    },
+    "takes": {
+      "source": "you",
+      "reason": "you set versions"
+    },
+    "duration_s": {
+      "source": "you",
+      "reason": "you set the length"
+    },
+    "lead": {
+      "source": "you",
+      "reason": "you picked the playing style"
+    },
+    "supports": {
+      "source": "you",
+      "reason": "from the showcase brief"
+    },
+    "feeling": {
+      "source": "you",
+      "reason": "you picked the feeling"
+    },
+    "pace": {
+      "source": "you",
+      "reason": "you set 76 BPM"
+    },
+    "key": {
+      "source": "recipe",
+      "reason": "Hindi acoustic ballad style"
+    },
+    "arc": {
+      "source": "recipe",
+      "reason": "Hindi ballad default"
+    },
+    "genre": {
+      "source": "you",
+      "reason": "you picked the style"
+    },
+    "meter": {
+      "source": "you",
+      "reason": "you set the meter"
+    },
+    "form": {
+      "source": "recipe",
+      "reason": "Hindi acoustic ballad style"
+    },
+    "require_sections": {
+      "source": "you",
+      "reason": "from the showcase brief"
+    }
+  }
+}

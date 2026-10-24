@@ -13,9 +13,16 @@ lyric check and one revision, the song compiler (ACE-Step-guide captions, tagged
 (classic / shift3 / lm / xl / xl_lm) with LM and XL support in run_takes.py, scripts/fetch_models.py, Style picker
 (C26), song map on the song page, Settings → Music engine, the old-versus-new listening batch, and a personal
 ElevenLabs script kept outside the app. Details, checks and limits: `reports/SONG_PIPELINE.md`.
-Tests: 584 Python + 33 JS pass (fake engine). **No render, no listening, ledger unchanged at 19.**
+Tests: 612 Python + 33 JS pass (fake engine). **No render, no listening, ledger unchanged at 19.**
+
+Showcase diverse12 (requested 2026-10-24 for 2026-10-25): 12 briefs, one take each, profile shift3. Prepared in the
+cloud session: plans, eight Claude-written lyric sheets (hooks kept word for word), captions, engine requests and
+seeds in `showcase/diverse12_2026-10-25/`. **Not rendered** (no Mac or GPU in the cloud session); rendering adds 12
+takes to the ledger (19 -> 31). Run `experiments.showcase render`, then `publish`, on the Mac.
 
 Next, in order:
+0. User: render the showcase (`cd app && .venv/bin/python -m experiments.showcase render`), then `publish`; listen
+   and fill `showcase/diverse12_2026-10-25/ratings.csv`.
 1. User: render the listening batch (16 takes; `app/experiments/listening_batch.py`), listen blind, `reveal`.
 2. User OK given for the 5Hz LM: `python3 scripts/fetch_models.py lm`, then a small `new` vs `new_lm` batch.
 3. Decide on XL turbo (~10 GB download, more memory).

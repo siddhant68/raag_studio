@@ -106,7 +106,9 @@ Engine profiles (Settings → Music engine): `auto` (classic plans: shift 1.0; s
 `python3 scripts/fetch_models.py lm|xl` (asks first); a render never downloads.
 
 Old-versus-new blind listening: `cd app && .venv/bin/python -m experiments.listening_batch prepare|render|reveal`
-(see `reports/SONG_PIPELINE.md`). Personal ElevenLabs renders of a plan: `scripts/personal/elevenlabs_render.py`
+(see `reports/SONG_PIPELINE.md`). Showcase batch (12 briefs, one take each, lyrics by Claude, listening copies
+and results committed under `showcase/diverse12_2026-10-25/`): `cd app && .venv/bin/python -m experiments.showcase
+prepare|render|publish`; prepared, not yet rendered. Personal ElevenLabs renders of a plan: `scripts/personal/elevenlabs_render.py`
 (preview by default; never called by the app; personal use only).
 
 ### Status and limits (honest list)

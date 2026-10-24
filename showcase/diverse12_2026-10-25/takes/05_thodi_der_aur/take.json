@@ -1,0 +1,35 @@
+{
+  "take": 5,
+  "slug": "thodi_der_aur",
+  "title": "थोड़ी देर और",
+  "seed": 1905625906,
+  "engine_profile": "shift3",
+  "profile_detail": {
+    "dit": "acestep-v15-turbo",
+    "lm": null,
+    "shift": 3.0,
+    "inference_steps": 8,
+    "thinking": false,
+    "label": "Turbo, shift 3.0 (ACE-Step's recommendation for turbo)"
+  },
+  "dit": "acestep-v15-turbo",
+  "lm": null,
+  "genre": "hindi_acoustic_ballad",
+  "form": "pop_song",
+  "requested": {
+    "duration_s": 150,
+    "bpm": 76,
+    "meter": "4/4",
+    "voice": "sung",
+    "singer": "male",
+    "language": "hi"
+  },
+  "prepared_at": "2026-10-24T20:22:35+00:00",
+  "app_commit": "6bbb979",
+  "render": {
+    "status": "not_rendered"
+  },
+  "listening": {
+    "verdict": "pending"
+  }
+}

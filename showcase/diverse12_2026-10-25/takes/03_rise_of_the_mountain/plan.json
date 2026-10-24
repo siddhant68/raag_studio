@@ -1,0 +1,144 @@
+{
+  "schema_version": "2.0",
+  "brief": "Rise of the mountain — cinematic adventure. 120 seconds, approximately 140 BPM, 4/4 with a broad half-time opening. Cello, strings, French horns/brass, taiko and restrained synth bass. Start with a low motif, build through rhythmic strings and percussion, briefly pull back, then deliver an uplifting final statement. Memorable thematic development rather than continuous impacts. No voices.",
+  "recipe_id": null,
+  "voice_mode": "instrumental",
+  "duration_s": 120,
+  "lead": {
+    "instrument": "cello",
+    "style": "singing"
+  },
+  "supports": [
+    {
+      "instrument": "strings",
+      "role": "harmony",
+      "presence": "gentle"
+    },
+    {
+      "instrument": "brass",
+      "role": "harmony",
+      "presence": "gentle"
+    },
+    {
+      "instrument": "taiko",
+      "role": "rhythm",
+      "presence": "gentle"
+    },
+    {
+      "instrument": "synth_bass",
+      "role": "harmony",
+      "presence": "sparse"
+    }
+  ],
+  "feeling": [
+    "adventurous",
+    "uplifting",
+    "heroic"
+  ],
+  "pace": {
+    "bucket": "lively",
+    "bpm": 140
+  },
+  "key": "D minor",
+  "arc": "quiet_middle_bloom",
+  "fullness": "balanced",
+  "voices": {
+    "singer": "auto",
+    "background": "none",
+    "language": "en"
+  },
+  "lyrics": {
+    "policy": "none",
+    "text": null,
+    "topic": null
+  },
+  "avoid": [],
+  "flavour": "broad half-time opening on a low cello motif, brief pullback, uplifting final statement",
+  "notes_for_user": [
+    "Words I understood: cello, strings, percussion, horns, synth bass, taiko, cinematic.",
+    "I kept the first three supports you named; the rest are left out so the lead stays clear.",
+    "This is the Basic planner (keyword rules, not an AI). It cannot read stories or analogies."
+  ],
+  "takes": 1,
+  "genre": "cinematic_orchestral",
+  "pipeline": "song",
+  "meter": "4/4",
+  "form": "cinematic",
+  "require_sections": [
+    "bridge"
+  ],
+  "provenance": {
+    "voice_mode": {
+      "source": "you",
+      "reason": "you chose the voice"
+    },
+    "voices": {
+      "source": "rule",
+      "reason": "instrumental: no voices"
+    },
+    "lyrics": {
+      "source": "rule",
+      "reason": "voice is instrumental: no lyric text"
+    },
+    "avoid": {
+      "source": "recipe",
+      "reason": "Warm ensemble with wordless choir default"
+    },
+    "flavour": {
+      "source": "you",
+      "reason": "from the showcase brief"
+    },
+    "fullness": {
+      "source": "recipe",
+      "reason": "Warm ensemble with wordless choir default"
+    },
+    "takes": {
+      "source": "you",
+      "reason": "you set versions"
+    },
+    "duration_s": {
+      "source": "you",
+      "reason": "you set the length"
+    },
+    "lead": {
+      "source": "you",
+      "reason": "you picked the playing style"
+    },
+    "supports": {
+      "source": "you",
+      "reason": "from the showcase brief"
+    },
+    "feeling": {
+      "source": "you",
+      "reason": "you picked the feeling"
+    },
+    "pace": {
+      "source": "you",
+      "reason": "you set 140 BPM"
+    },
+    "key": {
+      "source": "recipe",
+      "reason": "Cinematic orchestral style"
+    },
+    "arc": {
+      "source": "recipe",
+      "reason": "Warm ensemble with wordless choir default"
+    },
+    "genre": {
+      "source": "you",
+      "reason": "you picked the style"
+    },
+    "meter": {
+      "source": "you",
+      "reason": "you set the meter"
+    },
+    "form": {
+      "source": "recipe",
+      "reason": "Cinematic orchestral style"
+    },
+    "require_sections": {
+      "source": "you",
+      "reason": "from the showcase brief"
+    }
+  }
+}

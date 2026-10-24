@@ -1,0 +1,145 @@
+{
+  "schema_version": "2.0",
+  "brief": "यहीं कहीं — Hindi male/female duet. 150 seconds, approximately 88 BPM, 4/4. Piano, acoustic guitar, bass, light drums and strings. Male verse, female answering verse, shared chorus, contrasting bridge and final duet. Give each character a distinct perspective and appropriate Hindi grammar. Shared hook: “तेरे मेरे बीच कहीं / घर मिला है यहीं कहीं”. Request clear vocal handoffs; report that separation remains unverified until audition.",
+  "recipe_id": null,
+  "voice_mode": "sung",
+  "duration_s": 150,
+  "lead": {
+    "instrument": "piano",
+    "style": "simple"
+  },
+  "supports": [
+    {
+      "instrument": "acoustic_guitar",
+      "role": "harmony",
+      "presence": "gentle"
+    },
+    {
+      "instrument": "bass",
+      "role": "harmony",
+      "presence": "gentle"
+    },
+    {
+      "instrument": "light_percussion",
+      "role": "rhythm",
+      "presence": "gentle"
+    },
+    {
+      "instrument": "strings",
+      "role": "texture",
+      "presence": "gentle"
+    }
+  ],
+  "feeling": [
+    "warm",
+    "hopeful",
+    "tender"
+  ],
+  "pace": {
+    "bucket": "medium",
+    "bpm": 88
+  },
+  "key": "D major",
+  "arc": "slow_build",
+  "fullness": "balanced",
+  "voices": {
+    "singer": "duet",
+    "background": "none",
+    "language": "hi"
+  },
+  "lyrics": {
+    "policy": "write",
+    "text": "[Intro]\n\n[Verse 1 - male vocal]\nबारिश में भीगी तेरी वो नीली छतरी\nमेरे कंधे पर आ के रुक गई थी\nमैंने सोचा था घर कोई गली होगी\nतू मिली तो पता चला, घर तू ही थी\n\n[Chorus - duet]\nतेरे मेरे बीच कहीं\nघर मिला है यहीं कहीं\nछत नहीं है, दीवार नहीं\nतू साथ है तो सब सही\n\n[Verse 2 - female vocal]\nसुबह देखा, तेरी चाबी मेरी मेज़ पर थी\nमैं खिड़की पर बैठी चाय बनाती रही\nतू कहे रस्ता है, मैं कहूँ ठिकाना\nदो कप रखे थे, और धूप आती रही\n\n[Chorus - duet]\nतेरे मेरे बीच कहीं\nघर मिला है यहीं कहीं\nछत नहीं है, दीवार नहीं\nतू साथ है तो सब सही\n\n[Bridge]\nडर था, ये भी किराये का कमरा न हो\nबक्से बंद ही रहे, पुराने शहर के\nफिर तूने चुपके से मेरा हाथ थामा\nखुल गए सब ताले एक-एक कर के\n\n[Chorus - duet]\nतेरे मेरे बीच कहीं\nघर मिला है यहीं कहीं\nछत नहीं है, दीवार नहीं\nतू साथ है तो सब सही\n\n[Outro]",
+    "topic": "Two people find that home is somewhere between them. He describes it from his side, she answers from hers with a different view; together they sing the chorus. The bridge contrasts (a doubt or a memory) before the final duet."
+  },
+  "avoid": [],
+  "flavour": "clear handoffs: male verse, female answering verse, shared chorus, both voices in the final chorus",
+  "notes_for_user": [
+    "Words I understood: strings, piano, acoustic guitar, bass, drums.",
+    "I kept the first three supports you named; the rest are left out so the lead stays clear.",
+    "Hindi singing is experimental: one heard take, diction imperfect.",
+    "This is the Basic planner (keyword rules, not an AI). It cannot read stories or analogies."
+  ],
+  "takes": 1,
+  "genre": "hindi_acoustic_ballad",
+  "pipeline": "song",
+  "meter": "4/4",
+  "form": "pop_song",
+  "require_sections": [
+    "bridge"
+  ],
+  "provenance": {
+    "voice_mode": {
+      "source": "you",
+      "reason": "you chose the voice"
+    },
+    "voices": {
+      "source": "you",
+      "reason": "you picked the singer; language: you picked the language"
+    },
+    "lyrics": {
+      "source": "suggested",
+      "reason": "written by Claude (local CLI); hook supplied by you"
+    },
+    "avoid": {
+      "source": "recipe",
+      "reason": "Hindi ballad default"
+    },
+    "flavour": {
+      "source": "you",
+      "reason": "from the showcase brief"
+    },
+    "fullness": {
+      "source": "recipe",
+      "reason": "Hindi ballad default"
+    },
+    "takes": {
+      "source": "you",
+      "reason": "you set versions"
+    },
+    "duration_s": {
+      "source": "you",
+      "reason": "you set the length"
+    },
+    "lead": {
+      "source": "you",
+      "reason": "you picked the playing style"
+    },
+    "supports": {
+      "source": "you",
+      "reason": "from the showcase brief"
+    },
+    "feeling": {
+      "source": "you",
+      "reason": "you picked the feeling"
+    },
+    "pace": {
+      "source": "you",
+      "reason": "you set 88 BPM"
+    },
+    "key": {
+      "source": "recipe",
+      "reason": "Hindi acoustic ballad style"
+    },
+    "arc": {
+      "source": "recipe",
+      "reason": "Hindi ballad default"
+    },
+    "genre": {
+      "source": "you",
+      "reason": "you picked the style"
+    },
+    "meter": {
+      "source": "you",
+      "reason": "you set the meter"
+    },
+    "form": {
+      "source": "recipe",
+      "reason": "Hindi acoustic ballad style"
+    },
+    "require_sections": {
+      "source": "you",
+      "reason": "from the showcase brief"
+    }
+  }
+}

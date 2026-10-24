@@ -1,0 +1,132 @@
+{
+  "schema_version": "2.0",
+  "brief": "Lanterns in the rain — delicate chamber waltz. 90 seconds, approximately 66 BPM, 3/4. Felt piano, cello, harp and soft strings. Tender, slightly wistful, with a lilting pulse. Piano introduces the melody; cello answers and eventually carries it. Keep the arrangement spacious and give it a complete ending. No voices.",
+  "recipe_id": null,
+  "voice_mode": "instrumental",
+  "duration_s": 90,
+  "lead": {
+    "instrument": "piano",
+    "style": "singing"
+  },
+  "supports": [
+    {
+      "instrument": "cello",
+      "role": "answer",
+      "presence": "gentle"
+    },
+    {
+      "instrument": "harp",
+      "role": "texture",
+      "presence": "sparse"
+    },
+    {
+      "instrument": "strings",
+      "role": "harmony",
+      "presence": "sparse"
+    }
+  ],
+  "feeling": [
+    "tender",
+    "wistful",
+    "lilting"
+  ],
+  "pace": {
+    "bucket": "slow",
+    "bpm": 66
+  },
+  "key": "A minor",
+  "arc": "quiet_middle_bloom",
+  "fullness": "spare",
+  "voices": {
+    "singer": "auto",
+    "background": "none",
+    "language": "en"
+  },
+  "lyrics": {
+    "policy": "none",
+    "text": null,
+    "topic": null
+  },
+  "avoid": [],
+  "flavour": "chamber waltz, felt piano introduces the melody, cello answers then carries it, complete ending",
+  "notes_for_user": [
+    "Words I understood: cello, strings, piano, harp, rain, tender.",
+    "This is the Basic planner (keyword rules, not an AI). It cannot read stories or analogies."
+  ],
+  "takes": 1,
+  "genre": "piano_neoclassical",
+  "pipeline": "song",
+  "meter": "3/4",
+  "form": "instrumental_song",
+  "require_sections": [],
+  "provenance": {
+    "voice_mode": {
+      "source": "you",
+      "reason": "you chose the voice"
+    },
+    "voices": {
+      "source": "rule",
+      "reason": "instrumental: no voices"
+    },
+    "lyrics": {
+      "source": "rule",
+      "reason": "voice is instrumental: no lyric text"
+    },
+    "avoid": {
+      "source": "recipe",
+      "reason": "Warm ensemble with wordless choir default"
+    },
+    "flavour": {
+      "source": "you",
+      "reason": "from the showcase brief"
+    },
+    "fullness": {
+      "source": "you",
+      "reason": "you picked how full"
+    },
+    "takes": {
+      "source": "you",
+      "reason": "you set versions"
+    },
+    "duration_s": {
+      "source": "you",
+      "reason": "you set the length"
+    },
+    "lead": {
+      "source": "you",
+      "reason": "you picked the playing style"
+    },
+    "supports": {
+      "source": "you",
+      "reason": "from the showcase brief"
+    },
+    "feeling": {
+      "source": "you",
+      "reason": "you picked the feeling"
+    },
+    "pace": {
+      "source": "you",
+      "reason": "you set 66 BPM"
+    },
+    "key": {
+      "source": "recipe",
+      "reason": "Solo piano style"
+    },
+    "arc": {
+      "source": "recipe",
+      "reason": "Warm ensemble with wordless choir default"
+    },
+    "genre": {
+      "source": "you",
+      "reason": "you picked the style"
+    },
+    "meter": {
+      "source": "you",
+      "reason": "you set the meter"
+    },
+    "form": {
+      "source": "recipe",
+      "reason": "Solo piano style"
+    }
+  }
+}

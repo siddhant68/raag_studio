@@ -1,0 +1,242 @@
+{
+  "pipeline": "song",
+  "genre": "jazz_lounge",
+  "genre_name": "Jazz lounge",
+  "engine_profile": "shift3",
+  "engine_profile_label": "Turbo, shift 3.0 (ACE-Step's recommendation for turbo)",
+  "char_count": 390,
+  "dropped": [],
+  "warnings": [
+    "the jazz form needs sung words; using instrumental song"
+  ],
+  "conflicts": [],
+  "unsupported": [],
+  "notes": [],
+  "cap": 512,
+  "slots": [
+    [
+      "genre",
+      "Jazz, swing jazz, smooth jazz, instrumental."
+    ],
+    [
+      "mood",
+      "Relaxed, playful, swinging."
+    ],
+    [
+      "instruments",
+      "Saxophone leads every section, with Rhodes electric piano, upright bass and brushed drums."
+    ],
+    [
+      "journey",
+      "Intro, brushes verses, swinging chorus, sax solo, swinging final chorus, outro."
+    ],
+    [
+      "production",
+      "Live jazz club recording, warm room."
+    ],
+    [
+      "flavour",
+      "catchy tenor sax theme, short Rhodes answers, then the theme returns; no wall of soloing."
+    ],
+    [
+      "tail",
+      "Strictly no voices."
+    ]
+  ],
+  "lyrics": {
+    "mode": "instrumental_sections",
+    "sha256": "dc20c2fa69a1dad55b43e1c89dcd2347c082cbf72914f51d15976988099e227a",
+    "sections": 7
+  },
+  "arrangement": {
+    "requested": {
+      "lead": "saxophone",
+      "supports": [
+        "rhodes",
+        "upright_bass",
+        "brushed_drums"
+      ],
+      "voice_mode": "instrumental",
+      "background": "none"
+    },
+    "effective": {
+      "lead": "saxophone",
+      "supports": [
+        "rhodes",
+        "upright_bass",
+        "brushed_drums"
+      ],
+      "voice_mode": "instrumental",
+      "background": "none"
+    },
+    "adjustments": []
+  },
+  "blueprint": {
+    "form": "instrumental_song",
+    "bpm": 116,
+    "meter": "4/4",
+    "bar_s": 2.069,
+    "target_s": 90,
+    "estimated_s": 99.3,
+    "sections": [
+      {
+        "kind": "intro",
+        "name": "Intro",
+        "tag": "Intro",
+        "lyric": false,
+        "lines": 0,
+        "bars": 4.0,
+        "seconds": 7.5,
+        "energy": 1,
+        "hint": "",
+        "playing": [
+          "saxophone"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": null,
+        "final": false,
+        "style_hint": ""
+      },
+      {
+        "kind": "verse",
+        "name": "Theme A",
+        "tag": "Verse",
+        "lyric": false,
+        "lines": 0,
+        "bars": 8.0,
+        "seconds": 15.0,
+        "energy": 2,
+        "hint": "brushes, electric piano enters",
+        "playing": [
+          "saxophone",
+          "rhodes",
+          "upright_bass",
+          "brushed_drums"
+        ],
+        "entering": [
+          "rhodes",
+          "upright_bass",
+          "brushed_drums"
+        ],
+        "uid": null,
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "brushes"
+      },
+      {
+        "kind": "chorus",
+        "name": "Theme B",
+        "tag": "Chorus",
+        "lyric": false,
+        "lines": 0,
+        "bars": 8.0,
+        "seconds": 15.0,
+        "energy": 4,
+        "hint": "swinging",
+        "playing": [
+          "saxophone",
+          "rhodes",
+          "upright_bass",
+          "brushed_drums"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "swinging"
+      },
+      {
+        "kind": "verse",
+        "name": "Theme A again",
+        "tag": "Verse",
+        "lyric": false,
+        "lines": 0,
+        "bars": 8.0,
+        "seconds": 15.0,
+        "energy": 3,
+        "hint": "brushes",
+        "playing": [
+          "saxophone",
+          "rhodes",
+          "upright_bass",
+          "brushed_drums"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "brushes"
+      },
+      {
+        "kind": "solo",
+        "name": "Solo",
+        "tag": "Solo",
+        "lyric": false,
+        "lines": 0,
+        "bars": 8.0,
+        "seconds": 15.0,
+        "energy": 4,
+        "hint": "sax",
+        "playing": [
+          "saxophone",
+          "rhodes",
+          "upright_bass",
+          "brushed_drums"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "sax"
+      },
+      {
+        "kind": "chorus",
+        "name": "Final Theme B",
+        "tag": "Chorus",
+        "lyric": false,
+        "lines": 0,
+        "bars": 8.0,
+        "seconds": 15.0,
+        "energy": 5,
+        "hint": "swinging",
+        "playing": [
+          "saxophone",
+          "rhodes",
+          "upright_bass",
+          "brushed_drums"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": null,
+        "final": true,
+        "style_hint": "swinging"
+      },
+      {
+        "kind": "outro",
+        "name": "Outro",
+        "tag": "Outro",
+        "lyric": false,
+        "lines": 0,
+        "bars": 4.0,
+        "seconds": 7.5,
+        "energy": 1,
+        "hint": "",
+        "playing": [
+          "saxophone"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": null,
+        "final": false,
+        "style_hint": ""
+      }
+    ],
+    "lyric_slots": [],
+    "dropped": [],
+    "changes": [
+      "the jazz form needs sung words; using instrumental song"
+    ],
+    "fit": "ok"
+  }
+}

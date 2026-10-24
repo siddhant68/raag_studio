@@ -1,0 +1,335 @@
+{
+  "pipeline": "song",
+  "genre": "hindi_acoustic_ballad",
+  "genre_name": "Hindi acoustic ballad",
+  "engine_profile": "shift3",
+  "engine_profile_label": "Turbo, shift 3.0 (ACE-Step's recommendation for turbo)",
+  "char_count": 489,
+  "dropped": [
+    {
+      "kind": "production",
+      "item": "natural warm room",
+      "reason": "over_budget"
+    },
+    {
+      "kind": "beat",
+      "item": "gentle outro",
+      "reason": "over_budget"
+    },
+    {
+      "kind": "beat",
+      "item": "fuller strings final chorus",
+      "reason": "over_budget"
+    }
+  ],
+  "warnings": [
+    "Hindi sung words are experimental: listen to check diction.",
+    "intro, outro and interludes shortened to fit the length"
+  ],
+  "conflicts": [],
+  "unsupported": [],
+  "notes": [],
+  "cap": 512,
+  "slots": [
+    [
+      "genre",
+      "Hindi ballad, romantic acoustic pop ballad."
+    ],
+    [
+      "mood",
+      "Warm, hopeful, tender."
+    ],
+    [
+      "vocal",
+      "Warm expressive male and female duet vocal singing clear Hindi, intimate low verses and a soaring memorable chorus."
+    ],
+    [
+      "instruments",
+      "Piano, fingerpicked acoustic guitar, warm bass, light percussion and lush string section."
+    ],
+    [
+      "journey",
+      "Guitar intro, intimate verses, soaring chorus, quiet bridge."
+    ],
+    [
+      "production",
+      "Polished spacious mix."
+    ],
+    [
+      "flavour",
+      "clear handoffs: male verse, female answering verse, shared chorus, both voices in the final chorus."
+    ],
+    [
+      "tail",
+      "Vocal forward, natural phrasing."
+    ]
+  ],
+  "lyrics": {
+    "mode": "draft",
+    "source_sha256": "ab6505d87630873bc656feafd10288ef0693695c3386325c560c90ca80c43a5b",
+    "sha256": "ab6505d87630873bc656feafd10288ef0693695c3386325c560c90ca80c43a5b",
+    "output_sha256": "ab6505d87630873bc656feafd10288ef0693695c3386325c560c90ca80c43a5b",
+    "newlines_normalised": false,
+    "inserted_tag_line_indices": [],
+    "inserted_tag_lines": [],
+    "line_count": 24,
+    "char_count": 755,
+    "fit": {
+      "status": "ok",
+      "estimated_s": 158.2,
+      "target_s": 150
+    }
+  },
+  "arrangement": {
+    "requested": {
+      "lead": "piano",
+      "supports": [
+        "acoustic_guitar",
+        "bass",
+        "light_percussion",
+        "strings"
+      ],
+      "voice_mode": "sung",
+      "background": "none"
+    },
+    "effective": {
+      "lead": "piano",
+      "supports": [
+        "acoustic_guitar",
+        "bass",
+        "light_percussion",
+        "strings"
+      ],
+      "voice_mode": "sung",
+      "background": "none"
+    },
+    "adjustments": []
+  },
+  "blueprint": {
+    "form": "pop_song",
+    "bpm": 88,
+    "meter": "4/4",
+    "bar_s": 2.727,
+    "target_s": 150,
+    "estimated_s": 158.2,
+    "sections": [
+      {
+        "kind": "intro",
+        "name": "Intro",
+        "tag": "Intro",
+        "lyric": false,
+        "lines": 0,
+        "bars": 2.0,
+        "seconds": 5.2,
+        "energy": 1,
+        "hint": "guitar intro",
+        "playing": [
+          "piano",
+          "strings",
+          "acoustic_guitar"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "guitar intro"
+      },
+      {
+        "kind": "verse",
+        "name": "Verse 1",
+        "tag": "Verse 1",
+        "lyric": true,
+        "lines": 4,
+        "bars": 9.0,
+        "seconds": 23.3,
+        "energy": 2,
+        "hint": "intimate, bass enter",
+        "playing": [
+          "piano",
+          "acoustic_guitar",
+          "bass",
+          "strings"
+        ],
+        "entering": [
+          "bass"
+        ],
+        "uid": "verse_1",
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "intimate"
+      },
+      {
+        "kind": "chorus",
+        "name": "Chorus",
+        "tag": "Chorus",
+        "lyric": true,
+        "lines": 4,
+        "bars": 9.0,
+        "seconds": 23.3,
+        "energy": 4,
+        "hint": "soaring, light percussion enters",
+        "playing": [
+          "piano",
+          "acoustic_guitar",
+          "bass",
+          "light_percussion",
+          "strings"
+        ],
+        "entering": [
+          "light_percussion"
+        ],
+        "uid": "chorus",
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "soaring"
+      },
+      {
+        "kind": "verse",
+        "name": "Verse 2",
+        "tag": "Verse 2",
+        "lyric": true,
+        "lines": 4,
+        "bars": 9.0,
+        "seconds": 23.3,
+        "energy": 3,
+        "hint": "intimate",
+        "playing": [
+          "piano",
+          "acoustic_guitar",
+          "bass",
+          "light_percussion",
+          "strings"
+        ],
+        "entering": [],
+        "uid": "verse_2",
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "intimate"
+      },
+      {
+        "kind": "chorus",
+        "name": "Chorus",
+        "tag": "Chorus",
+        "lyric": true,
+        "lines": 4,
+        "bars": 9.0,
+        "seconds": 23.3,
+        "energy": 4,
+        "hint": "soaring",
+        "playing": [
+          "piano",
+          "acoustic_guitar",
+          "bass",
+          "light_percussion",
+          "strings"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": "chorus",
+        "final": false,
+        "style_hint": "soaring"
+      },
+      {
+        "kind": "bridge",
+        "name": "Bridge",
+        "tag": "Bridge",
+        "lyric": true,
+        "lines": 4,
+        "bars": 9.0,
+        "seconds": 23.3,
+        "energy": 2,
+        "hint": "quiet",
+        "playing": [
+          "piano",
+          "acoustic_guitar",
+          "bass",
+          "strings"
+        ],
+        "entering": [],
+        "uid": "bridge",
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "quiet"
+      },
+      {
+        "kind": "chorus",
+        "name": "Final Chorus",
+        "tag": "Chorus",
+        "lyric": true,
+        "lines": 4,
+        "bars": 9.0,
+        "seconds": 23.3,
+        "energy": 5,
+        "hint": "fuller strings, light percussion enters",
+        "playing": [
+          "piano",
+          "acoustic_guitar",
+          "bass",
+          "light_percussion",
+          "strings"
+        ],
+        "entering": [
+          "light_percussion"
+        ],
+        "uid": null,
+        "repeat_of": "chorus",
+        "final": true,
+        "style_hint": "fuller strings"
+      },
+      {
+        "kind": "outro",
+        "name": "Outro",
+        "tag": "Outro",
+        "lyric": false,
+        "lines": 0,
+        "bars": 2.0,
+        "seconds": 5.2,
+        "energy": 1,
+        "hint": "gentle",
+        "playing": [
+          "piano",
+          "strings"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "gentle"
+      }
+    ],
+    "lyric_slots": [
+      {
+        "uid": "verse_1",
+        "name": "Verse 1",
+        "kind": "verse",
+        "lines": 4
+      },
+      {
+        "uid": "chorus",
+        "name": "Chorus",
+        "kind": "chorus",
+        "lines": 4
+      },
+      {
+        "uid": "verse_2",
+        "name": "Verse 2",
+        "kind": "verse",
+        "lines": 4
+      },
+      {
+        "uid": "bridge",
+        "name": "Bridge",
+        "kind": "bridge",
+        "lines": 4
+      }
+    ],
+    "dropped": [
+      "Pre-Chorus",
+      "Pre-Chorus"
+    ],
+    "changes": [
+      "intro, outro and interludes shortened to fit the length"
+    ],
+    "fit": "ok"
+  }
+}

@@ -1,0 +1,398 @@
+{
+  "pipeline": "song",
+  "genre": "bollywood_dance",
+  "genre_name": "Bollywood dance number",
+  "engine_profile": "shift3",
+  "engine_profile_label": "Turbo, shift 3.0 (ACE-Step's recommendation for turbo)",
+  "char_count": 508,
+  "dropped": [
+    {
+      "kind": "production",
+      "item": "crisp modern production",
+      "reason": "over_budget"
+    },
+    {
+      "kind": "production",
+      "item": "sidechained synths",
+      "reason": "over_budget"
+    },
+    {
+      "kind": "beat",
+      "item": "explosive final chorus",
+      "reason": "over_budget"
+    },
+    {
+      "kind": "beat",
+      "item": "breakdown",
+      "reason": "over_budget"
+    },
+    {
+      "kind": "beat",
+      "item": "dhol drop",
+      "reason": "over_budget"
+    },
+    {
+      "kind": "beat",
+      "item": "full energy chorus",
+      "reason": "over_budget"
+    }
+  ],
+  "warnings": [
+    "Hindi sung words are experimental: listen to check diction.",
+    "intro, outro and interludes shortened to fit the length"
+  ],
+  "conflicts": [],
+  "unsupported": [],
+  "notes": [],
+  "cap": 512,
+  "slots": [
+    [
+      "genre",
+      "Bollywood dance-pop, Bollywood EDM, Hindi pop."
+    ],
+    [
+      "mood",
+      "Festive, playful, energetic."
+    ],
+    [
+      "vocal",
+      "Bright confident female vocal, punchy rhythmic verses and a big chant-along hook, sung in Hindi, with choir harmonies in the chorus."
+    ],
+    [
+      "instruments",
+      "Brass section, rich punchy dhol drums, dholak, punchy electronic drums and deep synth bass."
+    ],
+    [
+      "journey",
+      "Dhol build intro, groovy verses, build pre-chorus."
+    ],
+    [
+      "production",
+      "Loud punchy club mix."
+    ],
+    [
+      "flavour",
+      "immediate rhythmic identity, group call-and-response, short percussion break before the final chorus."
+    ],
+    [
+      "tail",
+      "Vocal forward, natural phrasing."
+    ]
+  ],
+  "lyrics": {
+    "mode": "draft",
+    "source_sha256": "cd1a9a41e57b01512760ebcc98f08d0c060a342501e9320305c069b47db4afca",
+    "sha256": "cd1a9a41e57b01512760ebcc98f08d0c060a342501e9320305c069b47db4afca",
+    "output_sha256": "cd1a9a41e57b01512760ebcc98f08d0c060a342501e9320305c069b47db4afca",
+    "newlines_normalised": false,
+    "inserted_tag_line_indices": [],
+    "inserted_tag_lines": [],
+    "line_count": 22,
+    "char_count": 602,
+    "fit": {
+      "status": "ok",
+      "estimated_s": 127.7,
+      "target_s": 120
+    }
+  },
+  "arrangement": {
+    "requested": {
+      "lead": "brass",
+      "supports": [
+        "dhol",
+        "dholak",
+        "drum_machine",
+        "synth_bass"
+      ],
+      "voice_mode": "sung",
+      "background": "choir"
+    },
+    "effective": {
+      "lead": "brass",
+      "supports": [
+        "dhol",
+        "dholak",
+        "drum_machine",
+        "synth_bass"
+      ],
+      "voice_mode": "sung",
+      "background": "choir"
+    },
+    "adjustments": []
+  },
+  "blueprint": {
+    "form": "dance_song",
+    "bpm": 124,
+    "meter": "4/4",
+    "bar_s": 1.935,
+    "target_s": 120,
+    "estimated_s": 127.7,
+    "sections": [
+      {
+        "kind": "intro",
+        "name": "Intro",
+        "tag": "Intro",
+        "lyric": false,
+        "lines": 0,
+        "bars": 4.0,
+        "seconds": 7.3,
+        "energy": 2,
+        "hint": "dhol build",
+        "playing": [
+          "brass",
+          "dhol",
+          "synth_bass"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "dhol build"
+      },
+      {
+        "kind": "verse",
+        "name": "Verse 1",
+        "tag": "Verse 1",
+        "lyric": true,
+        "lines": 4,
+        "bars": 9.0,
+        "seconds": 16.4,
+        "energy": 3,
+        "hint": "groovy, dholak enters",
+        "playing": [
+          "brass",
+          "dhol",
+          "dholak",
+          "drum_machine",
+          "synth_bass"
+        ],
+        "entering": [
+          "dholak",
+          "drum_machine"
+        ],
+        "uid": "verse_1",
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "groovy"
+      },
+      {
+        "kind": "pre_chorus",
+        "name": "Pre-Chorus",
+        "tag": "Pre-Chorus",
+        "lyric": true,
+        "lines": 2,
+        "bars": 5.0,
+        "seconds": 9.1,
+        "energy": 4,
+        "hint": "build",
+        "playing": [
+          "brass",
+          "dhol",
+          "dholak",
+          "drum_machine",
+          "synth_bass"
+        ],
+        "entering": [],
+        "uid": "pre_chorus",
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "build"
+      },
+      {
+        "kind": "chorus",
+        "name": "Chorus",
+        "tag": "Chorus",
+        "lyric": true,
+        "lines": 4,
+        "bars": 9.0,
+        "seconds": 16.4,
+        "energy": 5,
+        "hint": "full energy",
+        "playing": [
+          "brass",
+          "dhol",
+          "dholak",
+          "drum_machine",
+          "synth_bass"
+        ],
+        "entering": [],
+        "uid": "chorus",
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "full energy"
+      },
+      {
+        "kind": "drop",
+        "name": "Drop",
+        "tag": "Drop",
+        "lyric": false,
+        "lines": 0,
+        "bars": 4.0,
+        "seconds": 7.3,
+        "energy": 5,
+        "hint": "dhol drop",
+        "playing": [
+          "brass",
+          "dhol",
+          "dholak",
+          "drum_machine",
+          "synth_bass"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "dhol drop"
+      },
+      {
+        "kind": "verse",
+        "name": "Verse 2",
+        "tag": "Verse 2",
+        "lyric": true,
+        "lines": 4,
+        "bars": 9.0,
+        "seconds": 16.4,
+        "energy": 3,
+        "hint": "groovy",
+        "playing": [
+          "brass",
+          "dhol",
+          "dholak",
+          "drum_machine",
+          "synth_bass"
+        ],
+        "entering": [],
+        "uid": "verse_2",
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "groovy"
+      },
+      {
+        "kind": "chorus",
+        "name": "Chorus",
+        "tag": "Chorus",
+        "lyric": true,
+        "lines": 4,
+        "bars": 9.0,
+        "seconds": 16.4,
+        "energy": 5,
+        "hint": "full energy",
+        "playing": [
+          "brass",
+          "dhol",
+          "dholak",
+          "drum_machine",
+          "synth_bass"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": "chorus",
+        "final": false,
+        "style_hint": "full energy"
+      },
+      {
+        "kind": "bridge",
+        "name": "Breakdown",
+        "tag": "Breakdown",
+        "lyric": false,
+        "lines": 0,
+        "bars": 4.0,
+        "seconds": 7.3,
+        "energy": 2,
+        "hint": "breakdown",
+        "playing": [
+          "brass",
+          "dhol",
+          "synth_bass"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "breakdown"
+      },
+      {
+        "kind": "chorus",
+        "name": "Final Chorus",
+        "tag": "Chorus",
+        "lyric": true,
+        "lines": 4,
+        "bars": 9.0,
+        "seconds": 16.4,
+        "energy": 5,
+        "hint": "explosive, dholak enters",
+        "playing": [
+          "brass",
+          "dhol",
+          "dholak",
+          "drum_machine",
+          "synth_bass"
+        ],
+        "entering": [
+          "dholak",
+          "drum_machine"
+        ],
+        "uid": null,
+        "repeat_of": "chorus",
+        "final": true,
+        "style_hint": "explosive"
+      },
+      {
+        "kind": "outro",
+        "name": "Outro",
+        "tag": "Outro",
+        "lyric": false,
+        "lines": 0,
+        "bars": 4.0,
+        "seconds": 7.3,
+        "energy": 3,
+        "hint": "dhol outro",
+        "playing": [
+          "brass",
+          "dhol",
+          "dholak",
+          "drum_machine",
+          "synth_bass"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "dhol outro"
+      }
+    ],
+    "lyric_slots": [
+      {
+        "uid": "verse_1",
+        "name": "Verse 1",
+        "kind": "verse",
+        "lines": 4
+      },
+      {
+        "uid": "pre_chorus",
+        "name": "Pre-Chorus",
+        "kind": "pre_chorus",
+        "lines": 2
+      },
+      {
+        "uid": "chorus",
+        "name": "Chorus",
+        "kind": "chorus",
+        "lines": 4
+      },
+      {
+        "uid": "verse_2",
+        "name": "Verse 2",
+        "kind": "verse",
+        "lines": 4
+      }
+    ],
+    "dropped": [
+      "Pre-Chorus"
+    ],
+    "changes": [
+      "intro, outro and interludes shortened to fit the length"
+    ],
+    "fit": "ok"
+  }
+}

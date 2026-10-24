@@ -1,0 +1,354 @@
+{
+  "pipeline": "song",
+  "genre": "rock_anthem",
+  "genre_name": "Rock anthem",
+  "engine_profile": "shift3",
+  "engine_profile_label": "Turbo, shift 3.0 (ACE-Step's recommendation for turbo)",
+  "char_count": 510,
+  "dropped": [],
+  "warnings": [
+    "English sung words are untested: listen to check diction."
+  ],
+  "conflicts": [],
+  "unsupported": [],
+  "notes": [],
+  "cap": 512,
+  "slots": [
+    [
+      "genre",
+      "Arena rock, pop rock."
+    ],
+    [
+      "mood",
+      "Determined, uplifting, driving."
+    ],
+    [
+      "vocal",
+      "Powerful raspy rock male vocal, belted chorus with gang vocals, sung in English."
+    ],
+    [
+      "instruments",
+      "Electric guitar, warm bass, live drum kit and sparse warm organ."
+    ],
+    [
+      "journey",
+      "Guitar riff intro, driving verses, build pre-chorus, anthemic chorus, half-time bridge, gang vocals final chorus, big ending outro."
+    ],
+    [
+      "production",
+      "Huge stadium sound, wide distorted guitars, big drums."
+    ],
+    [
+      "flavour",
+      "quiet determined verses, rising pre-chorus, powerful sung chorus, a brief guitar response."
+    ],
+    [
+      "tail",
+      "Vocal forward, natural phrasing."
+    ]
+  ],
+  "lyrics": {
+    "mode": "draft",
+    "source_sha256": "2be3ab5866c486947b114b30c1c504f3d46230eb57e96b411ea6237f551bd078",
+    "sha256": "2be3ab5866c486947b114b30c1c504f3d46230eb57e96b411ea6237f551bd078",
+    "output_sha256": "2be3ab5866c486947b114b30c1c504f3d46230eb57e96b411ea6237f551bd078",
+    "newlines_normalised": false,
+    "inserted_tag_line_indices": [],
+    "inserted_tag_lines": [],
+    "line_count": 28,
+    "char_count": 1153,
+    "fit": {
+      "status": "ok",
+      "estimated_s": 130.9,
+      "target_s": 120
+    }
+  },
+  "arrangement": {
+    "requested": {
+      "lead": "electric_guitar",
+      "supports": [
+        "bass",
+        "drum_kit",
+        "organ"
+      ],
+      "voice_mode": "sung",
+      "background": "none"
+    },
+    "effective": {
+      "lead": "electric_guitar",
+      "supports": [
+        "bass",
+        "drum_kit",
+        "organ"
+      ],
+      "voice_mode": "sung",
+      "background": "none"
+    },
+    "adjustments": []
+  },
+  "blueprint": {
+    "form": "pop_song",
+    "bpm": 132,
+    "meter": "4/4",
+    "bar_s": 1.818,
+    "target_s": 120,
+    "estimated_s": 130.9,
+    "sections": [
+      {
+        "kind": "intro",
+        "name": "Intro",
+        "tag": "Intro",
+        "lyric": false,
+        "lines": 0,
+        "bars": 4.0,
+        "seconds": 6.7,
+        "energy": 1,
+        "hint": "guitar riff",
+        "playing": [
+          "electric_guitar",
+          "organ"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "guitar riff"
+      },
+      {
+        "kind": "verse",
+        "name": "Verse 1",
+        "tag": "Verse 1",
+        "lyric": true,
+        "lines": 4,
+        "bars": 9.0,
+        "seconds": 15.0,
+        "energy": 2,
+        "hint": "driving, bass enter",
+        "playing": [
+          "electric_guitar",
+          "bass",
+          "organ"
+        ],
+        "entering": [
+          "bass"
+        ],
+        "uid": "verse_1",
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "driving"
+      },
+      {
+        "kind": "pre_chorus",
+        "name": "Pre-Chorus",
+        "tag": "Pre-Chorus",
+        "lyric": true,
+        "lines": 2,
+        "bars": 5.0,
+        "seconds": 8.3,
+        "energy": 3,
+        "hint": "build, drum kit enters",
+        "playing": [
+          "electric_guitar",
+          "bass",
+          "drum_kit",
+          "organ"
+        ],
+        "entering": [
+          "drum_kit"
+        ],
+        "uid": "pre_chorus",
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "build"
+      },
+      {
+        "kind": "chorus",
+        "name": "Chorus",
+        "tag": "Chorus",
+        "lyric": true,
+        "lines": 4,
+        "bars": 9.0,
+        "seconds": 15.0,
+        "energy": 4,
+        "hint": "anthemic",
+        "playing": [
+          "electric_guitar",
+          "bass",
+          "drum_kit",
+          "organ"
+        ],
+        "entering": [],
+        "uid": "chorus",
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "anthemic"
+      },
+      {
+        "kind": "verse",
+        "name": "Verse 2",
+        "tag": "Verse 2",
+        "lyric": true,
+        "lines": 4,
+        "bars": 9.0,
+        "seconds": 15.0,
+        "energy": 3,
+        "hint": "driving",
+        "playing": [
+          "electric_guitar",
+          "bass",
+          "drum_kit",
+          "organ"
+        ],
+        "entering": [],
+        "uid": "verse_2",
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "driving"
+      },
+      {
+        "kind": "pre_chorus",
+        "name": "Pre-Chorus",
+        "tag": "Pre-Chorus",
+        "lyric": true,
+        "lines": 2,
+        "bars": 5.0,
+        "seconds": 8.3,
+        "energy": 3,
+        "hint": "build",
+        "playing": [
+          "electric_guitar",
+          "bass",
+          "drum_kit",
+          "organ"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": "pre_chorus",
+        "final": false,
+        "style_hint": "build"
+      },
+      {
+        "kind": "chorus",
+        "name": "Chorus",
+        "tag": "Chorus",
+        "lyric": true,
+        "lines": 4,
+        "bars": 9.0,
+        "seconds": 15.0,
+        "energy": 4,
+        "hint": "anthemic",
+        "playing": [
+          "electric_guitar",
+          "bass",
+          "drum_kit",
+          "organ"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": "chorus",
+        "final": false,
+        "style_hint": "anthemic"
+      },
+      {
+        "kind": "bridge",
+        "name": "Bridge",
+        "tag": "Bridge",
+        "lyric": true,
+        "lines": 4,
+        "bars": 9.0,
+        "seconds": 15.0,
+        "energy": 2,
+        "hint": "half-time",
+        "playing": [
+          "electric_guitar",
+          "bass",
+          "organ"
+        ],
+        "entering": [],
+        "uid": "bridge",
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "half-time"
+      },
+      {
+        "kind": "chorus",
+        "name": "Final Chorus",
+        "tag": "Chorus",
+        "lyric": true,
+        "lines": 4,
+        "bars": 9.0,
+        "seconds": 15.0,
+        "energy": 5,
+        "hint": "gang vocals, drum kit enters",
+        "playing": [
+          "electric_guitar",
+          "bass",
+          "drum_kit",
+          "organ"
+        ],
+        "entering": [
+          "drum_kit"
+        ],
+        "uid": null,
+        "repeat_of": "chorus",
+        "final": true,
+        "style_hint": "gang vocals"
+      },
+      {
+        "kind": "outro",
+        "name": "Outro",
+        "tag": "Outro",
+        "lyric": false,
+        "lines": 0,
+        "bars": 4.0,
+        "seconds": 6.7,
+        "energy": 1,
+        "hint": "big ending",
+        "playing": [
+          "electric_guitar",
+          "organ"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "big ending"
+      }
+    ],
+    "lyric_slots": [
+      {
+        "uid": "verse_1",
+        "name": "Verse 1",
+        "kind": "verse",
+        "lines": 4
+      },
+      {
+        "uid": "pre_chorus",
+        "name": "Pre-Chorus",
+        "kind": "pre_chorus",
+        "lines": 2
+      },
+      {
+        "uid": "chorus",
+        "name": "Chorus",
+        "kind": "chorus",
+        "lines": 4
+      },
+      {
+        "uid": "verse_2",
+        "name": "Verse 2",
+        "kind": "verse",
+        "lines": 4
+      },
+      {
+        "uid": "bridge",
+        "name": "Bridge",
+        "kind": "bridge",
+        "lines": 4
+      }
+    ],
+    "dropped": [],
+    "changes": [],
+    "fit": "ok"
+  }
+}

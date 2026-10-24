@@ -1,0 +1,285 @@
+{
+  "pipeline": "song",
+  "genre": "hindi_hiphop",
+  "genre_name": "Desi hip-hop",
+  "engine_profile": "shift3",
+  "engine_profile_label": "Turbo, shift 3.0 (ACE-Step's recommendation for turbo)",
+  "char_count": 497,
+  "dropped": [
+    {
+      "kind": "production",
+      "item": "dark modern mix",
+      "reason": "over_budget"
+    }
+  ],
+  "warnings": [
+    "Hindi sung words are experimental: listen to check diction.",
+    "intro, outro and interludes shortened to fit the length"
+  ],
+  "conflicts": [],
+  "unsupported": [],
+  "notes": [],
+  "cap": 512,
+  "slots": [
+    [
+      "genre",
+      "Desi hip hop, Hindi hip-hop trap."
+    ],
+    [
+      "mood",
+      "Determined, grounded, confident."
+    ],
+    [
+      "vocal",
+      "Male vocals, confident rap verses with tight rhythmic flow and a melodic sung hook, sung in Hindi."
+    ],
+    [
+      "instruments",
+      "Piano, punchy electronic drums, booming 808 bass and sparse sarangi."
+    ],
+    [
+      "journey",
+      "Dark beat intro, melodic hook, rap verse verses, melodic hook final chorus, beat fades outro."
+    ],
+    [
+      "production",
+      "Hard-hitting 808s, crisp trap hi-hats."
+    ],
+    [
+      "flavour",
+      "conversational rap verses with internal rhymes, a genuinely sung melodic chorus, subtle sarangi."
+    ],
+    [
+      "tail",
+      "Vocal forward, natural phrasing."
+    ]
+  ],
+  "lyrics": {
+    "mode": "draft",
+    "source_sha256": "acd889edb8df4583344aef290b5aaf75e4082a6041fb59463eadd2931b63c6a5",
+    "sha256": "acd889edb8df4583344aef290b5aaf75e4082a6041fb59463eadd2931b63c6a5",
+    "output_sha256": "acd889edb8df4583344aef290b5aaf75e4082a6041fb59463eadd2931b63c6a5",
+    "newlines_normalised": false,
+    "inserted_tag_line_indices": [],
+    "inserted_tag_lines": [],
+    "line_count": 28,
+    "char_count": 1045,
+    "fit": {
+      "status": "ok",
+      "estimated_s": 127.8,
+      "target_s": 120
+    }
+  },
+  "arrangement": {
+    "requested": {
+      "lead": "piano",
+      "supports": [
+        "drum_machine",
+        "bass_808",
+        "sarangi"
+      ],
+      "voice_mode": "sung",
+      "background": "none"
+    },
+    "effective": {
+      "lead": "piano",
+      "supports": [
+        "drum_machine",
+        "bass_808",
+        "sarangi"
+      ],
+      "voice_mode": "sung",
+      "background": "none"
+    },
+    "adjustments": []
+  },
+  "blueprint": {
+    "form": "rap_song",
+    "bpm": 92,
+    "meter": "4/4",
+    "bar_s": 2.609,
+    "target_s": 120,
+    "estimated_s": 127.8,
+    "sections": [
+      {
+        "kind": "intro",
+        "name": "Intro",
+        "tag": "Intro",
+        "lyric": false,
+        "lines": 0,
+        "bars": 2.0,
+        "seconds": 4.9,
+        "energy": 2,
+        "hint": "dark beat",
+        "playing": [
+          "piano",
+          "bass_808",
+          "sarangi"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "dark beat"
+      },
+      {
+        "kind": "chorus",
+        "name": "Hook",
+        "tag": "Chorus",
+        "lyric": true,
+        "lines": 4,
+        "bars": 9.0,
+        "seconds": 22.0,
+        "energy": 4,
+        "hint": "melodic hook, drum machine enters",
+        "playing": [
+          "piano",
+          "drum_machine",
+          "bass_808",
+          "sarangi"
+        ],
+        "entering": [
+          "drum_machine"
+        ],
+        "uid": "chorus",
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "melodic hook"
+      },
+      {
+        "kind": "verse",
+        "name": "Verse 1",
+        "tag": "Verse 1",
+        "lyric": true,
+        "lines": 8,
+        "bars": 9,
+        "seconds": 22.0,
+        "energy": 3,
+        "hint": "rap verse",
+        "playing": [
+          "piano",
+          "drum_machine",
+          "bass_808",
+          "sarangi"
+        ],
+        "entering": [],
+        "uid": "verse_1",
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "rap verse"
+      },
+      {
+        "kind": "chorus",
+        "name": "Hook",
+        "tag": "Chorus",
+        "lyric": true,
+        "lines": 4,
+        "bars": 9.0,
+        "seconds": 22.0,
+        "energy": 4,
+        "hint": "melodic hook",
+        "playing": [
+          "piano",
+          "drum_machine",
+          "bass_808",
+          "sarangi"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": "chorus",
+        "final": false,
+        "style_hint": "melodic hook"
+      },
+      {
+        "kind": "verse",
+        "name": "Verse 2",
+        "tag": "Verse 2",
+        "lyric": true,
+        "lines": 8,
+        "bars": 9,
+        "seconds": 22.0,
+        "energy": 3,
+        "hint": "rap verse",
+        "playing": [
+          "piano",
+          "drum_machine",
+          "bass_808",
+          "sarangi"
+        ],
+        "entering": [],
+        "uid": "verse_2",
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "rap verse"
+      },
+      {
+        "kind": "chorus",
+        "name": "Hook",
+        "tag": "Chorus",
+        "lyric": true,
+        "lines": 4,
+        "bars": 9.0,
+        "seconds": 22.0,
+        "energy": 5,
+        "hint": "melodic hook",
+        "playing": [
+          "piano",
+          "drum_machine",
+          "bass_808",
+          "sarangi"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": "chorus",
+        "final": true,
+        "style_hint": "melodic hook"
+      },
+      {
+        "kind": "outro",
+        "name": "Outro",
+        "tag": "Outro",
+        "lyric": false,
+        "lines": 0,
+        "bars": 2.0,
+        "seconds": 4.9,
+        "energy": 2,
+        "hint": "beat fades",
+        "playing": [
+          "piano",
+          "bass_808",
+          "sarangi"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "beat fades"
+      }
+    ],
+    "lyric_slots": [
+      {
+        "uid": "chorus",
+        "name": "Hook",
+        "kind": "chorus",
+        "lines": 4
+      },
+      {
+        "uid": "verse_1",
+        "name": "Verse 1",
+        "kind": "verse",
+        "lines": 8
+      },
+      {
+        "uid": "verse_2",
+        "name": "Verse 2",
+        "kind": "verse",
+        "lines": 8
+      }
+    ],
+    "dropped": [],
+    "changes": [
+      "intro, outro and interludes shortened to fit the length"
+    ],
+    "fit": "ok"
+  }
+}

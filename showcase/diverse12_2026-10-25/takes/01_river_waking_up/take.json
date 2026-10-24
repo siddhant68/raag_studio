@@ -1,0 +1,35 @@
+{
+  "take": 1,
+  "slug": "river_waking_up",
+  "title": "River waking up",
+  "seed": 1821732005,
+  "engine_profile": "shift3",
+  "profile_detail": {
+    "dit": "acestep-v15-turbo",
+    "lm": null,
+    "shift": 3.0,
+    "inference_steps": 8,
+    "thinking": false,
+    "label": "Turbo, shift 3.0 (ACE-Step's recommendation for turbo)"
+  },
+  "dit": "acestep-v15-turbo",
+  "lm": null,
+  "genre": "raag_bansuri",
+  "form": "raag",
+  "requested": {
+    "duration_s": 120,
+    "bpm": 78,
+    "meter": "4/4",
+    "voice": "instrumental",
+    "singer": null,
+    "language": null
+  },
+  "prepared_at": "2026-10-24T20:22:34+00:00",
+  "app_commit": "6bbb979",
+  "render": {
+    "status": "not_rendered"
+  },
+  "listening": {
+    "verdict": "pending"
+  }
+}

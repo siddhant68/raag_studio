@@ -1,0 +1,133 @@
+{
+  "schema_version": "2.0",
+  "brief": "बात अधूरी — Hindi female ghazal-inspired song. 120 seconds, approximately 68 BPM, gentle 6/8. Harmonium, sarangi, tabla and restrained acoustic guitar. Poetic but understandable language, elegant melodic turns and breathing space between lines. Hook: “बात अधूरी रहने दे / आँखों को कुछ कहने दे”. Prioritize graceful singing over excessive ornamentation.",
+  "recipe_id": null,
+  "voice_mode": "sung",
+  "duration_s": 120,
+  "lead": {
+    "instrument": "harmonium",
+    "style": "simple"
+  },
+  "supports": [
+    {
+      "instrument": "sarangi",
+      "role": "answer",
+      "presence": "gentle"
+    },
+    {
+      "instrument": "tabla",
+      "role": "rhythm",
+      "presence": "gentle"
+    },
+    {
+      "instrument": "acoustic_guitar",
+      "role": "harmony",
+      "presence": "sparse"
+    }
+  ],
+  "feeling": [
+    "tender",
+    "reflective",
+    "graceful"
+  ],
+  "pace": {
+    "bucket": "slow",
+    "bpm": 68
+  },
+  "key": "C minor",
+  "arc": "slow_build",
+  "fullness": "balanced",
+  "voices": {
+    "singer": "female",
+    "background": "none",
+    "language": "hi"
+  },
+  "lyrics": {
+    "policy": "write",
+    "text": "[Intro]\n\n[Chorus]\nबात अधूरी रहने दे\nआँखों को कुछ कहने दे\n\n[Verse 1]\nपलकों में ठहरा जो दरिया, उसको आज बहने दे\nचाय ठंडी हो गई है, आँखों को कुछ कहने दे\n\n[Chorus]\nबात अधूरी रहने दे\nआँखों को कुछ कहने दे\n\n[Interlude]\n\n[Verse 2]\nदहलीज़ पर मैं रुकी हूँ, ये दूरी सहने दे\nसुबह की पहली अज़ान तक, आँखों को कुछ कहने दे\n\n[Chorus]\nबात अधूरी रहने दे\nआँखों को कुछ कहने दे\n\n[Outro]",
+    "topic": "A woman asks that a conversation be left unfinished and that the eyes say the rest. Poetic but understandable Hindustani, ghazal-like couplets that each stand on their own."
+  },
+  "avoid": [],
+  "flavour": "graceful melodic turns with light ornaments, breathing space between lines",
+  "notes_for_user": [
+    "Words I understood: tabla, acoustic guitar, harmonium, sarangi, gentle.",
+    "Hindi singing is experimental: one heard take, diction imperfect.",
+    "This is the Basic planner (keyword rules, not an AI). It cannot read stories or analogies."
+  ],
+  "takes": 1,
+  "genre": "ghazal",
+  "pipeline": "song",
+  "meter": "6/8",
+  "form": "ghazal",
+  "require_sections": [],
+  "provenance": {
+    "voice_mode": {
+      "source": "you",
+      "reason": "you chose the voice"
+    },
+    "voices": {
+      "source": "you",
+      "reason": "you picked the singer; language: you picked the language"
+    },
+    "lyrics": {
+      "source": "suggested",
+      "reason": "written by Claude (local CLI); hook supplied by you"
+    },
+    "avoid": {
+      "source": "recipe",
+      "reason": "Hindi ballad default"
+    },
+    "flavour": {
+      "source": "you",
+      "reason": "from the showcase brief"
+    },
+    "fullness": {
+      "source": "recipe",
+      "reason": "Hindi ballad default"
+    },
+    "takes": {
+      "source": "you",
+      "reason": "you set versions"
+    },
+    "duration_s": {
+      "source": "you",
+      "reason": "you set the length"
+    },
+    "lead": {
+      "source": "you",
+      "reason": "you picked the playing style"
+    },
+    "supports": {
+      "source": "you",
+      "reason": "from the showcase brief"
+    },
+    "feeling": {
+      "source": "you",
+      "reason": "you picked the feeling"
+    },
+    "pace": {
+      "source": "you",
+      "reason": "you set 68 BPM"
+    },
+    "key": {
+      "source": "recipe",
+      "reason": "Ghazal style"
+    },
+    "arc": {
+      "source": "recipe",
+      "reason": "Hindi ballad default"
+    },
+    "genre": {
+      "source": "you",
+      "reason": "you picked the style"
+    },
+    "meter": {
+      "source": "you",
+      "reason": "you set the meter"
+    },
+    "form": {
+      "source": "recipe",
+      "reason": "Ghazal style"
+    }
+  }
+}

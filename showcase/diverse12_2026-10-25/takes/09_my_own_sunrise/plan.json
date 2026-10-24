@@ -1,0 +1,140 @@
+{
+  "schema_version": "2.0",
+  "brief": "My Own Sunrise — English female motivational soul-pop. 120 seconds, approximately 96 BPM, syncopated 4/4. Rhodes, rounded bass, tight drums, handclaps and backing harmonies. Start vulnerable and grow into confident, joyful singing. Include a sparse bridge. Hook: “I can be my own sunrise / Watch me open up the skies”. Test expressive phrasing and harmonies without burying the lead.",
+  "recipe_id": null,
+  "voice_mode": "sung",
+  "duration_s": 120,
+  "lead": {
+    "instrument": "rhodes",
+    "style": "singing"
+  },
+  "supports": [
+    {
+      "instrument": "bass",
+      "role": "harmony",
+      "presence": "gentle"
+    },
+    {
+      "instrument": "drum_kit",
+      "role": "rhythm",
+      "presence": "gentle"
+    },
+    {
+      "instrument": "handclaps",
+      "role": "rhythm",
+      "presence": "sparse"
+    }
+  ],
+  "feeling": [
+    "hopeful",
+    "joyful",
+    "confident"
+  ],
+  "pace": {
+    "bucket": "medium",
+    "bpm": 96
+  },
+  "key": "E minor",
+  "arc": "slow_build",
+  "fullness": "spare",
+  "voices": {
+    "singer": "female",
+    "background": "light",
+    "language": "en"
+  },
+  "lyrics": {
+    "policy": "write",
+    "text": "[Intro]\n\n[Verse 1]\nFour a.m., I'm tracing cracks along the ceiling\nCold tea on the sill, my phone face down and dim\nI rehearse the speech I never get to say out loud\nPull your old sweater on, still doubting where I begin\n\n[Chorus]\nI can be my own sunrise\nWatch me open up the skies\nGold on my shoulders, bare feet on the floor\nI'm done waiting on a light to knock on my door\n\n[Verse 2]\nNow the kettle's singing and I'm humming right along\nCurtains pulled wide, honey sliding off my spoon\nI catch my grin in the window, steady and strong\nDancing through the kitchen, a slow and easy tune\n\n[Bridge]\nHush now, it was me holding the match\nJust me, and the quiet, and my breath\nSoft, soft, I felt it start to catch\nWarm on my skin, no fear left\n\n[Chorus]\nI can be my own sunrise\nWatch me open up the skies\nGold on my shoulders, bare feet on the floor\nI'm done waiting on a light to knock on my door\n\n[Outro]",
+    "topic": "A woman moves from doubt to self-belief: the verses start vulnerable and concrete, the chorus is confident and joyful, the bridge is sparse and quiet before the last chorus."
+  },
+  "avoid": [],
+  "flavour": "syncopated soul-pop, starts vulnerable then grows joyful, harmonies never bury the lead",
+  "notes_for_user": [
+    "Words I understood: bass, drums, handclaps, rhodes, joyful, sparse.",
+    "English sung words are untested.",
+    "Hindi singing is experimental: one heard take, diction imperfect.",
+    "This is the Basic planner (keyword rules, not an AI). It cannot read stories or analogies."
+  ],
+  "takes": 1,
+  "genre": "rnb_soul",
+  "pipeline": "song",
+  "meter": "4/4",
+  "form": "pop_song",
+  "require_sections": [
+    "bridge"
+  ],
+  "provenance": {
+    "voice_mode": {
+      "source": "you",
+      "reason": "you chose the voice"
+    },
+    "voices": {
+      "source": "you",
+      "reason": "you picked background voices; language: you picked the language"
+    },
+    "lyrics": {
+      "source": "suggested",
+      "reason": "written by Claude (local CLI); hook supplied by you"
+    },
+    "avoid": {
+      "source": "recipe",
+      "reason": "Hindi ballad default"
+    },
+    "flavour": {
+      "source": "you",
+      "reason": "from the showcase brief"
+    },
+    "fullness": {
+      "source": "suggested",
+      "reason": "you wrote 'sparse'"
+    },
+    "takes": {
+      "source": "you",
+      "reason": "you set versions"
+    },
+    "duration_s": {
+      "source": "you",
+      "reason": "you set the length"
+    },
+    "lead": {
+      "source": "you",
+      "reason": "you picked the playing style"
+    },
+    "supports": {
+      "source": "you",
+      "reason": "from the showcase brief"
+    },
+    "feeling": {
+      "source": "you",
+      "reason": "you picked the feeling"
+    },
+    "pace": {
+      "source": "you",
+      "reason": "you set 96 BPM"
+    },
+    "key": {
+      "source": "recipe",
+      "reason": "R&B / neo-soul style"
+    },
+    "arc": {
+      "source": "recipe",
+      "reason": "Hindi ballad default"
+    },
+    "genre": {
+      "source": "you",
+      "reason": "you picked the style"
+    },
+    "meter": {
+      "source": "you",
+      "reason": "you set the meter"
+    },
+    "form": {
+      "source": "recipe",
+      "reason": "R&B / neo-soul style"
+    },
+    "require_sections": {
+      "source": "you",
+      "reason": "from the showcase brief"
+    }
+  }
+}

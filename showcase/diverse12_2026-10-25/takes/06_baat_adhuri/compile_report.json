@@ -1,0 +1,297 @@
+{
+  "pipeline": "song",
+  "genre": "ghazal",
+  "genre_name": "Ghazal",
+  "engine_profile": "shift3",
+  "engine_profile_label": "Turbo, shift 3.0 (ACE-Step's recommendation for turbo)",
+  "char_count": 481,
+  "dropped": [],
+  "warnings": [
+    "Hindi sung words are experimental: listen to check diction."
+  ],
+  "conflicts": [],
+  "unsupported": [],
+  "notes": [],
+  "cap": 512,
+  "slots": [
+    [
+      "genre",
+      "Hindi ghazal, ghazal."
+    ],
+    [
+      "mood",
+      "Tender, reflective, graceful."
+    ],
+    [
+      "vocal",
+      "Soft intimate female vocal with subtle ornaments and unhurried phrasing, sung in Hindi."
+    ],
+    [
+      "instruments",
+      "Harmonium, sarangi, tabla and sparse fingerpicked acoustic guitar."
+    ],
+    [
+      "journey",
+      "Harmonium aalap, refrain matla, tabla verses, sarangi interlude, refrain final chorus, harmonium outro."
+    ],
+    [
+      "production",
+      "Intimate acoustic recording, warm reverb, sparse arrangement."
+    ],
+    [
+      "flavour",
+      "graceful melodic turns with light ornaments, breathing space between lines."
+    ],
+    [
+      "tail",
+      "Vocal forward, natural phrasing."
+    ]
+  ],
+  "lyrics": {
+    "mode": "draft",
+    "source_sha256": "af6750e1c403cb97587d6254bced4583fdd0807f972f7cf581bfedcb0ab95ada",
+    "sha256": "af6750e1c403cb97587d6254bced4583fdd0807f972f7cf581bfedcb0ab95ada",
+    "output_sha256": "af6750e1c403cb97587d6254bced4583fdd0807f972f7cf581bfedcb0ab95ada",
+    "newlines_normalised": false,
+    "inserted_tag_line_indices": [],
+    "inserted_tag_lines": [],
+    "line_count": 10,
+    "char_count": 363,
+    "fit": {
+      "status": "ok",
+      "estimated_s": 108.5,
+      "target_s": 120
+    }
+  },
+  "arrangement": {
+    "requested": {
+      "lead": "harmonium",
+      "supports": [
+        "sarangi",
+        "tabla",
+        "acoustic_guitar"
+      ],
+      "voice_mode": "sung",
+      "background": "none"
+    },
+    "effective": {
+      "lead": "harmonium",
+      "supports": [
+        "sarangi",
+        "tabla",
+        "acoustic_guitar"
+      ],
+      "voice_mode": "sung",
+      "background": "none"
+    },
+    "adjustments": []
+  },
+  "blueprint": {
+    "form": "ghazal",
+    "bpm": 68,
+    "meter": "6/8",
+    "bar_s": 2.647,
+    "target_s": 120,
+    "estimated_s": 108.5,
+    "sections": [
+      {
+        "kind": "intro",
+        "name": "Aalap",
+        "tag": "Intro",
+        "lyric": false,
+        "lines": 0,
+        "bars": 8.0,
+        "seconds": 23.4,
+        "energy": 1,
+        "hint": "harmonium aalap",
+        "playing": [
+          "harmonium"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "harmonium aalap"
+      },
+      {
+        "kind": "chorus",
+        "name": "Matla",
+        "tag": "Chorus",
+        "lyric": true,
+        "lines": 2,
+        "bars": 5.0,
+        "seconds": 14.6,
+        "energy": 2,
+        "hint": "refrain, sarangi enters",
+        "playing": [
+          "harmonium",
+          "sarangi",
+          "acoustic_guitar"
+        ],
+        "entering": [
+          "sarangi",
+          "acoustic_guitar"
+        ],
+        "uid": "chorus",
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "refrain"
+      },
+      {
+        "kind": "verse",
+        "name": "Sher 1",
+        "tag": "Verse 1",
+        "lyric": true,
+        "lines": 2,
+        "bars": 5.0,
+        "seconds": 14.6,
+        "energy": 2,
+        "hint": "tabla, gentle",
+        "playing": [
+          "harmonium",
+          "sarangi",
+          "acoustic_guitar",
+          "tabla"
+        ],
+        "entering": [
+          "tabla"
+        ],
+        "uid": "verse_1",
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "tabla, gentle"
+      },
+      {
+        "kind": "chorus",
+        "name": "Matla",
+        "tag": "Chorus",
+        "lyric": true,
+        "lines": 2,
+        "bars": 5.0,
+        "seconds": 14.6,
+        "energy": 3,
+        "hint": "refrain",
+        "playing": [
+          "harmonium",
+          "sarangi",
+          "tabla",
+          "acoustic_guitar"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": "chorus",
+        "final": false,
+        "style_hint": "refrain"
+      },
+      {
+        "kind": "interlude",
+        "name": "Interlude",
+        "tag": "Interlude",
+        "lyric": false,
+        "lines": 0,
+        "bars": 4.0,
+        "seconds": 11.7,
+        "energy": 2,
+        "hint": "sarangi",
+        "playing": [
+          "harmonium",
+          "sarangi",
+          "acoustic_guitar"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "sarangi"
+      },
+      {
+        "kind": "verse",
+        "name": "Sher 2",
+        "tag": "Verse 2",
+        "lyric": true,
+        "lines": 2,
+        "bars": 5.0,
+        "seconds": 14.6,
+        "energy": 3,
+        "hint": "tabla, gentle",
+        "playing": [
+          "harmonium",
+          "sarangi",
+          "tabla",
+          "acoustic_guitar"
+        ],
+        "entering": [
+          "tabla"
+        ],
+        "uid": "verse_2",
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "tabla, gentle"
+      },
+      {
+        "kind": "chorus",
+        "name": "Matla",
+        "tag": "Chorus",
+        "lyric": true,
+        "lines": 2,
+        "bars": 5.0,
+        "seconds": 14.6,
+        "energy": 5,
+        "hint": "refrain",
+        "playing": [
+          "harmonium",
+          "sarangi",
+          "tabla",
+          "acoustic_guitar"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": "chorus",
+        "final": true,
+        "style_hint": "refrain"
+      },
+      {
+        "kind": "outro",
+        "name": "Outro",
+        "tag": "Outro",
+        "lyric": false,
+        "lines": 0,
+        "bars": 4.0,
+        "seconds": 11.7,
+        "energy": 1,
+        "hint": "harmonium",
+        "playing": [
+          "harmonium"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "harmonium"
+      }
+    ],
+    "lyric_slots": [
+      {
+        "uid": "chorus",
+        "name": "Matla",
+        "kind": "chorus",
+        "lines": 2
+      },
+      {
+        "uid": "verse_1",
+        "name": "Sher 1",
+        "kind": "verse",
+        "lines": 2
+      },
+      {
+        "uid": "verse_2",
+        "name": "Sher 2",
+        "kind": "verse",
+        "lines": 2
+      }
+    ],
+    "dropped": [],
+    "changes": [],
+    "fit": "ok"
+  }
+}

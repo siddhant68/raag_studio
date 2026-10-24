@@ -1,0 +1,346 @@
+{
+  "pipeline": "song",
+  "genre": "edm_house",
+  "genre_name": "EDM / progressive house",
+  "engine_profile": "shift3",
+  "engine_profile_label": "Turbo, shift 3.0 (ACE-Step's recommendation for turbo)",
+  "char_count": 499,
+  "dropped": [
+    {
+      "kind": "production",
+      "item": "sidechain pumping",
+      "reason": "over_budget"
+    }
+  ],
+  "warnings": [
+    "English sung words are untested: listen to check diction.",
+    "intro and outro shortened to fit the length"
+  ],
+  "conflicts": [],
+  "unsupported": [],
+  "notes": [],
+  "cap": 512,
+  "slots": [
+    [
+      "genre",
+      "Progressive house, edm."
+    ],
+    [
+      "mood",
+      "Euphoric, emotional, uplifting."
+    ],
+    [
+      "vocal",
+      "Emotional airy female vocal topline, clear words, sung in English."
+    ],
+    [
+      "instruments",
+      "Bright synth lead, rich punchy electronic drums, deep synth bass, warm synth pads and pulsing synth arpeggios."
+    ],
+    [
+      "journey",
+      "Filtered beat intro, minimal verses, pre-chorus, chorus, big drop, breakdown, final chorus."
+    ],
+    [
+      "production",
+      "Festival-ready mix, huge supersaw synths."
+    ],
+    [
+      "flavour",
+      "four-on-the-floor kick, sidechain pulse, melodic instrumental drops, vocals kept out of the drops."
+    ],
+    [
+      "tail",
+      "Vocal forward, natural phrasing."
+    ]
+  ],
+  "lyrics": {
+    "mode": "draft",
+    "source_sha256": "582ac1b0b20576c1cf44678caabe3c2ce7ba6fea68af4a7a1a4c0e9924ec9637",
+    "sha256": "582ac1b0b20576c1cf44678caabe3c2ce7ba6fea68af4a7a1a4c0e9924ec9637",
+    "output_sha256": "582ac1b0b20576c1cf44678caabe3c2ce7ba6fea68af4a7a1a4c0e9924ec9637",
+    "newlines_normalised": false,
+    "inserted_tag_line_indices": [],
+    "inserted_tag_lines": [],
+    "line_count": 18,
+    "char_count": 698,
+    "fit": {
+      "status": "ok",
+      "estimated_s": 154.3,
+      "target_s": 150
+    }
+  },
+  "arrangement": {
+    "requested": {
+      "lead": "synth_lead",
+      "supports": [
+        "drum_machine",
+        "synth_bass",
+        "synth_pad",
+        "arpeggiator"
+      ],
+      "voice_mode": "sung",
+      "background": "none"
+    },
+    "effective": {
+      "lead": "synth_lead",
+      "supports": [
+        "drum_machine",
+        "synth_bass",
+        "synth_pad",
+        "arpeggiator"
+      ],
+      "voice_mode": "sung",
+      "background": "none"
+    },
+    "adjustments": []
+  },
+  "blueprint": {
+    "form": "edm",
+    "bpm": 126,
+    "meter": "4/4",
+    "bar_s": 1.905,
+    "target_s": 150,
+    "estimated_s": 154.3,
+    "sections": [
+      {
+        "kind": "intro",
+        "name": "Intro",
+        "tag": "Intro",
+        "lyric": false,
+        "lines": 0,
+        "bars": 4.0,
+        "seconds": 7.4,
+        "energy": 2,
+        "hint": "filtered beat",
+        "playing": [
+          "synth_lead",
+          "drum_machine",
+          "synth_bass",
+          "synth_pad",
+          "arpeggiator"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "filtered beat"
+      },
+      {
+        "kind": "verse",
+        "name": "Verse 1",
+        "tag": "Verse 1",
+        "lyric": true,
+        "lines": 4,
+        "bars": 9.0,
+        "seconds": 16.7,
+        "energy": 2,
+        "hint": "minimal",
+        "playing": [
+          "synth_lead",
+          "drum_machine",
+          "synth_bass",
+          "synth_pad",
+          "arpeggiator"
+        ],
+        "entering": [],
+        "uid": "verse_1",
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "minimal"
+      },
+      {
+        "kind": "pre_chorus",
+        "name": "Pre-Chorus",
+        "tag": "Pre-Chorus",
+        "lyric": true,
+        "lines": 2,
+        "bars": 5.0,
+        "seconds": 9.3,
+        "energy": 3,
+        "hint": "",
+        "playing": [
+          "synth_lead",
+          "drum_machine",
+          "synth_bass",
+          "synth_pad",
+          "arpeggiator"
+        ],
+        "entering": [],
+        "uid": "pre_chorus",
+        "repeat_of": null,
+        "final": false,
+        "style_hint": ""
+      },
+      {
+        "kind": "chorus",
+        "name": "Chorus",
+        "tag": "Chorus",
+        "lyric": true,
+        "lines": 4,
+        "bars": 9.0,
+        "seconds": 16.7,
+        "energy": 4,
+        "hint": "",
+        "playing": [
+          "synth_lead",
+          "drum_machine",
+          "synth_bass",
+          "synth_pad",
+          "arpeggiator"
+        ],
+        "entering": [],
+        "uid": "chorus",
+        "repeat_of": null,
+        "final": false,
+        "style_hint": ""
+      },
+      {
+        "kind": "drop",
+        "name": "Drop",
+        "tag": "Drop",
+        "lyric": false,
+        "lines": 0,
+        "bars": 16.0,
+        "seconds": 29.6,
+        "energy": 5,
+        "hint": "big drop",
+        "playing": [
+          "synth_lead",
+          "drum_machine",
+          "synth_bass",
+          "synth_pad",
+          "arpeggiator"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "big drop"
+      },
+      {
+        "kind": "bridge",
+        "name": "Breakdown",
+        "tag": "Breakdown",
+        "lyric": true,
+        "lines": 4,
+        "bars": 9.0,
+        "seconds": 16.7,
+        "energy": 2,
+        "hint": "breakdown",
+        "playing": [
+          "synth_lead",
+          "drum_machine",
+          "synth_bass",
+          "synth_pad",
+          "arpeggiator"
+        ],
+        "entering": [],
+        "uid": "bridge",
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "breakdown"
+      },
+      {
+        "kind": "chorus",
+        "name": "Chorus",
+        "tag": "Chorus",
+        "lyric": true,
+        "lines": 4,
+        "bars": 9.0,
+        "seconds": 16.7,
+        "energy": 5,
+        "hint": "",
+        "playing": [
+          "synth_lead",
+          "drum_machine",
+          "synth_bass",
+          "synth_pad",
+          "arpeggiator"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": "chorus",
+        "final": true,
+        "style_hint": ""
+      },
+      {
+        "kind": "drop",
+        "name": "Final Drop",
+        "tag": "Drop",
+        "lyric": false,
+        "lines": 0,
+        "bars": 16.0,
+        "seconds": 29.6,
+        "energy": 5,
+        "hint": "big drop",
+        "playing": [
+          "synth_lead",
+          "drum_machine",
+          "synth_bass",
+          "synth_pad",
+          "arpeggiator"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "big drop"
+      },
+      {
+        "kind": "outro",
+        "name": "Outro",
+        "tag": "Outro",
+        "lyric": false,
+        "lines": 0,
+        "bars": 4.0,
+        "seconds": 7.4,
+        "energy": 2,
+        "hint": "beat fades",
+        "playing": [
+          "synth_lead",
+          "drum_machine",
+          "synth_bass",
+          "synth_pad",
+          "arpeggiator"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "beat fades"
+      }
+    ],
+    "lyric_slots": [
+      {
+        "uid": "verse_1",
+        "name": "Verse 1",
+        "kind": "verse",
+        "lines": 4
+      },
+      {
+        "uid": "pre_chorus",
+        "name": "Pre-Chorus",
+        "kind": "pre_chorus",
+        "lines": 2
+      },
+      {
+        "uid": "chorus",
+        "name": "Chorus",
+        "kind": "chorus",
+        "lines": 4
+      },
+      {
+        "uid": "bridge",
+        "name": "Breakdown",
+        "kind": "bridge",
+        "lines": 4
+      }
+    ],
+    "dropped": [],
+    "changes": [
+      "intro and outro shortened to fit the length"
+    ],
+    "fit": "ok"
+  }
+}

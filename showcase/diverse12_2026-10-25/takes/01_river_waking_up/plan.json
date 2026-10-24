@@ -1,0 +1,130 @@
+{
+  "schema_version": "2.0",
+  "brief": "River waking up — expressive Indian flute. 120 seconds, approximately 78 BPM, gentle 4/4. Lead bansuri with tanpura, delicate tabla and occasional santoor. Begin with a spacious flute introduction, introduce a graceful recurring melody, then develop it with ornamentation, breath-shaped phrases and a few fluid runs. Tabla should support the flute without crowding it. End by returning quietly to the opening idea. No voices. Aim for the warmth and expressive playing we loved in Yamuna at Dawn.",
+  "recipe_id": null,
+  "voice_mode": "instrumental",
+  "duration_s": 120,
+  "lead": {
+    "instrument": "bansuri",
+    "style": "singing"
+  },
+  "supports": [
+    {
+      "instrument": "tanpura",
+      "role": "drone",
+      "presence": "gentle"
+    },
+    {
+      "instrument": "tabla",
+      "role": "rhythm",
+      "presence": "sparse"
+    },
+    {
+      "instrument": "santoor",
+      "role": "texture",
+      "presence": "sparse"
+    }
+  ],
+  "feeling": [
+    "peaceful"
+  ],
+  "pace": {
+    "bucket": "slow",
+    "bpm": 78
+  },
+  "key": "D major",
+  "arc": "quiet_middle_bloom",
+  "fullness": "balanced",
+  "voices": {
+    "singer": "auto",
+    "background": "none",
+    "language": "en"
+  },
+  "lyrics": {
+    "policy": "none",
+    "text": null,
+    "topic": null
+  },
+  "avoid": [],
+  "flavour": "tabla supports the flute without crowding it, ending quietly on the opening melody",
+  "notes_for_user": [
+    "Words I understood: flute, tabla, tanpura, santoor, gentle.",
+    "This is the Basic planner (keyword rules, not an AI). It cannot read stories or analogies."
+  ],
+  "takes": 1,
+  "genre": "raag_bansuri",
+  "pipeline": "song",
+  "meter": "4/4",
+  "form": "raag",
+  "require_sections": [],
+  "provenance": {
+    "voice_mode": {
+      "source": "you",
+      "reason": "you chose the voice"
+    },
+    "voices": {
+      "source": "rule",
+      "reason": "instrumental: no voices"
+    },
+    "lyrics": {
+      "source": "rule",
+      "reason": "voice is instrumental: no lyric text"
+    },
+    "avoid": {
+      "source": "recipe",
+      "reason": "Flute focus default"
+    },
+    "flavour": {
+      "source": "you",
+      "reason": "from the showcase brief"
+    },
+    "fullness": {
+      "source": "recipe",
+      "reason": "Flute focus default"
+    },
+    "takes": {
+      "source": "you",
+      "reason": "you set versions"
+    },
+    "duration_s": {
+      "source": "you",
+      "reason": "you set the length"
+    },
+    "lead": {
+      "source": "you",
+      "reason": "you picked the playing style"
+    },
+    "supports": {
+      "source": "you",
+      "reason": "from the showcase brief"
+    },
+    "feeling": {
+      "source": "suggested",
+      "reason": "mood words in your brief: peaceful"
+    },
+    "pace": {
+      "source": "you",
+      "reason": "you set 78 BPM"
+    },
+    "key": {
+      "source": "recipe",
+      "reason": "Raag: bansuri at dawn style"
+    },
+    "arc": {
+      "source": "recipe",
+      "reason": "Flute focus default"
+    },
+    "genre": {
+      "source": "you",
+      "reason": "you picked the style"
+    },
+    "meter": {
+      "source": "you",
+      "reason": "you set the meter"
+    },
+    "form": {
+      "source": "recipe",
+      "reason": "Raag: bansuri at dawn style"
+    }
+  }
+}

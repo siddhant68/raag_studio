@@ -1,0 +1,140 @@
+{
+  "schema_version": "2.0",
+  "brief": "Run Toward the Light — English male rock anthem. 120 seconds, approximately 132 BPM, 4/4. Electric guitars, bass, live drums and restrained organ. Quiet determination in the verse, rising pre-chorus, powerful sung chorus and a brief guitar response. Motivational without generic slogans or constant shouting. Hook: “One more step into the light / I’m still here, I’m still in the fight”.",
+  "recipe_id": null,
+  "voice_mode": "sung",
+  "duration_s": 120,
+  "lead": {
+    "instrument": "electric_guitar",
+    "style": "singing"
+  },
+  "supports": [
+    {
+      "instrument": "bass",
+      "role": "harmony",
+      "presence": "gentle"
+    },
+    {
+      "instrument": "drum_kit",
+      "role": "rhythm",
+      "presence": "gentle"
+    },
+    {
+      "instrument": "organ",
+      "role": "texture",
+      "presence": "sparse"
+    }
+  ],
+  "feeling": [
+    "determined",
+    "uplifting",
+    "driving"
+  ],
+  "pace": {
+    "bucket": "lively",
+    "bpm": 132
+  },
+  "key": "E major",
+  "arc": "steady",
+  "fullness": "balanced",
+  "voices": {
+    "singer": "male",
+    "background": "none",
+    "language": "en"
+  },
+  "lyrics": {
+    "policy": "write",
+    "text": "[Intro]\n\n[Verse 1]\nCold coffee on the windowsill\nTaped-up knuckles, standing still\nRain on the tin roof, boots by the door\nMud on my jeans from the night before\n\n[Pre-Chorus]\nDust on my tongue and the crowd walking out\nI tie my laces slow, no room for doubt\n\n[Chorus]\nOne more step into the light\nI’m still here, I’m still in the fight\nKnees in the gravel, but I rise slow\nEvery heartbeat tells me where to go\n\n[Verse 2]\nMorning finds me on the cinder track\nSame worn shoes, but I’m not looking back\nDad’s old voice is crackling on the phone\nSays the porch light’s on, you’re not alone\n\n[Pre-Chorus]\nDust on my tongue and the crowd walking out\nI tie my laces slow, no room for doubt\n\n[Chorus]\nOne more step into the light\nI’m still here, I’m still in the fight\nKnees in the gravel, but I rise slow\nEvery heartbeat tells me where to go\n\n[Bridge]\nI stopped counting all the times I fell\nStarted counting sunrises as well\nWho I was is a shadow on the wall\nWho I am is just getting up, that’s all\n\n[Chorus]\nOne more step into the light\nI’m still here, I’m still in the fight\nKnees in the gravel, but I rise slow\nEvery heartbeat tells me where to go\n\n[Outro]",
+    "topic": "Someone keeps going after being knocked down: quiet determination, specific images of the struggle, no generic slogans; the chorus is sung with power, not shouted."
+  },
+  "avoid": [],
+  "flavour": "quiet determined verses, rising pre-chorus, powerful sung chorus, a brief guitar response",
+  "notes_for_user": [
+    "Words I understood: guitar, bass, electric guitars, live drums, organ, anthem, quiet, constant.",
+    "English sung words are untested.",
+    "Hindi singing is experimental: one heard take, diction imperfect.",
+    "This is the Basic planner (keyword rules, not an AI). It cannot read stories or analogies."
+  ],
+  "takes": 1,
+  "genre": "rock_anthem",
+  "pipeline": "song",
+  "meter": "4/4",
+  "form": "pop_song",
+  "require_sections": [
+    "pre_chorus"
+  ],
+  "provenance": {
+    "voice_mode": {
+      "source": "you",
+      "reason": "you chose the voice"
+    },
+    "voices": {
+      "source": "you",
+      "reason": "you picked the singer; language: you picked the language"
+    },
+    "lyrics": {
+      "source": "suggested",
+      "reason": "written by Claude (local CLI); hook supplied by you"
+    },
+    "avoid": {
+      "source": "recipe",
+      "reason": "Hindi ballad default"
+    },
+    "flavour": {
+      "source": "you",
+      "reason": "from the showcase brief"
+    },
+    "fullness": {
+      "source": "recipe",
+      "reason": "Hindi ballad default"
+    },
+    "takes": {
+      "source": "you",
+      "reason": "you set versions"
+    },
+    "duration_s": {
+      "source": "you",
+      "reason": "you set the length"
+    },
+    "lead": {
+      "source": "you",
+      "reason": "you picked the playing style"
+    },
+    "supports": {
+      "source": "you",
+      "reason": "from the showcase brief"
+    },
+    "feeling": {
+      "source": "you",
+      "reason": "you picked the feeling"
+    },
+    "pace": {
+      "source": "you",
+      "reason": "you set 132 BPM"
+    },
+    "key": {
+      "source": "recipe",
+      "reason": "Rock anthem style"
+    },
+    "arc": {
+      "source": "suggested",
+      "reason": "you wrote 'constant'"
+    },
+    "genre": {
+      "source": "you",
+      "reason": "you picked the style"
+    },
+    "meter": {
+      "source": "you",
+      "reason": "you set the meter"
+    },
+    "form": {
+      "source": "recipe",
+      "reason": "Rock anthem style"
+    },
+    "require_sections": {
+      "source": "you",
+      "reason": "from the showcase brief"
+    }
+  }
+}

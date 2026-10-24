@@ -1,0 +1,134 @@
+{
+  "schema_version": "2.0",
+  "brief": "Midnight café — small jazz ensemble. 90 seconds, approximately 116 BPM, swinging 4/4. Tenor saxophone, Rhodes piano, upright bass and brushed drums. Establish a catchy sax theme, leave space for a short piano answer, then return to the theme. Relaxed, playful and rhythmically alive. Avoid a constant wall of soloing. No voices.",
+  "recipe_id": null,
+  "voice_mode": "instrumental",
+  "duration_s": 90,
+  "lead": {
+    "instrument": "saxophone",
+    "style": "singing"
+  },
+  "supports": [
+    {
+      "instrument": "rhodes",
+      "role": "answer",
+      "presence": "gentle"
+    },
+    {
+      "instrument": "upright_bass",
+      "role": "harmony",
+      "presence": "gentle"
+    },
+    {
+      "instrument": "brushed_drums",
+      "role": "rhythm",
+      "presence": "gentle"
+    }
+  ],
+  "feeling": [
+    "relaxed",
+    "playful",
+    "swinging"
+  ],
+  "pace": {
+    "bucket": "lively",
+    "bpm": 116
+  },
+  "key": "F major",
+  "arc": "steady",
+  "fullness": "balanced",
+  "voices": {
+    "singer": "auto",
+    "background": "none",
+    "language": "en"
+  },
+  "lyrics": {
+    "policy": "none",
+    "text": null,
+    "topic": null
+  },
+  "avoid": [
+    "a constant wall of soloing"
+  ],
+  "flavour": "catchy tenor sax theme, short Rhodes answers, then the theme returns; no wall of soloing",
+  "notes_for_user": [
+    "Words I understood: piano, upright bass, brushed drums, saxophone, rhodes, avoid a constant wall of soloing, relaxed, playful, constant.",
+    "This is the Basic planner (keyword rules, not an AI). It cannot read stories or analogies."
+  ],
+  "takes": 1,
+  "genre": "jazz_lounge",
+  "pipeline": "song",
+  "meter": "4/4",
+  "form": "jazz",
+  "require_sections": [],
+  "provenance": {
+    "voice_mode": {
+      "source": "you",
+      "reason": "you chose the voice"
+    },
+    "voices": {
+      "source": "rule",
+      "reason": "instrumental: no voices"
+    },
+    "lyrics": {
+      "source": "rule",
+      "reason": "voice is instrumental: no lyric text"
+    },
+    "avoid": {
+      "source": "suggested",
+      "reason": "left out of the request (the engine may still add them)"
+    },
+    "flavour": {
+      "source": "you",
+      "reason": "from the showcase brief"
+    },
+    "fullness": {
+      "source": "recipe",
+      "reason": "Warm ensemble with wordless choir default"
+    },
+    "takes": {
+      "source": "you",
+      "reason": "you set versions"
+    },
+    "duration_s": {
+      "source": "you",
+      "reason": "you set the length"
+    },
+    "lead": {
+      "source": "you",
+      "reason": "you picked the playing style"
+    },
+    "supports": {
+      "source": "you",
+      "reason": "from the showcase brief"
+    },
+    "feeling": {
+      "source": "you",
+      "reason": "you picked the feeling"
+    },
+    "pace": {
+      "source": "you",
+      "reason": "you set 116 BPM"
+    },
+    "key": {
+      "source": "recipe",
+      "reason": "Jazz lounge style"
+    },
+    "arc": {
+      "source": "suggested",
+      "reason": "you wrote 'constant'"
+    },
+    "genre": {
+      "source": "you",
+      "reason": "you picked the style"
+    },
+    "meter": {
+      "source": "you",
+      "reason": "you set the meter"
+    },
+    "form": {
+      "source": "recipe",
+      "reason": "Jazz lounge style"
+    }
+  }
+}

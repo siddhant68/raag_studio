@@ -1,0 +1,35 @@
+{
+  "take": 10,
+  "slug": "aaj_ki_raat",
+  "title": "आज की रात",
+  "seed": 580143580,
+  "engine_profile": "shift3",
+  "profile_detail": {
+    "dit": "acestep-v15-turbo",
+    "lm": null,
+    "shift": 3.0,
+    "inference_steps": 8,
+    "thinking": false,
+    "label": "Turbo, shift 3.0 (ACE-Step's recommendation for turbo)"
+  },
+  "dit": "acestep-v15-turbo",
+  "lm": null,
+  "genre": "bollywood_dance",
+  "form": "dance_song",
+  "requested": {
+    "duration_s": 120,
+    "bpm": 124,
+    "meter": "4/4",
+    "voice": "sung",
+    "singer": "female",
+    "language": "hi"
+  },
+  "prepared_at": "2026-10-24T20:22:35+00:00",
+  "app_commit": "6bbb979",
+  "render": {
+    "status": "not_rendered"
+  },
+  "listening": {
+    "verdict": "pending"
+  }
+}

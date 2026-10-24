@@ -1,0 +1,139 @@
+{
+  "schema_version": "2.0",
+  "brief": "आज की रात — Hindi female-led party song. 120 seconds, approximately 124 BPM, 4/4. Dhol, dholak, electronic drums, synth bass, bright brass and group responses. Immediate rhythmic identity, playful verses and an easy sing-along chorus. Hook: “आज की रात खुल के जी / दिल की धुन पे चल पड़ी”. Celebratory and danceable, with a short percussion break and final chorus.",
+  "recipe_id": null,
+  "voice_mode": "sung",
+  "duration_s": 120,
+  "lead": {
+    "instrument": "brass",
+    "style": "singing"
+  },
+  "supports": [
+    {
+      "instrument": "dhol",
+      "role": "rhythm",
+      "presence": "full"
+    },
+    {
+      "instrument": "dholak",
+      "role": "rhythm",
+      "presence": "gentle"
+    },
+    {
+      "instrument": "drum_machine",
+      "role": "rhythm",
+      "presence": "gentle"
+    },
+    {
+      "instrument": "synth_bass",
+      "role": "harmony",
+      "presence": "gentle"
+    }
+  ],
+  "feeling": [
+    "festive",
+    "playful",
+    "energetic"
+  ],
+  "pace": {
+    "bucket": "lively",
+    "bpm": 124
+  },
+  "key": "A minor",
+  "arc": "slow_build",
+  "fullness": "balanced",
+  "voices": {
+    "singer": "female",
+    "background": "choir",
+    "language": "hi"
+  },
+  "lyrics": {
+    "policy": "write",
+    "text": "[Intro]\n\n[Verse 1]\nसैंडल पहनी, लाली लगाई\nसारी सखियाँ साथ में लाई\nढोल ने जब ज़ोर से बजाया\nमैंने सबको पास बुलाया\n\n[Pre-Chorus]\nपैर थिरकें, धड़कन तेज़ हुई\nतुम भी आओ, अब न रुको कहीं\n\n[Chorus]\nआज की रात खुल के जी\nदिल की धुन पे चल पड़ी\nसब मिल बोलो हाँ जी हाँ जी\nआज हमारी है मर्ज़ी\n\n[Drop]\n\n[Verse 2]\nआधी रात का चाँद है आया\nसबने मिल के शोर मचाया\nमैं घूमी तो चुनरी उड़ी\nसखियाँ घेरे में आ जुड़ीं\n\n[Chorus]\nआज की रात खुल के जी\nदिल की धुन पे चल पड़ी\nसब मिल बोलो हाँ जी हाँ जी\nआज हमारी है मर्ज़ी\n\n[Breakdown]\n\n[Chorus]\nआज की रात खुल के जी\nदिल की धुन पे चल पड़ी\nसब मिल बोलो हाँ जी हाँ जी\nआज हमारी है मर्ज़ी\n\n[Outro]",
+    "topic": "A woman leads her friends onto the dance floor for one free, joyful night; playful verses, an easy sing-along chorus with group responses."
+  },
+  "avoid": [],
+  "flavour": "immediate rhythmic identity, group call-and-response, short percussion break before the final chorus",
+  "notes_for_user": [
+    "Words I understood: percussion, dholak, dhol, brass, synth bass, electronic drums, playful.",
+    "I kept the first three supports you named; the rest are left out so the lead stays clear.",
+    "Hindi singing is experimental: one heard take, diction imperfect.",
+    "This is the Basic planner (keyword rules, not an AI). It cannot read stories or analogies."
+  ],
+  "takes": 1,
+  "genre": "bollywood_dance",
+  "pipeline": "song",
+  "meter": "4/4",
+  "form": "dance_song",
+  "require_sections": [],
+  "provenance": {
+    "voice_mode": {
+      "source": "you",
+      "reason": "you chose the voice"
+    },
+    "voices": {
+      "source": "you",
+      "reason": "you picked background voices; language: you picked the language"
+    },
+    "lyrics": {
+      "source": "suggested",
+      "reason": "written by Claude (local CLI); hook supplied by you"
+    },
+    "avoid": {
+      "source": "recipe",
+      "reason": "Hindi ballad default"
+    },
+    "flavour": {
+      "source": "you",
+      "reason": "from the showcase brief"
+    },
+    "fullness": {
+      "source": "recipe",
+      "reason": "Hindi ballad default"
+    },
+    "takes": {
+      "source": "you",
+      "reason": "you set versions"
+    },
+    "duration_s": {
+      "source": "you",
+      "reason": "you set the length"
+    },
+    "lead": {
+      "source": "you",
+      "reason": "you picked the playing style"
+    },
+    "supports": {
+      "source": "you",
+      "reason": "from the showcase brief"
+    },
+    "feeling": {
+      "source": "you",
+      "reason": "you picked the feeling"
+    },
+    "pace": {
+      "source": "you",
+      "reason": "you set 124 BPM"
+    },
+    "key": {
+      "source": "recipe",
+      "reason": "Bollywood dance number style"
+    },
+    "arc": {
+      "source": "recipe",
+      "reason": "Hindi ballad default"
+    },
+    "genre": {
+      "source": "you",
+      "reason": "you picked the style"
+    },
+    "meter": {
+      "source": "you",
+      "reason": "you set the meter"
+    },
+    "form": {
+      "source": "recipe",
+      "reason": "Bollywood dance number style"
+    }
+  }
+}

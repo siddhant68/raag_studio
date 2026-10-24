@@ -1,0 +1,298 @@
+{
+  "pipeline": "song",
+  "genre": "rnb_soul",
+  "genre_name": "R&B / neo-soul",
+  "engine_profile": "shift3",
+  "engine_profile_label": "Turbo, shift 3.0 (ACE-Step's recommendation for turbo)",
+  "char_count": 511,
+  "dropped": [
+    {
+      "kind": "production",
+      "item": "deep pocket groove",
+      "reason": "over_budget"
+    },
+    {
+      "kind": "production",
+      "item": "warm analog soul production",
+      "reason": "over_budget"
+    }
+  ],
+  "warnings": [
+    "English sung words are untested: listen to check diction.",
+    "intro, outro and interludes shortened to fit the length"
+  ],
+  "conflicts": [],
+  "unsupported": [],
+  "notes": [],
+  "cap": 512,
+  "slots": [
+    [
+      "genre",
+      "Neo soul, r&b."
+    ],
+    [
+      "mood",
+      "Hopeful, joyful, confident."
+    ],
+    [
+      "vocal",
+      "Soulful smooth female vocal with runs and stacked harmonies, sung in English, with soft backing harmonies."
+    ],
+    [
+      "instruments",
+      "Rhodes electric piano, warm bass, live drum kit and sparse rhythmic handclaps."
+    ],
+    [
+      "journey",
+      "Rhodes chords intro, laid-back verses, lush harmonies chorus, stripped bridge, ad-libs final chorus, Rhodes fade outro."
+    ],
+    [
+      "production",
+      "Sparse arrangement with breathing space."
+    ],
+    [
+      "flavour",
+      "syncopated soul-pop, starts vulnerable then grows joyful, harmonies never bury the lead."
+    ],
+    [
+      "tail",
+      "Vocal forward, natural phrasing."
+    ]
+  ],
+  "lyrics": {
+    "mode": "draft",
+    "source_sha256": "50ccc7f9a3405d8d3befd044df7b5e5218cbf5ae9434c73eafbfd460598355f0",
+    "sha256": "50ccc7f9a3405d8d3befd044df7b5e5218cbf5ae9434c73eafbfd460598355f0",
+    "output_sha256": "50ccc7f9a3405d8d3befd044df7b5e5218cbf5ae9434c73eafbfd460598355f0",
+    "newlines_normalised": false,
+    "inserted_tag_line_indices": [],
+    "inserted_tag_lines": [],
+    "line_count": 20,
+    "char_count": 902,
+    "fit": {
+      "status": "ok",
+      "estimated_s": 122.5,
+      "target_s": 120
+    }
+  },
+  "arrangement": {
+    "requested": {
+      "lead": "rhodes",
+      "supports": [
+        "bass",
+        "drum_kit",
+        "handclaps"
+      ],
+      "voice_mode": "sung",
+      "background": "light"
+    },
+    "effective": {
+      "lead": "rhodes",
+      "supports": [
+        "bass",
+        "drum_kit",
+        "handclaps"
+      ],
+      "voice_mode": "sung",
+      "background": "light"
+    },
+    "adjustments": []
+  },
+  "blueprint": {
+    "form": "pop_song",
+    "bpm": 96,
+    "meter": "4/4",
+    "bar_s": 2.5,
+    "target_s": 120,
+    "estimated_s": 122.5,
+    "sections": [
+      {
+        "kind": "intro",
+        "name": "Intro",
+        "tag": "Intro",
+        "lyric": false,
+        "lines": 0,
+        "bars": 2.0,
+        "seconds": 4.9,
+        "energy": 1,
+        "hint": "Rhodes chords",
+        "playing": [
+          "rhodes"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "Rhodes chords"
+      },
+      {
+        "kind": "verse",
+        "name": "Verse 1",
+        "tag": "Verse 1",
+        "lyric": true,
+        "lines": 4,
+        "bars": 9.0,
+        "seconds": 22.0,
+        "energy": 2,
+        "hint": "laid-back, bass enter",
+        "playing": [
+          "rhodes",
+          "bass"
+        ],
+        "entering": [
+          "bass"
+        ],
+        "uid": "verse_1",
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "laid-back"
+      },
+      {
+        "kind": "chorus",
+        "name": "Chorus",
+        "tag": "Chorus",
+        "lyric": true,
+        "lines": 4,
+        "bars": 9.0,
+        "seconds": 22.0,
+        "energy": 4,
+        "hint": "lush harmonies, drum kit enters",
+        "playing": [
+          "rhodes",
+          "bass",
+          "drum_kit",
+          "handclaps"
+        ],
+        "entering": [
+          "drum_kit",
+          "handclaps"
+        ],
+        "uid": "chorus",
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "lush harmonies"
+      },
+      {
+        "kind": "verse",
+        "name": "Verse 2",
+        "tag": "Verse 2",
+        "lyric": true,
+        "lines": 4,
+        "bars": 9.0,
+        "seconds": 22.0,
+        "energy": 3,
+        "hint": "laid-back",
+        "playing": [
+          "rhodes",
+          "bass",
+          "drum_kit",
+          "handclaps"
+        ],
+        "entering": [],
+        "uid": "verse_2",
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "laid-back"
+      },
+      {
+        "kind": "bridge",
+        "name": "Bridge",
+        "tag": "Bridge",
+        "lyric": true,
+        "lines": 4,
+        "bars": 9.0,
+        "seconds": 22.0,
+        "energy": 2,
+        "hint": "stripped",
+        "playing": [
+          "rhodes",
+          "bass"
+        ],
+        "entering": [],
+        "uid": "bridge",
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "stripped"
+      },
+      {
+        "kind": "chorus",
+        "name": "Final Chorus",
+        "tag": "Chorus",
+        "lyric": true,
+        "lines": 4,
+        "bars": 9.0,
+        "seconds": 22.0,
+        "energy": 5,
+        "hint": "ad-libs, drum kit enters",
+        "playing": [
+          "rhodes",
+          "bass",
+          "drum_kit",
+          "handclaps"
+        ],
+        "entering": [
+          "drum_kit",
+          "handclaps"
+        ],
+        "uid": null,
+        "repeat_of": "chorus",
+        "final": true,
+        "style_hint": "ad-libs"
+      },
+      {
+        "kind": "outro",
+        "name": "Outro",
+        "tag": "Outro",
+        "lyric": false,
+        "lines": 0,
+        "bars": 2.0,
+        "seconds": 4.9,
+        "energy": 1,
+        "hint": "Rhodes fade",
+        "playing": [
+          "rhodes"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "Rhodes fade"
+      }
+    ],
+    "lyric_slots": [
+      {
+        "uid": "verse_1",
+        "name": "Verse 1",
+        "kind": "verse",
+        "lines": 4
+      },
+      {
+        "uid": "chorus",
+        "name": "Chorus",
+        "kind": "chorus",
+        "lines": 4
+      },
+      {
+        "uid": "verse_2",
+        "name": "Verse 2",
+        "kind": "verse",
+        "lines": 4
+      },
+      {
+        "uid": "bridge",
+        "name": "Bridge",
+        "kind": "bridge",
+        "lines": 4
+      }
+    ],
+    "dropped": [
+      "Pre-Chorus",
+      "Pre-Chorus",
+      "Chorus"
+    ],
+    "changes": [
+      "intro, outro and interludes shortened to fit the length"
+    ],
+    "fit": "ok"
+  }
+}

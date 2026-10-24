@@ -1,0 +1,241 @@
+{
+  "pipeline": "song",
+  "genre": "cinematic_orchestral",
+  "genre_name": "Cinematic orchestral",
+  "engine_profile": "shift3",
+  "engine_profile_label": "Turbo, shift 3.0 (ACE-Step's recommendation for turbo)",
+  "char_count": 509,
+  "dropped": [
+    {
+      "kind": "production",
+      "item": "dynamic range",
+      "reason": "over_budget"
+    }
+  ],
+  "warnings": [
+    "instrumental sections lengthened to fill the requested length"
+  ],
+  "conflicts": [],
+  "unsupported": [],
+  "notes": [],
+  "cap": 512,
+  "slots": [
+    [
+      "genre",
+      "Film score, epic orchestral, cinematic, instrumental."
+    ],
+    [
+      "mood",
+      "Adventurous, uplifting, heroic."
+    ],
+    [
+      "instruments",
+      "Cello leads every section, with lush string section, brass section, thundering taiko drums and sparse deep synth bass."
+    ],
+    [
+      "techniques",
+      "Expressive vibrato, lyrical legato phrasing, tender slides."
+    ],
+    [
+      "journey",
+      "Quiet strings intro, theme verses, rising build, pullback, full orchestra climax, resolution."
+    ],
+    [
+      "production",
+      "Huge orchestral hall, wide cinematic mix."
+    ],
+    [
+      "flavour",
+      "broad half-time opening on a low cello motif, brief pullback, uplifting final statement."
+    ],
+    [
+      "tail",
+      "Strictly no voices."
+    ]
+  ],
+  "lyrics": {
+    "mode": "instrumental_sections",
+    "sha256": "7ba1f76ae1147c580d11f94ec9689991d8f42924f8e5e3fbead8af6304c2ad64",
+    "sections": 6
+  },
+  "arrangement": {
+    "requested": {
+      "lead": "cello",
+      "supports": [
+        "strings",
+        "brass",
+        "taiko",
+        "synth_bass"
+      ],
+      "voice_mode": "instrumental",
+      "background": "none"
+    },
+    "effective": {
+      "lead": "cello",
+      "supports": [
+        "strings",
+        "brass",
+        "taiko",
+        "synth_bass"
+      ],
+      "voice_mode": "instrumental",
+      "background": "none"
+    },
+    "adjustments": []
+  },
+  "blueprint": {
+    "form": "cinematic",
+    "bpm": 140,
+    "meter": "4/4",
+    "bar_s": 1.714,
+    "target_s": 120,
+    "estimated_s": 120.0,
+    "sections": [
+      {
+        "kind": "intro",
+        "name": "Opening",
+        "tag": "Intro",
+        "lyric": false,
+        "lines": 0,
+        "bars": 12.73,
+        "seconds": 21.8,
+        "energy": 1,
+        "hint": "quiet strings",
+        "playing": [
+          "cello",
+          "strings"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "quiet strings"
+      },
+      {
+        "kind": "verse",
+        "name": "Theme",
+        "tag": "Verse",
+        "lyric": false,
+        "lines": 0,
+        "bars": 12.73,
+        "seconds": 21.8,
+        "energy": 2,
+        "hint": "theme, brass section enters",
+        "playing": [
+          "cello",
+          "strings",
+          "brass",
+          "synth_bass"
+        ],
+        "entering": [
+          "brass",
+          "synth_bass"
+        ],
+        "uid": null,
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "theme"
+      },
+      {
+        "kind": "build",
+        "name": "Build",
+        "tag": "Build",
+        "lyric": false,
+        "lines": 0,
+        "bars": 12.73,
+        "seconds": 21.8,
+        "energy": 3,
+        "hint": "rising, taiko enters",
+        "playing": [
+          "cello",
+          "strings",
+          "brass",
+          "taiko",
+          "synth_bass"
+        ],
+        "entering": [
+          "taiko"
+        ],
+        "uid": null,
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "rising"
+      },
+      {
+        "kind": "bridge",
+        "name": "Pullback",
+        "tag": "Breakdown",
+        "lyric": false,
+        "lines": 0,
+        "bars": 6.36,
+        "seconds": 10.9,
+        "energy": 2,
+        "hint": "",
+        "playing": [
+          "cello",
+          "strings",
+          "brass",
+          "synth_bass"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": null,
+        "final": false,
+        "style_hint": ""
+      },
+      {
+        "kind": "chorus",
+        "name": "Climax",
+        "tag": "Chorus",
+        "lyric": false,
+        "lines": 0,
+        "bars": 12.73,
+        "seconds": 21.8,
+        "energy": 5,
+        "hint": "full orchestra, taiko enters",
+        "playing": [
+          "cello",
+          "strings",
+          "brass",
+          "taiko",
+          "synth_bass"
+        ],
+        "entering": [
+          "taiko"
+        ],
+        "uid": null,
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "full orchestra"
+      },
+      {
+        "kind": "outro",
+        "name": "Resolution",
+        "tag": "Outro",
+        "lyric": false,
+        "lines": 0,
+        "bars": 12.73,
+        "seconds": 21.8,
+        "energy": 2,
+        "hint": "resolve",
+        "playing": [
+          "cello",
+          "strings",
+          "brass",
+          "synth_bass"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "resolve"
+      }
+    ],
+    "lyric_slots": [],
+    "dropped": [],
+    "changes": [
+      "instrumental sections lengthened to fill the requested length"
+    ],
+    "fit": "ok"
+  }
+}

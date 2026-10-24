@@ -1,0 +1,239 @@
+{
+  "pipeline": "song",
+  "genre": "piano_neoclassical",
+  "genre_name": "Solo piano",
+  "engine_profile": "shift3",
+  "engine_profile_label": "Turbo, shift 3.0 (ACE-Step's recommendation for turbo)",
+  "char_count": 499,
+  "dropped": [
+    {
+      "kind": "production",
+      "item": "subtle tape warmth",
+      "reason": "over_budget"
+    },
+    {
+      "kind": "production",
+      "item": "close mic with soft room",
+      "reason": "over_budget"
+    },
+    {
+      "kind": "production",
+      "item": "intimate felt piano",
+      "reason": "over_budget"
+    }
+  ],
+  "warnings": [],
+  "conflicts": [],
+  "unsupported": [],
+  "notes": [],
+  "cap": 512,
+  "slots": [
+    [
+      "genre",
+      "Neo-classical, modern classical, waltz, instrumental."
+    ],
+    [
+      "mood",
+      "Tender, wistful, lilting."
+    ],
+    [
+      "instruments",
+      "Expressive piano melody leads every section, with cello, sparse harp and sparse lush string section."
+    ],
+    [
+      "techniques",
+      "Smooth chord changes, expressive sustained notes, breathing phrases."
+    ],
+    [
+      "journey",
+      "Solo piano intro, simple figure verses, fuller chorus, fuller final chorus, resolved outro."
+    ],
+    [
+      "production",
+      "Sparse arrangement with breathing space."
+    ],
+    [
+      "flavour",
+      "chamber waltz, felt piano introduces the melody, cello answers then carries it, complete ending."
+    ],
+    [
+      "tail",
+      "Strictly no voices."
+    ]
+  ],
+  "lyrics": {
+    "mode": "instrumental_sections",
+    "sha256": "089dc4ef32da7f08c5beaa40ddbd207c8069a02fe3f05d3503cb9eca9a2b64d5",
+    "sections": 6
+  },
+  "arrangement": {
+    "requested": {
+      "lead": "piano",
+      "supports": [
+        "cello",
+        "harp",
+        "strings"
+      ],
+      "voice_mode": "instrumental",
+      "background": "none"
+    },
+    "effective": {
+      "lead": "piano",
+      "supports": [
+        "cello",
+        "harp",
+        "strings"
+      ],
+      "voice_mode": "instrumental",
+      "background": "none"
+    },
+    "adjustments": []
+  },
+  "blueprint": {
+    "form": "instrumental_song",
+    "bpm": 66,
+    "meter": "3/4",
+    "bar_s": 2.727,
+    "target_s": 90,
+    "estimated_s": 109.1,
+    "sections": [
+      {
+        "kind": "intro",
+        "name": "Intro",
+        "tag": "Intro",
+        "lyric": false,
+        "lines": 0,
+        "bars": 4.0,
+        "seconds": 9.0,
+        "energy": 1,
+        "hint": "solo piano",
+        "playing": [
+          "piano",
+          "harp"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "solo piano"
+      },
+      {
+        "kind": "verse",
+        "name": "Theme A",
+        "tag": "Verse",
+        "lyric": false,
+        "lines": 0,
+        "bars": 8.0,
+        "seconds": 18.0,
+        "energy": 2,
+        "hint": "simple figure, cello enters",
+        "playing": [
+          "piano",
+          "cello",
+          "harp",
+          "strings"
+        ],
+        "entering": [
+          "cello",
+          "strings"
+        ],
+        "uid": null,
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "simple figure"
+      },
+      {
+        "kind": "chorus",
+        "name": "Theme B",
+        "tag": "Chorus",
+        "lyric": false,
+        "lines": 0,
+        "bars": 8.0,
+        "seconds": 18.0,
+        "energy": 4,
+        "hint": "fuller",
+        "playing": [
+          "piano",
+          "cello",
+          "harp",
+          "strings"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "fuller"
+      },
+      {
+        "kind": "verse",
+        "name": "Theme A again",
+        "tag": "Verse",
+        "lyric": false,
+        "lines": 0,
+        "bars": 8.0,
+        "seconds": 18.0,
+        "energy": 3,
+        "hint": "simple figure",
+        "playing": [
+          "piano",
+          "cello",
+          "harp",
+          "strings"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "simple figure"
+      },
+      {
+        "kind": "chorus",
+        "name": "Final Theme B",
+        "tag": "Chorus",
+        "lyric": false,
+        "lines": 0,
+        "bars": 8.0,
+        "seconds": 18.0,
+        "energy": 5,
+        "hint": "fuller",
+        "playing": [
+          "piano",
+          "cello",
+          "harp",
+          "strings"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": null,
+        "final": true,
+        "style_hint": "fuller"
+      },
+      {
+        "kind": "outro",
+        "name": "Outro",
+        "tag": "Outro",
+        "lyric": false,
+        "lines": 0,
+        "bars": 4.0,
+        "seconds": 9.0,
+        "energy": 1,
+        "hint": "resolved",
+        "playing": [
+          "piano",
+          "harp"
+        ],
+        "entering": [],
+        "uid": null,
+        "repeat_of": null,
+        "final": false,
+        "style_hint": "resolved"
+      }
+    ],
+    "lyric_slots": [],
+    "dropped": [
+      "Solo"
+    ],
+    "changes": [],
+    "fit": "ok"
+  }
+}
