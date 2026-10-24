@@ -62,6 +62,7 @@ class PlanOnlyBody(_Body):
 class RoundBody(_Body):
     kind: Literal["another", "refine", "variation", "cover", "repaint"]
     from_take: Optional[str] = None
+    from_round: Optional[str] = None              # retry: reuse THAT round's plan (kind "another" only)
     request_text: Optional[str] = None
     chips: Optional[list[str]] = None
     patch: Optional[Any] = None                   # chip text or list of chip ids (alias of request_text/chips)

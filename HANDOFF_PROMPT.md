@@ -1,3 +1,6 @@
+> **Dated history (24 October 2026, baseline).** This is the prompt the application was built from. The application now
+> exists and runs; do not rebuild it. Current instructions: `HANDOFF_NEXT_SESSION_2026-10-24.md`, `STATUS.md`, `README.md`.
+
 # Independent agent handoff: review and implement Raag Studio
 
 You are taking over a real local AI-music project for **Siddhant Pathak**.

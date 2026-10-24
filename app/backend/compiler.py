@@ -489,6 +489,8 @@ def _render(st: dict, rec: Optional[dict]) -> list[tuple[str, str]]:
             voice_phrase += f" with {BG_SUNG[st['bg']]}"
     else:
         voice_phrase = ""
+    # A choir that leads a SUNG piece is the voice_phrase ("... with choir harmonies"), not part of the instrumental bed.
+    choir_is_voice = mode == "sung" and lead == "choir" and st["bg"] == "choir"
     feelings = st["feelings"]
     memorable = "memorable" in [f.lower() for f in feelings]
     others = [f for f in feelings if f.lower() != "memorable"]
@@ -498,7 +500,7 @@ def _render(st: dict, rec: Optional[dict]) -> list[tuple[str, str]]:
     vals = {
         "lead_solo": d["lead_solo"], "lead_ens": lead_ens, "Lead": d["short"], "lead_lower": d["short"].lower(),
         "is_are": d["is_are"], "with_supports": (" with " + _join(sup_phrases)) if sup_phrases else "",
-        "ensemble": _join([lead_ens] + sup_phrases), "voice_phrase": voice_phrase,
+        "ensemble": _join(([] if choir_is_voice else [lead_ens]) + sup_phrases) or lead_ens, "voice_phrase": voice_phrase,
         "voice_with": f", with {voice_phrase}" if voice_phrase and mode == "wordless" else "",
         "Language": lang, "feeling_clause": (", " + _join(clause_words)) if clause_words else "",
     }
@@ -675,6 +677,40 @@ def _build_lyrics(plan: Plan, st: dict, rec: Optional[dict], rep: _Report) -> tu
     }
 
 
+def _arrangement(plan: Plan, st: dict, rep: _Report) -> dict:
+    """Requested-versus-effective arrangement: what the plan asked for, what the caption really describes, and why
+    they differ. The plan row is never rewritten; this is the one record the UI shows as the primary description."""
+    req = {"lead": plan.lead.instrument, "supports": [s.instrument for s in plan.supports],
+           "voice_mode": plan.voice_mode, "background": plan.voices.background}
+    eff = {"lead": st["lead"], "supports": [s["instrument"] for s in st["supports"]],
+           "voice_mode": st["mode"], "background": st["bg"]}
+    adj: list[dict] = []
+    if req["lead"] != eff["lead"]:
+        why = (f"Choir is voices and Voice is Instrumental, so choir was left out; {INSTR[eff['lead']]['short']} leads instead"
+               if any(c["kind"] == "instrumental_with_choir" for c in rep.conflicts)
+               else "the compiler chose a different lead")
+        adj.append({"field": "lead", "requested": req["lead"], "effective": eff["lead"], "reason": why})
+    dropped = {d["item"]: d["reason"] for d in rep.dropped if d["kind"] == "support"}
+    for inst in req["supports"]:
+        if inst in eff["supports"]:
+            continue
+        if inst == eff["lead"]:
+            why = f"{inst} already leads"
+        elif inst == "choir" and eff["voice_mode"] != "instrumental":
+            why = "choir is carried by the background voices"
+        elif inst in dropped:
+            why = {"instrumental": "Voice is Instrumental", "avoid": "it matches something you asked to avoid",
+                   "over_budget": "it did not fit the prompt length"}.get(dropped[inst], f"left out ({dropped[inst]})")
+        else:
+            why = "left out to fit the prompt"
+        adj.append({"field": "supports", "requested": inst, "effective": None, "reason": why})
+    if req["background"] != eff["background"]:
+        adj.append({"field": "voices.background", "requested": req["background"], "effective": eff["background"],
+                    "reason": "Voice is Instrumental, so there are no voices" if eff["voice_mode"] == "instrumental"
+                    else "wordless voices need some background voices"})
+    return {"requested": req, "effective": eff, "adjustments": adj}
+
+
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
@@ -718,6 +754,7 @@ def compile(plan: Plan | dict, *, max_chars: int = CAPTION_HARD_CAP, instrumenta
             "char_count": len(caption), "dropped": rep.dropped, "warnings": rep.warnings,
             "conflicts": rep.conflicts, "unsupported": rep.unsupported, "notes": rep.notes,
             "cap": max_chars, "slots": [[n, t] for n, t in slot_list], "lyrics": lyr_rep,
+            "arrangement": _arrangement(plan, st, rep),
         },
     }
 

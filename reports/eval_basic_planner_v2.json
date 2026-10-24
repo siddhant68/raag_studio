@@ -1,0 +1,475 @@
+{
+  "briefs": 24,
+  "field_checks": 61,
+  "field_accuracy": 0.754,
+  "briefs_fully_right": 11,
+  "briefs_scored": 23,
+  "by_dimension": {
+    "compact": {
+      "right": 0,
+      "of": 1
+    },
+    "conflict": {
+      "right": 2,
+      "of": 2
+    },
+    "copyright": {
+      "right": 1,
+      "of": 1
+    },
+    "duration": {
+      "right": 2,
+      "of": 4
+    },
+    "entrances": {
+      "right": 0,
+      "of": 1
+    },
+    "exclusion": {
+      "right": 1,
+      "of": 3
+    },
+    "feeling": {
+      "right": 1,
+      "of": 1
+    },
+    "lead_support": {
+      "right": 2,
+      "of": 5
+    },
+    "lyrics": {
+      "right": 2,
+      "of": 3
+    },
+    "progression": {
+      "right": 1,
+      "of": 6
+    },
+    "story": {
+      "right": 3,
+      "of": 5
+    },
+    "voice": {
+      "right": 3,
+      "of": 5
+    }
+  },
+  "all_compile": true,
+  "rows": [
+    {
+      "id": "e01",
+      "brief": "a lone sitar at a river bank in the evening, a faint tabla and nothing else",
+      "dimensions": [
+        "lead_support"
+      ],
+      "checks": {
+        "voice_mode": true,
+        "lead": true,
+        "supports_include": true,
+        "supports_exclude": true
+      },
+      "failed": [],
+      "compiles": true,
+      "compile_note": null,
+      "note": null
+    },
+    {
+      "id": "e02",
+      "brief": "cello carries the tune, a little piano underneath, absolutely no percussion",
+      "dimensions": [
+        "lead_support",
+        "exclusion"
+      ],
+      "checks": {
+        "voice_mode": true,
+        "lead": true,
+        "supports_include": true,
+        "supports_exclude": true
+      },
+      "failed": [],
+      "compiles": true,
+      "compile_note": null,
+      "note": null
+    },
+    {
+      "id": "e03",
+      "brief": "santoor sparkling over a tanpura drone, keep the flute out of it",
+      "dimensions": [
+        "lead_support",
+        "exclusion"
+      ],
+      "checks": {
+        "lead": true,
+        "supports_include": true,
+        "supports_exclude": false
+      },
+      "failed": [
+        "supports_exclude"
+      ],
+      "compiles": true,
+      "compile_note": null,
+      "note": null
+    },
+    {
+      "id": "e04",
+      "brief": "I want to hear the harmonium most, with violin answering it. Nothing too loud.",
+      "dimensions": [
+        "lead_support"
+      ],
+      "checks": {
+        "lead": true,
+        "fullness": false,
+        "supports_include": true
+      },
+      "failed": [
+        "fullness"
+      ],
+      "compiles": true,
+      "compile_note": null,
+      "note": null
+    },
+    {
+      "id": "e05",
+      "brief": "guitar and cello, but the cello is the star",
+      "dimensions": [
+        "lead_support"
+      ],
+      "checks": {
+        "lead": false,
+        "supports_include": false
+      },
+      "failed": [
+        "lead",
+        "supports_include"
+      ],
+      "compiles": true,
+      "compile_note": null,
+      "note": null
+    },
+    {
+      "id": "e06",
+      "brief": "it should feel like the first train home after a long absence, the platform lights still yellow",
+      "dimensions": [
+        "story",
+        "feeling"
+      ],
+      "checks": {
+        "voice_mode": true
+      },
+      "failed": [],
+      "compiles": true,
+      "compile_note": null,
+      "note": "feeling is free text; judge by eye, not by keyword"
+    },
+    {
+      "id": "e07",
+      "brief": "a grandmother humming while the monsoon taps the tin roof",
+      "dimensions": [
+        "story",
+        "voice"
+      ],
+      "checks": {
+        "voice_mode": true
+      },
+      "failed": [],
+      "compiles": true,
+      "compile_note": null,
+      "note": null
+    },
+    {
+      "id": "e08",
+      "brief": "like a slow sunrise over a mountain monastery, starting almost silent",
+      "dimensions": [
+        "story",
+        "progression"
+      ],
+      "checks": {
+        "pace_bucket": true,
+        "arc": false
+      },
+      "failed": [
+        "arc"
+      ],
+      "compiles": true,
+      "compile_note": null,
+      "note": null
+    },
+    {
+      "id": "e09",
+      "brief": "two old friends meeting after twenty years; at first awkward, then warm",
+      "dimensions": [
+        "story",
+        "progression"
+      ],
+      "checks": {
+        "arc": true
+      },
+      "failed": [],
+      "compiles": true,
+      "compile_note": null,
+      "note": null
+    },
+    {
+      "id": "e10",
+      "brief": "a storm gathering over the sea that never actually breaks",
+      "dimensions": [
+        "story",
+        "progression"
+      ],
+      "checks": {
+        "arc": false
+      },
+      "failed": [
+        "arc"
+      ],
+      "compiles": true,
+      "compile_note": null,
+      "note": null
+    },
+    {
+      "id": "e11",
+      "brief": "start with only flute, let the tabla enter after the first minute, end very quiet",
+      "dimensions": [
+        "progression",
+        "entrances"
+      ],
+      "checks": {
+        "lead": true,
+        "arc": true,
+        "supports_include": true,
+        "support_presence": false
+      },
+      "failed": [
+        "support_presence"
+      ],
+      "compiles": true,
+      "compile_note": null,
+      "note": null
+    },
+    {
+      "id": "e12",
+      "brief": "gentle at first, building to a big full ending with strings",
+      "dimensions": [
+        "progression"
+      ],
+      "checks": {
+        "arc": false,
+        "fullness": true,
+        "supports_include": false
+      },
+      "failed": [
+        "arc",
+        "supports_include"
+      ],
+      "compiles": true,
+      "compile_note": null,
+      "note": null
+    },
+    {
+      "id": "e13",
+      "brief": "same calm feeling all the way through, no drama, about three minutes",
+      "dimensions": [
+        "progression"
+      ],
+      "checks": {
+        "duration_s": true,
+        "arc": false
+      },
+      "failed": [
+        "arc"
+      ],
+      "compiles": true,
+      "compile_note": null,
+      "note": null
+    },
+    {
+      "id": "e14",
+      "brief": "upbeat and cheerful guitar piece, but make it slow",
+      "dimensions": [
+        "conflict"
+      ],
+      "checks": {
+        "lead": true,
+        "pace_bucket": true
+      },
+      "failed": [],
+      "compiles": true,
+      "compile_note": null,
+      "note": null
+    },
+    {
+      "id": "e15",
+      "brief": "instrumental only please, with a big choir singing",
+      "dimensions": [
+        "conflict",
+        "voice"
+      ],
+      "checks": {},
+      "failed": [],
+      "compiles": true,
+      "compile_note": null,
+      "note": "self-contradictory brief: no right answer, score only whether the conflict is surfaced (human read)"
+    },
+    {
+      "id": "e16",
+      "brief": "fast tabla jugalbandi, 5 minutes",
+      "dimensions": [
+        "conflict",
+        "duration"
+      ],
+      "checks": {
+        "lead": true,
+        "duration_s": true,
+        "pace_bucket": true
+      },
+      "failed": [],
+      "compiles": true,
+      "compile_note": null,
+      "note": null
+    },
+    {
+      "id": "e17",
+      "brief": "sing it in English, a lullaby about a lighthouse keeper, female voice",
+      "dimensions": [
+        "voice",
+        "lyrics"
+      ],
+      "checks": {
+        "voice_mode": true,
+        "language": true,
+        "singer": true,
+        "unsupported_kinds": true
+      },
+      "failed": [],
+      "compiles": true,
+      "compile_note": "asks for lyrics (expected for sung)",
+      "note": null
+    },
+    {
+      "id": "e18",
+      "brief": "just ooh and aah vocals over soft piano, no words at all",
+      "dimensions": [
+        "voice"
+      ],
+      "checks": {
+        "voice_mode": false,
+        "lead": true
+      },
+      "failed": [
+        "voice_mode"
+      ],
+      "compiles": true,
+      "compile_note": null,
+      "note": null
+    },
+    {
+      "id": "e19",
+      "brief": "a Hindi love song, male voice, harmonium and tabla, slow",
+      "dimensions": [
+        "voice",
+        "lyrics"
+      ],
+      "checks": {
+        "voice_mode": true,
+        "pace_bucket": true,
+        "language": true,
+        "singer": true,
+        "supports_include": true,
+        "unsupported_kinds": true
+      },
+      "failed": [],
+      "compiles": true,
+      "compile_note": "asks for lyrics (expected for sung)",
+      "note": null
+    },
+    {
+      "id": "e20",
+      "brief": "use my own words exactly: chand ki raat mein, tera intezaar hai",
+      "dimensions": [
+        "voice",
+        "lyrics"
+      ],
+      "checks": {
+        "voice_mode": false,
+        "language": false
+      },
+      "failed": [
+        "voice_mode",
+        "language"
+      ],
+      "compiles": true,
+      "compile_note": null,
+      "note": "exact words belong in the lyrics control, never in the brief; the planner must not paraphrase them"
+    },
+    {
+      "id": "e21",
+      "brief": "a quick 45 second theme with bansuri",
+      "dimensions": [
+        "duration"
+      ],
+      "checks": {
+        "lead": true,
+        "duration_s": true
+      },
+      "failed": [],
+      "compiles": true,
+      "compile_note": null,
+      "note": null
+    },
+    {
+      "id": "e22",
+      "brief": "around ninety seconds of piano and rain-like texture",
+      "dimensions": [
+        "duration"
+      ],
+      "checks": {
+        "lead": true,
+        "duration_s": false
+      },
+      "failed": [
+        "duration_s"
+      ],
+      "compiles": true,
+      "compile_note": null,
+      "note": null
+    },
+    {
+      "id": "e23",
+      "brief": "make it sound like Kal Ho Naa Ho but original, with piano",
+      "dimensions": [
+        "copyright"
+      ],
+      "checks": {
+        "lead": true,
+        "name_absent": true
+      },
+      "failed": [],
+      "compiles": true,
+      "compile_note": null,
+      "note": null
+    },
+    {
+      "id": "e24",
+      "brief": "a tender sitar-led piece for a rainy afternoon, tanpura underneath, calm, not too busy, no tabla, about 2 minutes",
+      "dimensions": [
+        "compact",
+        "exclusion",
+        "duration"
+      ],
+      "checks": {
+        "lead": true,
+        "duration_s": true,
+        "fullness": false,
+        "supports_include": true,
+        "supports_exclude": true
+      },
+      "failed": [
+        "fullness"
+      ],
+      "compiles": true,
+      "compile_note": null,
+      "note": null
+    }
+  ],
+  "planner": "Basic planner (keyword rules)"
+}

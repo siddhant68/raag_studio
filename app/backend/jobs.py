@@ -159,6 +159,10 @@ def apply_controls(plan: Plan, ctl: dict[str, Any]) -> Plan:
         raise ApiError(422, "invalid_plan", _first_error(exc), fields=_errors(exc))
 
 
+# Plan fields a recipe's defaults can supply (see app/recipes/*.json plan_defaults). Voice fields are not among them.
+RECIPE_FIELDS = ("lead", "supports", "feeling", "pace", "fullness", "arc", "key", "avoid", "flavour", "duration_s", "takes")
+
+
 def adopt_auto(d: dict, auto: dict, key: str, merged: dict) -> None:
     """Put the Auto value of control `key` into plan dict `d`, with Auto's provenance (no longer 'you').
 
@@ -198,7 +202,18 @@ def adopt_auto(d: dict, auto: dict, key: str, merged: dict) -> None:
     elif key in ("singer", "background", "language"):
         d["voices"][key] = auto["voices"][key]
         take("voices")
-    elif key in ("duration_s", "takes", "recipe_id", "feeling", "avoid", "fullness", "arc", "key"):
+    elif key == "recipe_id":
+        # The recipe is a bundle of defaults. Back to Auto recomputes every field the recipe supplies, except those that
+        # are still a choice of yours (control or chip, provenance 'you'): those are kept exactly.
+        d["recipe_id"] = auto["recipe_id"]
+        take("recipe_id")
+        for field in RECIPE_FIELDS:
+            if (prov.get(field) or {}).get("source") == "you":
+                continue
+            d[field] = auto[field]
+            take(field)
+        d["supports"] = [s for s in d["supports"] if s["instrument"] != d["lead"]["instrument"]]
+    elif key in ("duration_s", "takes", "feeling", "avoid", "fullness", "arc", "key"):
         d[key] = auto[key]
         take(key)
     elif key == "lyrics_text":
@@ -401,6 +416,12 @@ class Service:
         brief = body.brief or song["brief"]
         if not brief.strip():
             raise ApiError(422, "invalid_brief", "brief must not be blank")
+        nulls = sorted({k for d in (body.controls, body.shape) for k, v in (d or {}).items() if v is None}
+                       | {k for k in body.model_fields_set - {"brief", "controls", "shape"} if getattr(body, k) is None})
+        if nulls:                                               # this endpoint only sets controls; it cannot reset one
+            raise ApiError(422, "reset_not_supported",
+                           f"{', '.join(nulls)}: null cannot reset a control here. "
+                           "Use PATCH /api/songs/{id}/controls to put a control back to Auto.")
         prev = self.latest_plan(song_id)
         merged = dict(loads(prev["controls_json"], {}))
         merged.update(_control_dict(body))
@@ -492,6 +513,17 @@ class Service:
             return replay
         song = self._song(song_id)
         prev = self.latest_plan(song_id)                    # base plan: the newest revision ...
+        parent_take = body.from_take
+        if body.from_round:                                 # retry of a round: that round's plan, not the newest
+            if body.from_take:
+                raise ApiError(422, "ambiguous_base", "Send from_take or from_round, not both.")
+            if body.kind != "another":
+                raise ApiError(422, "from_round_needs_another", "from_round can only be used with kind 'another'.")
+            rr = self.db.one("SELECT song_id, plan_id, parent_take_id FROM rounds WHERE id=?", (body.from_round,))
+            if not rr or rr["song_id"] != song_id:
+                raise ApiError(404, "round_not_found", "from_round is not a round of this song.")
+            prev = self.db.one("SELECT * FROM plans WHERE id=?", (rr["plan_id"],))
+            parent_take = rr["parent_take_id"]              # a retry keeps the failed round's lineage
         if body.from_take:                                  # ... unless a take is named: then THAT take's plan
             owner = self.db.one("SELECT r.song_id, r.plan_id FROM takes t JOIN rounds r ON r.id=t.round_id "
                                 "WHERE t.id=?", (body.from_take,))
@@ -542,7 +574,7 @@ class Service:
                                                 loads(prev["controls_json"], {}), plan, song["brief"])
                 else:
                     plan_id = prev["id"]
-                round_id, job_id = self._insert_round(c, song_id, plan_id, body.kind, body.from_take, request_text,
+                round_id, job_id = self._insert_round(c, song_id, plan_id, body.kind, parent_take, request_text,
                                                       compiled, request, idem)
         except sqlite3.IntegrityError:
             replay = self._replay(idem)

@@ -3,7 +3,7 @@ import { api, ApiProblem } from "./api.js";
 import { labelFor } from "./caps.js";
 import { $, $$, h, render, clear, show, announce } from "./dom.js";
 import {
-  CHECKS_DISCLAIMER, CHIPS, REASON_TAGS, compileReportLines, formatChanges, formatDuration, lineageText, newIdempotencyKey, plannerNotes,
+  CHECKS_DISCLAIMER, CHIPS, REASON_TAGS, anotherBody, compileReportLines, formatChanges, formatDuration, lineageText, newIdempotencyKey, plannerNotes, retryBody, selectionNote,
   planRows, progressView, provenanceInfo, summarySentence, takeLabels, techCheckSummary,
 } from "./logic.js";
 import { store, nameOf, plannerIsSmart } from "./store.js";
@@ -28,9 +28,9 @@ export function init() {
   });
   $("#change-text").addEventListener("input", paintAfter);
   $("#btn-refine").addEventListener("click", refine);
-  $("#btn-another").addEventListener("click", () => startRound({ kind: "another" }, $("#btn-another")));
+  $("#btn-another").addEventListener("click", () => startRound(anotherBody(S.selectedTakeId), $("#btn-another")));
   $("#btn-cancel").addEventListener("click", cancelJob);
-  $("#btn-retry").addEventListener("click", () => startRound({ kind: "another" }, $("#btn-retry")));
+  $("#btn-retry").addEventListener("click", () => startRound(retryBody(latestRoundId()), $("#btn-retry")));
   $("#btn-apply-details").addEventListener("click", applyDetails);
   render($("#keyscale"), h("option", { value: "" }, "Keep the plan’s key"), ...KEYS.map((k) => h("option", { value: k }, k)));
 
@@ -108,6 +108,8 @@ function latestJob() {
   return S.jobs[S.detail.rounds[S.detail.rounds.length - 1].job.id];
 }
 
+function latestRoundId() { return S.detail && S.detail.rounds.length ? S.detail.rounds[S.detail.rounds.length - 1].id : null; }
+
 function jobIsActive(job) { return !!job && (job.state === "queued" || job.state === "running"); }
 
 async function pollTick() {
@@ -165,14 +167,15 @@ function renderPlan(container, planRec, report, isTop) {
     kids.push(h("div", { class: "banner banner-warn", role: "note" }, h("b", {}, "Fallback: "), status.banner || "The smart planner did not work, so the Basic planner made this plan.",
       status.reason ? h("span", { class: "help" }, ` Reason: ${status.reason}`) : null));
   }
-  kids.push(h("p", { class: "summary-line" }, summarySentence(plan, nameOf)));
-  const rows = planRows(plan, nameOf);
+  kids.push(h("p", { class: "summary-line" }, summarySentence(plan, nameOf, report)));
+  const rows = planRows(plan, nameOf, report);
   kids.push(h("table", { class: "plan-table" }, h("tbody", {}, rows.map((row) => {
     const pi = row.prov ? provenanceInfo(row.prov.source) : null;
     return h("tr", {},
       h("th", { scope: "row" }, row.label, " ", row.control ? h("span", { class: "cap-slot" }, labelFor(row.control)) : null),
       h("td", {}, row.value,
-        pi ? h("span", { class: "why" }, h("span", { class: `tag tag-${row.prov.source}` }, pi.label), row.prov.reason || "") : null));
+        pi ? h("span", { class: "why" }, h("span", { class: `tag tag-${row.prov.source}` }, pi.label), row.prov.reason || "") : null,
+        row.adjusted ? h("span", { class: "why adjusted" }, h("span", { class: "tag tag-rule" }, "Adjusted"), row.adjusted) : null));
   }))));
   const notes = plannerNotes(card);
   if (notes.length) kids.push(h("ul", { class: "report" }, notes.map((n) => h("li", { class: "note" }, n))));
@@ -230,7 +233,7 @@ function renderRounds() {
     const takes = d.takes.filter((t) => t.round_id === r.id);
     frag.querySelector(".round-title").textContent = `Round ${n}`;
     const parent = r.parent_take_id ? labels.get(r.parent_take_id) : null;
-    frag.querySelector(".round-lineage").textContent = lineageText(r, parent);
+    frag.querySelector(".round-lineage").textContent = lineageText(r, parent, (S.detail.plans.find((p) => p.id === r.plan_id) || {}).rev);
     const holder = frag.querySelector(".takes");
     const job = S.jobs[r.job.id] || r.job;
     if (!takes.length) {
@@ -377,7 +380,10 @@ function paintSelection() {
   if (!S.detail) return;
   const labels = takeLabels(S.detail.rounds, S.detail.takes);
   const t = S.detail.takes.find((x) => x.id === S.selectedTakeId);
-  $("#selected-take").textContent = t ? `Changes below start from: ${labels.get(t.id)} (the one you last played or marked).` : "";
+  const revOf = (planId) => { const p = S.detail.plans.find((x) => x.id === planId); return p ? p.rev : null; };
+  const takeRound = t ? S.detail.rounds.find((r) => r.id === t.round_id) : null;
+  const latest = S.detail.plans[S.detail.plans.length - 1];
+  $("#selected-take").textContent = t ? selectionNote(labels.get(t.id), takeRound ? revOf(takeRound.plan_id) : null, latest ? latest.rev : null) : "";
   $("#seed-readout").textContent = t ? `${labels.get(t.id)}: seed ${t.seed}` : "Pick a take to see its seed.";
   paintPlayState();
 }
@@ -420,10 +426,10 @@ function paintAfter() {
 
 async function startRound(body, btn) {
   if (!S.detail) return;
-  const plan = S.detail.plans[S.detail.plans.length - 1].plan;
   btn.disabled = true;
   try {
-    await api(`/api/songs/${S.id}/rounds`, { method: "POST", body: { takes: plan.takes, ...body }, headers: { "Idempotency-Key": newIdempotencyKey() } });
+    // No `takes`: the server uses the version count of the plan this round starts from.
+    await api(`/api/songs/${S.id}/rounds`, { method: "POST", body, headers: { "Idempotency-Key": newIdempotencyKey() } });
     await load();
     announce("Making new takes.");
   } catch (err) {
@@ -445,10 +451,9 @@ async function refine() {
   if (text) body.request_text = text;
   if (S.selectedTakeId) body.from_take = S.selectedTakeId;
   const btn = $("#btn-refine");
-  const plan = S.detail.plans[S.detail.plans.length - 1].plan;
   btn.disabled = true;
   try {
-    await api(`/api/songs/${S.id}/rounds`, { method: "POST", body: { takes: plan.takes, ...body }, headers: { "Idempotency-Key": newIdempotencyKey() } });
+    await api(`/api/songs/${S.id}/rounds`, { method: "POST", body, headers: { "Idempotency-Key": newIdempotencyKey() } });
     S.chips.clear();
     $$("#change-chips [aria-pressed]").forEach((b) => b.setAttribute("aria-pressed", "false"));
     $("#change-text").value = "";

@@ -76,3 +76,13 @@ If M0/M1 show IN PROGRESS but no sub-agent is running (new session), check repor
 ## Post-release bugfix round 1 (2026-10-24)
 
 Four reviewer-reported bugs (choir crash, refine from_take plan, null reset to Auto, change-entry schema) fixed with 32 regression tests; suite = 376 passing (orchestrator re-ran; reproduced choir and reset fixes via API). Report: reports/BUGFIX_REVIEW1.md. Open design calls for the user: (1) choir pick overrides 'instrumental' words in the brief when Voice is Auto; (2) explicit Instrumental + choir lead keeps the user's pick in the plan table but compiles with the recipe lead (conflict is reported).
+
+## Current state and next tasks (updated 2026-10-24, follow-up 1)
+
+Local, uncommitted-to-remote; never push. Suite: 397 passing (`app/.venv/bin/python -m pytest app/tests -q -p no:cacheprovider`;
+strip proxy env vars if HTTPX fails on SOCKS). Render budget unchanged: **9 of ~12 takes used, ~3 remain; follow-up 1 rendered nothing.**
+Report: `reports/FOLLOWUP1.md`. Done there: effective-arrangement display, selected-take Another take, Try again keeps the failed
+round's plan, recipe reset, `/plan` null refusal, sung-Choir wording, independent planner evaluation set + Basic baseline.
+Next: (1) human listening on the existing unreviewed app takes (paths in the handoff, section 7), (2) the user's decision on enabling a
+smart planner (still OFF; see IMPLEMENTATION_DECISIONS.md), then record smart-planner plans and score them with
+`python -m experiments.eval_planner --plans ...` from `app/`, (3) only then spend the remaining ~3 takes on a listening trial.

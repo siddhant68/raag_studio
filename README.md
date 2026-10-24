@@ -1,18 +1,28 @@
-# Raag Studio: dedicated project and agent handoff
+# Raag Studio
 
-Prepared 24 October 2026 for Siddhant Pathak.
+A local AI-music application: a feeling or a little story in, takes you can play, compare, change and export out.
+**The app is implemented and runs.** Current run commands are in [Run](#run) below; current state and the next tasks
+are in `STATUS.md` (section "Current state and next tasks"); the newest follow-up is `reports/FOLLOWUP1.md`.
 
-**Start with `HANDOFF_PROMPT.md`.** It is a copy-pasteable instruction for an
-independent agent to review the plan and implement the application.
+Start here if you are a new agent: `HANDOFF_NEXT_SESSION_2026-10-24.md` (read order, decisions, backlog), then
+`context_pack/docs/IMPLEMENTATION_DECISIONS.md` and `reports/BUGFIX_REVIEW1.md`.
 
-## Read order
+## History: the original handoff baseline (dated 24 October 2026, before any code existed)
+
+The text between here and "Run" describes the project as it was handed over, **before the application was built**.
+Where it says nothing is implemented, that is no longer true. `HANDOFF_PROMPT.md` is the same dated baseline.
+Do not rebuild the app on that basis.
+
+Prepared 24 October 2026 for Siddhant Pathak. `HANDOFF_PROMPT.md` was the copy-pasteable instruction for the agent that built it.
+
+## Read order (baseline)
 
 1. `HANDOFF_PROMPT.md`: mission, user requirements, musical history and completion criteria.
 2. `context_pack/docs/PROJECT_CONTEXT.md`: decisions, experiments, accepted/rejected evidence and correction of stale notes.
 3. `context_pack/examples/AUDIO_GUIDE.md`: what to hear and how the user judged it; playable files are included.
-4. `context_pack/docs/prd/Music_Studio_PRD.md` or its PDF: the current proposed product.
-5. `context_pack/docs/SYSTEM_AND_RUNBOOK.md`: exact installation paths and safe operational commands.
-6. `context_pack/docs/IMPLEMENTATION_REVIEW.md`: specification gaps to resolve during implementation.
+4. `context_pack/docs/prd/Music_Studio_PRD.md` or its PDF: the original proposed product (the working spec is now `context_pack/docs/PRD_v2_MVP.md`).
+5. `context_pack/docs/SYSTEM_AND_RUNBOOK.md`: exact installation paths and safe operational commands (its advice to render with `scripts/render_local.py` is superseded: use the app or `app/engine/run_takes.py`).
+6. `context_pack/docs/IMPLEMENTATION_REVIEW.md`: specification gaps that were to be resolved during implementation.
 7. `context_pack/docs/research/` and `context_pack/third_party/`: supporting sources and downloaded guides.
 
 ## Folder contract
@@ -25,8 +35,7 @@ independent agent to review the plan and implement the application.
 | `runs/` | New generated takes, logs and exports |
 | `context_pack/` | Preserved specifications, research, examples, recipes and inventory |
 
-No application backend or frontend has been implemented by the handoff task.
-`app/README.md` is an implementation entry point, not a working server.
+(Baseline statement, now superseded: the handoff task itself implemented no backend or frontend. They exist now under `app/`.)
 
 ## Verify without generating music
 
@@ -34,7 +43,7 @@ From this folder:
 
 ```sh
 python3 scripts/verify_context.py
-python3 scripts/render_local.py --recipe yamuna --dry-run
+python3 scripts/render_local.py --recipe yamuna --dry-run   # dry run only; never use this script for a real render
 ```
 
 The second command validates the preserved request and prints the resolved
@@ -86,7 +95,7 @@ The Library keeps every song with its plan, seeds and the exact request that was
 - The planner is **Basic rules** (keywords on this computer). It cannot read stories or analogies and cannot write
   lyrics. Smart planners (`claude -p`, Anthropic API) are built but **off**; the web page cannot turn them on. Turning
   one on is a deliberate `PUT /api/settings` that you make yourself, and it sends your brief text to Anthropic.
-- **Nothing has been listened to by a human yet.** "Technical checks passed" only means the file is not broken
+- **No take made by this application has a recorded human verdict yet** (the historical Yamuna, Daylight and Thodi examples do; see `context_pack/examples/AUDIO_GUIDE.md`). "Technical checks passed" only means the file is not broken
   (right length, not silent, not clipped). Whether it is good music is your verdict.
 - Hindi singing is **experimental** and English sung words are **untested**. Exact lyrics are sent unchanged; only
   listening tells you whether they were sung correctly. Instrumental and wordless voices come first.

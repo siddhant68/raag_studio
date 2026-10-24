@@ -238,3 +238,58 @@ test("formatChange: old stored shapes still render sensibly (plain field names, 
   assert.deepEqual(L.formatChanges(null), []);
   assert.deepEqual(L.formatChanges([{ field: "key", from: "D major", to: "E minor", source: "you" }]).map((c) => c.text), ["Key: D major → E minor"]);
 });
+
+// ---- follow-up 1: effective arrangement, selected take, retry ---------------------------------------------------
+const REQUESTED_PLAN = {
+  voice_mode: "instrumental", duration_s: 120, takes: 3, recipe_id: "r1_flute_focus",
+  lead: { instrument: "choir", style: "singing" }, supports: [{ instrument: "tabla", presence: "soft", role: "rhythm" }, { instrument: "choir", presence: "soft", role: "harmony" }],
+  feeling: [], pace: { bucket: "slow", bpm: 80 }, fullness: "sparse", arc: "gentle_rise", avoid: [], key: "D major",
+  voices: { singer: "auto", background: "none", language: "en" }, lyrics: { policy: "none" },
+  provenance: { lead: { source: "you" } },
+};
+const ARR_REPORT = { arrangement: {
+  requested: { lead: "choir", supports: ["tabla", "choir"], voice_mode: "instrumental", background: "none" },
+  effective: { lead: "bansuri", supports: ["tabla"], voice_mode: "instrumental", background: "none" },
+  adjustments: [{ field: "lead", requested: "choir", effective: "bansuri", reason: "Choir is voices and Voice is Instrumental, so choir was left out; Bansuri leads instead" },
+                { field: "supports", requested: "choir", effective: null, reason: "Voice is Instrumental" }] } };
+const NAMES = { choir: "Choir", bansuri: "Bansuri", tabla: "Tabla" };
+const nm = (x) => NAMES[x] || x;
+
+test("effective arrangement: the plan table and summary describe the real lead, with the original ask explained", () => {
+  const rows = L.planRows(REQUESTED_PLAN, nm, ARR_REPORT);
+  const lead = rows.find((r) => r.key === "lead");
+  assert.match(lead.value, /^Bansuri/);
+  assert.match(lead.adjusted, /You asked for Choir as the lead\. Choir is voices and Voice is Instrumental/);
+  assert.match(lead.adjusted, /Bansuri leads instead/);
+  assert.equal(lead.prov.source, "you");                                   // provenance of the user's pick is kept
+  const sup = rows.find((r) => r.key === "supports");
+  assert.doesNotMatch(sup.value, /Choir/);
+  assert.match(sup.adjusted, /You asked for Choir as a supporting instrument\. Voice is Instrumental\./);
+  const summary = L.summarySentence(REQUESTED_PLAN, nm, ARR_REPORT);
+  assert.match(summary, /^Bansuri leads, supported by Tabla\. No voices\./);
+});
+
+test("effective arrangement: without a report the stored plan is shown unchanged and the input is never mutated", () => {
+  const before = JSON.stringify(REQUESTED_PLAN);
+  const rows = L.planRows(REQUESTED_PLAN, nm, null);
+  assert.match(rows.find((r) => r.key === "lead").value, /^Choir/);
+  assert.equal(rows.find((r) => r.key === "lead").adjusted, null);
+  L.planRows(REQUESTED_PLAN, nm, ARR_REPORT);
+  assert.equal(JSON.stringify(REQUESTED_PLAN), before);
+  assert.deepEqual(L.arrangementNotes({ arrangement: { adjustments: [] } }), []);
+});
+
+test("another take sends the selected take; with none selected it sends no base", () => {
+  assert.deepEqual(L.anotherBody("TAKE1"), { kind: "another", from_take: "TAKE1" });
+  assert.deepEqual(L.anotherBody(null), { kind: "another" });
+  assert.deepEqual(L.retryBody("ROUND9"), { kind: "another", from_round: "ROUND9" });
+});
+
+test("selection note explains an older take's plan; lineage names the base take and plan version", () => {
+  assert.match(L.selectionNote("round 1, T2", 1, 3), /made from plan version 1.*version 3.*will use version 1/);
+  assert.doesNotMatch(L.selectionNote("round 3, T1", 3, 3), /will use/);
+  assert.equal(L.selectionNote(null, 1, 3), "");
+  const s = L.lineageText({ kind: "another" }, "round 1, T2", 1);
+  assert.match(s, /Another take of round 1, T2: that take's own plan \(plan version 1\)/);
+  assert.match(L.lineageText({ kind: "another" }, null, 4), /same plan \(plan version 4\)/);
+});

@@ -98,7 +98,7 @@ Every producer of changes returns the same entries, in `card.changes` (stored wi
 
 | body | meaning |
 | --- | --- |
-| `{"kind":"another","takes":3}` | same latest plan, new random seeds. With `from_take`, the plan that take was made from instead |
+| `{"kind":"another","takes":3}` | same latest plan, new random seeds. With `from_take`, the plan that take was made from instead. With `from_round` (retry), the plan of that round, keeping its `parent_take_id`; 404 `round_not_found` for another song's round, 422 `ambiguous_base` with `from_take`, 422 `from_round_needs_another` for any other kind. `takes` may be omitted: the base plan's own count is used (the browser omits it) |
 | `{"kind":"refine","chips":["less_busy"],"from_take":"<take id>"}` | `chips`: `less_busy more_melodic slower livelier warmer brighter different_lead more_voices fewer_voices`; also accepts `request_text`/`patch` (text containing chip words). New plan revision + new takes; the round stores `parent_take_id`. Show `card.notice`: "These are new performances from an updated plan..." |
 
 **Base plan of a round.** Without `from_take` the base is the song's newest plan revision. With `from_take` it is the plan
@@ -219,3 +219,19 @@ FAKE tag inside the file. 409 `native_pruned` if the native audio was pruned.
 - Experimental round kinds (`variation|cover|repaint`) return 501 in one place: `Service.create_round`.
 - DB columns beyond PRD section 7: `jobs.engine`, `jobs.cancel_requested`, `takes.engine`, `takes.native_sha256`,
   `takes.retry_of`, `takes.native_pruned_at`, `exports.engine`.
+
+## Requested versus effective arrangement (follow-up 1)
+
+The stored plan is what was asked for (immutable history). The compiler may depart from it (explicit Instrumental with a
+choir pick, a support left out by `avoid` or the prompt budget, wordless voices with no background). Every compile report
+now carries the one record of that:
+
+`compile_report.arrangement = {requested: {lead, supports[], voice_mode, background}, effective: {same keys}, adjustments[]}`
+with `adjustments[] = {field: "lead"|"supports"|"voices.background", requested, effective, reason}`. `effective` is what
+the caption and `instrumental` flag describe; clients show it as the primary arrangement and show `reason` next to the
+asked-for value. An empty `adjustments` means requested equals effective.
+
+`POST /api/songs/{id}/plan` only sets controls. A `null` there (in `controls`, `shape` or a flat field) is 422
+`reset_not_supported`; use `PATCH /api/songs/{id}/controls`. Resetting `recipe_id` to Auto recomputes every field the recipe
+supplies (`lead supports feeling pace fullness arc key avoid flavour duration_s takes`) except those whose provenance is
+`you` (controls and chip changes), which are kept exactly. Voice fields are not recipe-reset.

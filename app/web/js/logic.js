@@ -261,17 +261,51 @@ export function provenanceInfo(source) { return PROVENANCE[source] || { label: S
  * Rows for the plan table. `nameOf(id)` turns an instrument id into a display name.
  * Each row: {key, label, control, value, prov: {source, reason} | null}. `control` is the C-id whose honesty label applies.
  */
-export function planRows(plan, nameOf = (x) => x) {
+/**
+ * The arrangement the compiler really sent (report.arrangement.effective) laid over the stored plan. The stored plan keeps
+ * what was asked for; this copy is what the music model is told. Without a report (or an arrangement) it is the plan.
+ */
+export function effectivePlan(plan, report) {
+  const eff = report && report.arrangement && report.arrangement.effective;
+  if (!plan || !eff) return plan;
+  const out = JSON.parse(JSON.stringify(plan));
+  if (out.lead && eff.lead) out.lead.instrument = eff.lead;
+  out.supports = (plan.supports || []).filter((s) => (eff.supports || []).includes(s.instrument)).map((s) => ({ ...s }));
+  if (eff.voice_mode) out.voice_mode = eff.voice_mode;
+  if (out.voices && eff.background) out.voices = { ...out.voices, background: eff.background };
+  return out;
+}
+
+/** Plain lines for every place the compiler departed from the plan: "You asked for X. Y." */
+export function arrangementNotes(report, nameOf = (x) => x) {
+  const adj = (report && report.arrangement && report.arrangement.adjustments) || [];
+  return adj.map((a) => {
+    const asked = a.field === "lead" ? `${nameOf(a.requested)} as the lead`
+      : a.field === "supports" ? `${nameOf(a.requested)} as a supporting instrument`
+      : `${BG_TEXT[a.requested] || a.requested} background voices`;
+    return { field: a.field, text: `You asked for ${asked}. ${capitalise(String(a.reason))}.` };
+  });
+}
+
+export function planRows(plan, nameOf = (x) => x, report = null) {
   if (!plan) return [];
-  const prov = plan.provenance || {};
+  const asked = plan;
+  plan = effectivePlan(plan, report);
+  const notes = arrangementNotes(report, nameOf);
+  const noteFor = (...fields) => {
+    const t = notes.filter((n) => fields.includes(n.field)).map((n) => n.text).join(" ");
+    return t || null;
+  };
+  const prov = asked.provenance || {};
   const rows = [];
-  const add = (key, label, control, value, provKey = key) => rows.push({ key, label, control, value, prov: prov[provKey] || null });
+  const add = (key, label, control, value, provKey = key, adjusted = null) =>
+    rows.push({ key, label, control, value, prov: prov[provKey] || null, adjusted });
   add("voice_mode", "Voice", "C2", VOICE_TEXT[plan.voice_mode] || plan.voice_mode);
   add("duration_s", "Length", "C3", `about ${formatDuration(plan.duration_s)} (${plan.duration_s} s)`);
   add("takes", "Versions", "C4", String(plan.takes));
   if (plan.recipe_id) add("recipe_id", "Starting sound", "C5", plan.recipe_id.replace(/^r\d+_/, "").replace(/_/g, " "));
-  if (plan.lead) add("lead", "Leads", "C6", `${nameOf(plan.lead.instrument)}, playing style: ${STYLE_TEXT[plan.lead.style] || plan.lead.style}`);
-  add("supports", "Supports", "C6", (plan.supports || []).length ? plan.supports.map((s) => `${nameOf(s.instrument)} (${s.presence}, ${s.role})`).join(", ") : "nothing else");
+  if (plan.lead) add("lead", "Leads", "C6", `${nameOf(plan.lead.instrument)}, playing style: ${STYLE_TEXT[plan.lead.style] || plan.lead.style}`, "lead", noteFor("lead"));
+  add("supports", "Supports", "C6", (plan.supports || []).length ? plan.supports.map((s) => `${nameOf(s.instrument)} (${s.presence}, ${s.role})`).join(", ") : "nothing else", "supports", noteFor("supports"));
   add("feeling", "Feeling", "C7", (plan.feeling || []).join(", ") || "not specified");
   if (plan.pace) add("pace", "Pace", "C8", `${PACE_TEXT[plan.pace.bucket] || plan.pace.bucket}, target ${plan.pace.bpm} beats per minute`);
   add("fullness", "How full", "C9", FULL_TEXT[plan.fullness] || plan.fullness);
@@ -279,7 +313,7 @@ export function planRows(plan, nameOf = (x) => x) {
   if ((plan.avoid || []).length) add("avoid", "Avoid", "C12", plan.avoid.join(", "));
   if (plan.voice_mode !== "instrumental" && plan.voices) {
     add("voices", "Singer", "C13", SINGER_TEXT[plan.voices.singer] || plan.voices.singer, "voices");
-    add("voices", "Background voices", "C14", BG_TEXT[plan.voices.background] || plan.voices.background, "voices");
+    add("voices", "Background voices", "C14", BG_TEXT[plan.voices.background] || plan.voices.background, "voices", noteFor("voices.background"));
     add("voices", "Language", "C15", plan.voices.language, "voices");
   }
   if (plan.lyrics && plan.lyrics.policy !== "none") add("lyrics", "Lyrics", plan.lyrics.policy === "exact" ? "C17" : "C16", LYRICS_TEXT[plan.lyrics.policy] || plan.lyrics.policy);
@@ -340,8 +374,9 @@ export function formatChanges(changes, nameOf = humanId) {
   return (changes || []).map((c) => formatChange(c, nameOf));
 }
 
-export function summarySentence(plan, nameOf = (x) => x) {
+export function summarySentence(plan, nameOf = (x) => x, report = null) {
   if (!plan) return "";
+  plan = effectivePlan(plan, report);
   const lead = plan.lead ? nameOf(plan.lead.instrument) : "an instrument";
   const sup = (plan.supports || []).map((s) => nameOf(s.instrument));
   const voice = { instrumental: "no voices", wordless: "wordless voices", sung: "sung words" }[plan.voice_mode] || plan.voice_mode;
@@ -376,10 +411,15 @@ export function plannerNotes(card) {
 
 // ---- lineage ----------------------------------------------------------------------------------------------------
 /** Plain sentence describing where a round came from. `parentLabel` like "round 1, T2" or null. */
-export function lineageText(round, parentLabel) {
+export function lineageText(round, parentLabel, planRev = null) {
   switch (round.kind) {
     case "create": return "First round: made from your brief.";
-    case "another": return "Another take: the same plan with new random seeds.";
+    case "another": {
+      const rev = planRev ? ` (plan version ${planRev})` : "";
+      return parentLabel
+        ? `Another take of ${parentLabel}: that take's own plan${rev} with new random seeds. New performances, not edits of ${parentLabel}.`
+        : `Another take: the same plan${rev} with new random seeds.`;
+    }
     case "refine": {
       const asked = round.request_text ? ` You asked: "${round.request_text}".` : "";
       const from = parentLabel ? ` These are new performances from an updated plan, not an edit of ${parentLabel}.` : " These are new performances from an updated plan, not edits.";
@@ -402,4 +442,25 @@ export function describeApiError(status, body) {
   if (e && e.message) return e.message;
   if (status === 0) return "I cannot reach the Raag Studio server. Is it running? (scripts/start.sh)";
   return `The server answered with an error (${status}).`;
+}
+
+// ---- which plan a new round starts from -------------------------------------------------------------------------
+/** "Another take" starts from the take you have selected (its own plan); with none selected the server uses the newest plan. */
+export function anotherBody(selectedTakeId) {
+  return selectedTakeId ? { kind: "another", from_take: selectedTakeId } : { kind: "another" };
+}
+
+/** "Try again" repeats the failed round's own plan, never whatever plan happens to be newest. */
+export function retryBody(failedRoundId) {
+  return { kind: "another", from_round: failedRoundId };
+}
+
+/** One sentence under "What next?": which take the next changes start from and which plan that is. */
+export function selectionNote(label, takePlanRev, latestRev) {
+  if (!label) return "";
+  const rev = takePlanRev ? `, which was made from plan version ${takePlanRev}` : "";
+  const older = takePlanRev && latestRev && takePlanRev !== latestRev
+    ? ` The plan shown above is version ${latestRev}, so “Another take” will use version ${takePlanRev} (this take's plan), not the newest.`
+    : "";
+  return `Changes below start from: ${label}${rev} (the one you last played or marked).${older}`;
 }
