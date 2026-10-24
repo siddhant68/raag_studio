@@ -1,0 +1,10 @@
+{
+  "model": "v2.5",
+  "duration_s": 90,
+  "variants": 1,
+  "reference": null,
+  "finetune": null,
+  "estimated_credits": 1350,
+  "balance_before": 120200,
+  "comparison": "E01 identical prompt/words/settings; no seed exposed"
+}

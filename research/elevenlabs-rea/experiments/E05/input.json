@@ -1,0 +1,21 @@
+{
+  "parent_experiment": "E01",
+  "parent_song": "fJH7cBmaJQiCAxtvmxqN",
+  "project": "YmeFFAVY165olrmYfcdW",
+  "model": "v2.5",
+  "song_duration_s": 90,
+  "selected_section": "Chorus",
+  "selected_span_s": [
+    30,
+    60
+  ],
+  "added_styles": [
+    "higher sustained final lines",
+    "quiet backing harmonies",
+    "soft strings"
+  ],
+  "lyrics": "unchanged L1",
+  "variants": 1,
+  "estimate": "900 credits/min; conservative full-song upper reservation 1350, selected duration 30s would be 450 if billed only regenerated span",
+  "balance_before": 129650
+}

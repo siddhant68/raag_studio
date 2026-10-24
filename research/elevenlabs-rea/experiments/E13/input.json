@@ -1,0 +1,9 @@
+{
+  "model": "v2.5",
+  "duration_s": 90,
+  "variants": 1,
+  "parent_comparison": "E01",
+  "estimated_credits": 1350,
+  "reference": null,
+  "finetune": null
+}

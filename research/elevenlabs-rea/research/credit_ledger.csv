@@ -1,0 +1,7 @@
+action_group,balance_before,balance_after,actual_credits,evidence,basis
+start,0,131000,0,AV03;ACCESS_VERIFICATION,Observed live starting account
+E01,131000,129650,1350,UI-E01,Isolated debit after subscription refresh
+E05/E02/E03/E13/E07/E04/E20,129650,120200,9450,BILLING_CHECKPOINT_10800,Grouped actual debit; per-action estimates reconcile; E05/upload not isolated
+E12,120200,118850,1350,UI-E12;UI-VOICE-FINETUNE,Isolated balance delta
+E18,118850,118600,250,UI-E18,Isolated balance delta
+E04B,118600,117250,1350,FINAL_BILLING,Isolated final delta

@@ -1,0 +1,44 @@
+{
+  "method": "MP3 decoded to mono 44.1 kHz; lag estimated on polyphase 11.025kHz resample via FFT correlation, bounded \u00b1100ms; interior spans avoid edit boundary",
+  "comparisons": [
+    {
+      "span_s": [
+        5,
+        25
+      ],
+      "label": "verse_interior",
+      "best_lag_ms_within_100ms": 0.0,
+      "zero_offset_correlation": 0.9991225534872195,
+      "equal_samples_fraction": 0.0,
+      "normalized_residual_rms": 0.0418880776064575
+    },
+    {
+      "span_s": [
+        32,
+        52
+      ],
+      "label": "selected_chorus_interior",
+      "best_lag_ms_within_100ms": 0.0,
+      "zero_offset_correlation": 0.33533537856529744,
+      "equal_samples_fraction": 1.1337868480725623e-06,
+      "normalized_residual_rms": 1.1974855672203584
+    },
+    {
+      "span_s": [
+        65,
+        85
+      ],
+      "label": "final_chorus_interior",
+      "best_lag_ms_within_100ms": 0.0,
+      "zero_offset_correlation": 0.9983503173777285,
+      "equal_samples_fraction": 0.0,
+      "normalized_residual_rms": 0.057434599366301554
+    }
+  ],
+  "limitations": [
+    "No sample identity established.",
+    "High correlation supports strong similarity, not every part unchanged.",
+    "MP3 encoding differences may produce residuals outside edit.",
+    "No seam or artistic quality audition performed."
+  ]
+}

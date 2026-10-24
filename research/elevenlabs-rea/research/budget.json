@@ -1,0 +1,9 @@
+{
+  "starting_balance": 131000,
+  "ceiling": 40000,
+  "actual_spend": 13750,
+  "remaining_account": 117250,
+  "remaining_ceiling": 26250,
+  "final_billing_evidence": "research/evidence/FINAL_BILLING.md",
+  "no_more_jobs_pending": true
+}
