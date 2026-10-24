@@ -54,7 +54,7 @@ KIND_WORD = {"intro": "intro", "verse": "verses", "pre_chorus": "pre-chorus", "c
 # Section names that mean something musically and are worth saying in the caption; any other name ("Theme A",
 # "Loop B", "Verse 2") is described by its job instead.
 NAMED_SECTIONS = {"alaap", "aalap", "jor", "gat", "taans", "jhala", "cadence", "mukhda", "antara 1", "matla",
-                  "prelude", "hook", "drop", "breakdown", "climax", "resolution", "swell"}
+                  "prelude", "hook", "drop", "breakdown", "climax", "resolution", "swell", "pullback"}
 PRESENCE = {"sparse": "sparse ", "gentle": "", "full": "rich "}
 
 
@@ -198,6 +198,8 @@ def _journey(blueprint, limit: int = 7) -> list[str]:
         hint = s.style_hint.split(",")[0].strip() if s.style_hint else ""
         if hint and (label in hint.lower() or KIND_WORD.get(s.kind, "~") in hint.lower()):
             beats.append(hint)
+        elif hint and hint[:5].lower() == label[:5].lower():    # "resolve" + "resolution": say it once
+            beats.append(label)
         elif hint:
             beats.append(f"{hint} {label}")
         else:
@@ -216,6 +218,8 @@ def _techniques(st: dict) -> list[str]:
 def _render(st: dict, preset: dict) -> list[tuple[str, str]]:
     mode = st["mode"]
     genre = preset["genre_tags"]
+    if st.get("meter") == "3/4" and "waltz" not in genre.lower():
+        genre += ", waltz"
     if mode == "instrumental" and "instrumental" not in genre.lower():
         genre += ", instrumental"
     out = [("genre", _sentence(_cap(genre)))]
@@ -252,8 +256,10 @@ def _caption(slots: list[tuple[str, str]]) -> str:
 
 
 def _drop_next(st: dict, rep: _Report) -> bool:
+    # A note the person wrote (flavour with provenance 'you') outranks the style's own production words.
+    own = st.get("flavour_is_yours")
     steps = [
-        ("flavour", lambda: st["flavour"], lambda: st.update(flavour=None)),
+        ("flavour", lambda: st["flavour"] and not own, lambda: st.update(flavour=None)),
         ("production", lambda: len(st["production"]) > 1, lambda: st["production"].pop()),
         ("technique", lambda: len(st["techniques"]) > 2, lambda: st["techniques"].pop()),
         ("beat", lambda: len(st["journey"]) > 3, lambda: st["journey"].pop()),
@@ -261,6 +267,7 @@ def _drop_next(st: dict, rep: _Report) -> bool:
         ("mood", lambda: len(st["feelings"]) > 2, lambda: st["feelings"].pop()),
         ("production", lambda: st["production"], lambda: st["production"].pop()),
         ("technique", lambda: st["techniques"], lambda: st["techniques"].pop()),
+        ("flavour", lambda: st["flavour"], lambda: st.update(flavour=None)),
         ("beat", lambda: st["journey"], lambda: st["journey"].pop()),
         ("support", lambda: len(st["supports"]) > 1, lambda: st["supports"].pop()),
         ("mood", lambda: st["feelings"], lambda: st["feelings"].pop()),
@@ -371,6 +378,8 @@ def compile_song(plan: Plan | dict, *, engine_profile: str = DEFAULT_PROFILE,
                                 "(which sections, how loud each one gets)."})
     blueprint = song_plan.blueprint_for(plan, lead=st["lead"], supports=st["supports"])
     st["journey"] = _journey(blueprint)
+    st["meter"] = plan.meter
+    st["flavour_is_yours"] = bool(plan.provenance.get("flavour") and plan.provenance["flavour"].source == "you")
     st["techniques"] = _techniques(st)
     if len(st["supports"]) > 4:
         rep.warnings.append(f"{len(st['supports'])} supporting instruments; more than 4 tends to blur the lead.")

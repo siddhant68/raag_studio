@@ -287,4 +287,5 @@ def blueprint_for(plan: Plan, *, auto_length: bool = False, lead: Optional[str] 
     lyr = (preset or {}).get("lyrics", {})
     return song_blueprint.build(form=plan.form or (preset or {}).get("form"), voice_mode=plan.voice_mode,
                                 bpm=plan.pace.bpm, meter=plan.meter, target_s=target, lead=lead,
-                                supports=supports, hints=hints, lines_per_verse=lyr.get("lines_per_verse", 4))
+                                supports=supports, hints=hints, lines_per_verse=lyr.get("lines_per_verse", 4),
+                                require=tuple(plan.require_sections))

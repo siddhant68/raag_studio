@@ -103,8 +103,10 @@ def singer_by_uid(singer: str) -> dict[str, str]:
     return {}
 
 
-def build_request(plan: Plan, slots: list[dict]) -> str:
-    """The user message for the songwriter: language, singer, genre conventions, tempo, the sections to write."""
+def build_request(plan: Plan, slots: list[dict], required_hook: Optional[list[str]] = None) -> str:
+    """The user message for the songwriter: language, singer, genre conventions, tempo, the sections to write.
+
+    `required_hook`: lines the person supplied that must appear unchanged in the chorus (the song's hook)."""
     preset = genres.get(plan.genre) if plan.genre else {}
     lyr = preset.get("lyrics") or {}
     lang = plan.voices.language
@@ -126,6 +128,12 @@ def build_request(plan: Plan, slots: list[dict]) -> str:
     if rap:
         lines.append(f"The verses ({', '.join(rap)}) are rapped: denser lines of about {lo + 2} to {hi + 4} "
                      "syllables with internal rhymes; the chorus is sung.")
+    if required_hook:
+        chorus_n = next((s["lines"] for s in slots if s["uid"] == "chorus"), len(required_hook))
+        lines.append("The hook is supplied and must stay exactly as written, word for word and in this order, as the "
+                     f"first {len(required_hook)} lines of the chorus:\n" + "\n".join(required_hook)
+                     + (f"\nWrite the remaining {chorus_n - len(required_hook)} chorus lines around it."
+                        if chorus_n > len(required_hook) else "") + " Use the hook's first line as the title.")
     lines.append("Write each of these sections once (the app repeats the chorus itself):")
     for s in slots:
         role = ROLE_NOTES.get(s["uid"], "")
@@ -168,7 +176,41 @@ def to_written(draft: SongLyricsDraft, slots: list[dict]) -> dict[str, list[str]
     return written
 
 
-def check(plan: Plan, written: dict[str, list[str]], slots: list[dict], hook: Optional[str]) -> lyric_craft.LintResult:
+def _norm_line(s: str) -> str:
+    import unicodedata
+    return " ".join(unicodedata.normalize("NFC", s).split())
+
+
+def hook_present(written: dict[str, list[str]], required_hook: list[str]) -> bool:
+    """Every supplied hook line appears unchanged in the chorus, in order (spacing and Unicode form aside)."""
+    chorus = [_norm_line(x) for x in written.get("chorus", [])]
+    want = [_norm_line(x) for x in required_hook]
+    for start in range(len(chorus) - len(want) + 1):
+        if chorus[start:start + len(want)] == want:
+            return True
+    return False
+
+
+def enforce_hook(written: dict[str, list[str]], required_hook: list[str]) -> dict[str, list[str]]:
+    """The chorus with the supplied hook as its first lines (used only when the songwriter would not keep it)."""
+    chorus = list(written.get("chorus", []))
+    n = len(required_hook)
+    rest = [x for x in chorus if _norm_line(x) not in {_norm_line(h) for h in required_hook}]
+    out = dict(written)
+    out["chorus"] = list(required_hook) + rest[: max(0, len(chorus) - n)]
+    return out
+
+
+def check(plan: Plan, written: dict[str, list[str]], slots: list[dict], hook: Optional[str],
+          required_hook: Optional[list[str]] = None) -> lyric_craft.LintResult:
+    res = _check(plan, written, slots, hook)
+    if required_hook and not hook_present(written, required_hook):
+        res.issues.append(lyric_craft.Issue("required_hook_missing", "The chorus must contain the supplied hook "
+                                            "lines exactly as written: " + " / ".join(required_hook), "chorus"))
+    return res
+
+
+def _check(plan: Plan, written: dict[str, list[str]], slots: list[dict], hook: Optional[str]) -> lyric_craft.LintResult:
     preset = genres.get(plan.genre) if plan.genre else {}
     lyr = preset.get("lyrics") or {}
     rng = tuple(lyr.get("syllables") or (6, 12))
@@ -191,10 +233,14 @@ def check(plan: Plan, written: dict[str, list[str]], slots: list[dict], hook: Op
                             hook=hook or None, rap_uids=rap)
 
 
-def assemble_sheet(plan: Plan, blueprint, written: dict[str, list[str]]) -> str:
+def assemble_sheet(plan: Plan, blueprint, written: dict[str, list[str]], *, tag_hints: bool = True) -> str:
+    """The lyric sheet. `tag_hints=False` keeps musical direction out of the lyrics (section names only); a duet
+    still labels who sings each section, because that is a vocal assignment, not a style instruction."""
+    import dataclasses
     sections = blueprint.sections
+    if not tag_hints:
+        sections = [dataclasses.replace(s, hint="") for s in sections]
     if plan.voices.singer == "duet":
-        import dataclasses
         tagged = []
         for s in sections:
             who = {"verse_1": "male vocal", "verse_2": "female vocal", "chorus": "duet"}.get(s.uid or s.repeat_of or "")

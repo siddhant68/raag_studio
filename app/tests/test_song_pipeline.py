@@ -210,7 +210,7 @@ def test_a_beat_cannot_lead():
 def test_classic_plans_keep_their_fingerprint():
     plan = compiler.default_plan("r1_flute_focus")
     data = plan.model_dump(mode="json")
-    for k in ("genre", "pipeline", "meter", "form"):
+    for k in ("genre", "pipeline", "meter", "form", "require_sections"):
         data.pop(k)
     import hashlib
     old = hashlib.sha256(json.dumps(data, sort_keys=True, ensure_ascii=False).encode()).hexdigest()

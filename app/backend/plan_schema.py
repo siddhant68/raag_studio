@@ -39,7 +39,9 @@ ProvenanceSource = Literal["you", "suggested", "recipe", "rule"]
 Pipeline = Literal["classic", "song"]          # classic = the original template compiler; song = blueprint compiler
 Meter = Literal["4/4", "3/4", "6/8", "2/4"]
 # Fields added with the song pipeline. A plan that leaves them at these defaults fingerprints exactly as before.
-SONG_FIELD_DEFAULTS = {"genre": None, "pipeline": "classic", "meter": "4/4", "form": None}
+SONG_FIELD_DEFAULTS = {"genre": None, "pipeline": "classic", "meter": "4/4", "form": None, "require_sections": []}
+SectionKind = Literal["intro", "verse", "pre_chorus", "chorus", "bridge", "solo", "interlude", "break", "build",
+                      "drop", "outro"]
 
 # C8 pace buckets (BPM ranges from PRD section 4)
 BUCKET_RANGES = {"slow": (68, 78), "medium": (80, 96), "lively": (100, 116)}
@@ -115,6 +117,7 @@ class Plan(_Strict):
     pipeline: Pipeline = "classic"
     meter: Meter = "4/4"
     form: Optional[str] = Field(default=None, pattern=r"^[a-z_]{3,30}$")
+    require_sections: list[SectionKind] = Field(default_factory=list, max_length=6)   # never dropped to fit the length
     provenance: dict[str, FieldProvenance] = Field(default_factory=dict)
 
     @field_validator("brief")

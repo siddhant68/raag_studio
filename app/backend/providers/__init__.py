@@ -538,7 +538,8 @@ class LlmPlanner(Planner):
 
         return self._structured(LYRICS_SYSTEM_PROMPT, user, llm_schema(LlmLyricsDraft), LYRICS_TOOL_NAME, validate)
 
-    def draft_song_lyrics(self, plan: Plan, blueprint) -> "SongLyrics":
+    def draft_song_lyrics(self, plan: Plan, blueprint, *, required_hook: Optional[list[str]] = None,
+                          tag_hints: bool = True) -> "SongLyrics":
         """Lyrics for a song-pipeline plan: write each blueprint section once, check, revise once, assemble.
 
         Returns the tagged lyric sheet (every chorus repeat copied word for word), the title and hook, and the
@@ -553,22 +554,28 @@ class LlmPlanner(Planner):
         if not slots:
             raise UnsupportedByPlanner("This song form has no sung sections to write.", code="lyrics_no_sections")
         self._require_enabled()
-        request = songwriter.build_request(plan, slots)
+        request = songwriter.build_request(plan, slots, required_hook)
         schema = llm_schema(songwriter.SongLyricsDraft)
+        drafts: list[dict] = []
 
         def validate(raw: Any) -> songwriter.SongLyricsDraft:
             return self._model(songwriter.SongLyricsDraft, raw)
 
         draft = self._structured(songwriter.SYSTEM_PROMPT, request, schema, SONG_LYRICS_TOOL_NAME, validate)
         written = songwriter.to_written(draft, slots)
-        result = songwriter.check(plan, written, slots, draft.hook)
+        result = songwriter.check(plan, written, slots, draft.hook, required_hook)
+        drafts.append({"stage": "draft", "answer": draft.model_dump(), "review": result.to_dict()})
         revised = False
+        notes: list[str] = []
         if result.needs_revision:
             first_issues = result.issues
-            second = self._structured(songwriter.SYSTEM_PROMPT, songwriter.build_revision(request, draft, first_issues),
-                                      schema, SONG_LYRICS_TOOL_NAME, validate)
+            revision_request = songwriter.build_revision(request, draft, first_issues)
+            second = self._structured(songwriter.SYSTEM_PROMPT, revision_request, schema, SONG_LYRICS_TOOL_NAME,
+                                      validate)
             written2 = songwriter.to_written(second, slots)
-            result2 = songwriter.check(plan, written2, slots, second.hook or draft.hook)
+            result2 = songwriter.check(plan, written2, slots, second.hook or draft.hook, required_hook)
+            drafts.append({"stage": "revision", "asked_to_fix": [i.message for i in first_issues if i.severity == "fix"],
+                           "answer": second.model_dump(), "review": result2.to_dict()})
             fixes = sum(1 for i in result.issues if i.severity == "fix")
             fixes2 = sum(1 for i in result2.issues if i.severity == "fix")
             if fixes2 <= fixes and all(written2.get(s["uid"]) for s in slots):
@@ -576,13 +583,18 @@ class LlmPlanner(Planner):
         missing = [s["name"] for s in slots if not written.get(s["uid"])]
         if missing:
             raise PlannerInvalidOutput(f"{self.label} did not write: {', '.join(missing)}.")
-        sheet = songwriter.assemble_sheet(plan, blueprint, written)
+        if required_hook and not songwriter.hook_present(written, required_hook):
+            written = songwriter.enforce_hook(written, required_hook)
+            notes.append("The supplied hook was not kept word for word by the songwriter, so the app put it at the "
+                         "start of the chorus itself.")
+            result = songwriter.check(plan, written, slots, draft.hook, required_hook)
+        sheet = songwriter.assemble_sheet(plan, blueprint, written, tag_hints=tag_hints)
         if len(sheet) > LYRICS_CAP:
             raise PlannerInvalidOutput(f"the lyric sheet is {len(sheet)} characters; the limit is {LYRICS_CAP}.")
         title = copyright_policy.sanitize(_plain(draft.title, 80)).text.strip()
         hook = copyright_policy.sanitize(_plain(draft.hook, 60)).text.strip()
         return SongLyrics(text=sheet, title=title, hook=hook, written=written, review=result.to_dict(),
-                          revised=revised, provider=self.name)
+                          revised=revised, provider=self.name, drafts=drafts, notes=notes)
 
 
 class SongLyrics(BaseModel):
@@ -594,6 +606,8 @@ class SongLyrics(BaseModel):
     review: dict = Field(default_factory=dict)
     revised: bool = False
     provider: str = ""
+    drafts: list[dict] = Field(default_factory=list)      # every raw answer with its check (draft, revision)
+    notes: list[str] = Field(default_factory=list)
 
 
 def _plan_state(plan: Plan) -> dict:

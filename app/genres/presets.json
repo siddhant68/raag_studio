@@ -1228,7 +1228,7 @@
       "languages": ["en"],
       "voice": "sung",
       "singer": "female",
-      "genre_tags": "smooth jazz, jazz, bossa nova",
+      "genre_tags": "jazz, swing jazz, smooth jazz",
       "moods": ["smoky", "intimate", "elegant"],
       "bpm": [70, 120],
       "bpm_default": 92,
@@ -1248,7 +1248,7 @@
         "style": "witty or wistful standards-style English"
       },
       "hints": {"intro": "piano", "verse": "brushes", "chorus": "swinging", "solo": "sax", "outro": "piano tag"},
-      "keywords": ["jazz", "lounge", "swing", "bossa", "bossa nova", "blues", "speakeasy"]
+      "keywords": ["jazz", "lounge", "swing", "blues", "speakeasy"]
     },
     {
       "id": "cinematic_orchestral",
@@ -1314,7 +1314,7 @@
       "languages": ["en"],
       "voice": "instrumental",
       "singer": "auto",
-      "genre_tags": "neo-classical, solo piano",
+      "genre_tags": "neo-classical, modern classical",
       "moods": ["reflective", "tender", "bittersweet"],
       "bpm": [60, 90],
       "bpm_default": 72,
@@ -1328,7 +1328,7 @@
       "production": ["intimate felt piano", "close mic with soft room", "subtle tape warmth"],
       "form": "instrumental_song",
       "lyrics": {},
-      "hints": {"intro": "solo piano", "verse": "simple figure", "chorus": "fuller", "bridge": "sparse", "outro": "fading"},
+      "hints": {"intro": "solo piano", "verse": "simple figure", "chorus": "fuller", "bridge": "sparse", "outro": "resolved"},
       "keywords": ["piano solo", "solo piano", "neoclassical", "neo-classical", "felt piano"]
     }
   ]

@@ -30,3 +30,5 @@ runs/
 *storage_state*
 *profile*/
 *.bundle
+# showcase listening copies are published on purpose (native renders stay in runs/)
+!showcase/*/audio/*.mp3

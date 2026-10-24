@@ -54,11 +54,11 @@ FORMS: dict[str, list[Step]] = {
         S("verse", "Verse 1", "Verse 1", lines=V, energy=2, uid="verse_1"),
         S("pre_chorus", "Pre-Chorus", "Pre-Chorus", lines=2, energy=3, uid="pre_chorus", drop_rank=3),
         S("chorus", "Chorus", "Chorus", lines=4, energy=4, uid="chorus"),
-        S("verse", "Verse 2", "Verse 2", lines=V, energy=3, uid="verse_2", drop_rank=4),
+        S("verse", "Verse 2", "Verse 2", lines=V, energy=3, uid="verse_2", drop_rank=5),
         S("pre_chorus", "Pre-Chorus", "Pre-Chorus", repeat_of="pre_chorus", energy=3, drop_rank=1),
-        S("chorus", "Chorus", "Chorus", repeat_of="chorus", energy=4, drop_rank=4),
+        S("chorus", "Chorus", "Chorus", repeat_of="chorus", energy=4, drop_rank=4),   # verse 2 can lead to the bridge
         S("bridge", "Bridge", "Bridge", lines=4, energy=2, uid="bridge", drop_rank=2),
-        S("chorus", "Final Chorus", "Chorus", repeat_of="chorus", energy=5, drop_rank=5),
+        S("chorus", "Final Chorus", "Chorus", repeat_of="chorus", energy=5, drop_rank=6),
         S("outro", "Outro", "Outro", bars=4, energy=1),
     ],
     "mukhda_antara": [
@@ -115,13 +115,15 @@ FORMS: dict[str, list[Step]] = {
         S("outro", "Outro", "Outro", bars=8, energy=3),
     ],
     "edm": [
+        # vocals sit in the verse, pre-chorus and chorus/build; the drops are instrumental (the hook's melody on synths)
         S("intro", "Intro", "Intro", bars=8, energy=2),
         S("verse", "Verse 1", "Verse 1", lines=V, energy=2, uid="verse_1"),
-        S("build", "Build", "Build", lines=2, energy=4, uid="pre_chorus"),
-        S("chorus", "Drop", "Drop", lines=4, energy=5, uid="chorus"),
+        S("pre_chorus", "Pre-Chorus", "Pre-Chorus", lines=2, energy=3, uid="pre_chorus", drop_rank=3),
+        S("chorus", "Chorus", "Chorus", lines=4, energy=4, uid="chorus"),
+        S("drop", "Drop", "Drop", bars=16, energy=5),
         S("bridge", "Breakdown", "Breakdown", lines=4, energy=2, uid="bridge", drop_rank=2),
-        S("build", "Build", "Build", repeat_of="pre_chorus", energy=4, drop_rank=1),
-        S("chorus", "Final Drop", "Drop", repeat_of="chorus", energy=5, drop_rank=5),
+        S("chorus", "Chorus", "Chorus", repeat_of="chorus", energy=4, drop_rank=4),
+        S("drop", "Final Drop", "Drop", bars=16, energy=5),
         S("outro", "Outro", "Outro", bars=8, energy=2),
     ],
     "folk_song": [
@@ -165,6 +167,7 @@ FORMS: dict[str, list[Step]] = {
         S("intro", "Opening", "Intro", bars=8, energy=1),
         S("verse", "Theme", "Verse", bars=8, energy=2),
         S("build", "Build", "Build", bars=8, energy=3, drop_rank=2),
+        S("bridge", "Pullback", "Breakdown", bars=4, energy=2, drop_rank=1),        # a breath before the last statement
         S("chorus", "Climax", "Chorus", bars=8, energy=5),
         S("outro", "Resolution", "Outro", bars=8, energy=2),
     ],
@@ -273,12 +276,16 @@ def _lines_of(st: Step, lines_per_verse: int, uid_lines: dict[str, int]) -> int:
 
 
 def fit_form(form: str, *, bpm: int, meter: str = "4/4", target_s: Optional[int] = None, lines_per_verse: int = 4,
-             bars_per_line: float = 2.0) -> tuple[list[tuple[Step, int, float]], dict]:
+             bars_per_line: float = 2.0, require: tuple[str, ...] = ()) -> tuple[list[tuple[Step, int, float]], dict]:
     """Choose the form's sections and line counts for a tempo and target length.
 
+    `require`: section kinds or uids the person asked for ("bridge", "pre_chorus"); they are never dropped.
     Returns ([(step, lines, bars)], info) where info has target_s, dropped, changes, fit.
     """
     steps = [Step(**asdict(s)) for s in FORMS[form]]
+    for st in steps:
+        if st.kind in require or (st.uid and st.uid in require) or (st.repeat_of and st.repeat_of in require):
+            st.drop_rank = 0
     bar_s = bar_seconds(bpm, meter)
     dropped: list[str] = []
     changes: list[str] = []
@@ -314,6 +321,9 @@ def fit_form(form: str, *, bpm: int, meter: str = "4/4", target_s: Optional[int]
         return [(st, n, max(2.0, b / 2) if n == 0 else b) for st, n, b in lay]
 
     # 1. pick how much of the form to keep: the candidate closest to the goal, preferring more of the song.
+    # Purely instrumental forms stretch and shrink with the length, so they keep more sections (a wider window).
+    elastic = not any(s.lines for s in steps)
+    lo_ok, hi_ok = (0.75, 1.3) if elastic else (0.9, 1.1)
     ranks = [0] + sorted({s.drop_rank for s in steps if s.drop_rank > 0})
     if auto:
         rank = next((r for r in ranks if total(layout(drop_through(r), lpv)) <= MAX_TOTAL_S), ranks[-1])
@@ -326,7 +336,7 @@ def fit_form(form: str, *, bpm: int, meter: str = "4/4", target_s: Optional[int]
                 lay_c = squeeze(lay_c) if sq else lay_c
                 over = total(lay_c) / goal
                 # within +-10% is ideal; otherwise distance from the goal, too long counts double (rushed words)
-                miss = 0.0 if 0.9 <= over <= 1.1 else (over - 1.1) * 2 if over > 1.1 else 0.9 - over
+                miss = 0.0 if lo_ok <= over <= hi_ok else (over - hi_ok) * 2 if over > hi_ok else lo_ok - over
                 cand = (round(miss, 3), r, sq)
                 if best is None or cand < best:
                     best = cand
@@ -337,8 +347,11 @@ def fit_form(form: str, *, bpm: int, meter: str = "4/4", target_s: Optional[int]
     if squeezed:
         lay = squeeze(lay)
         changes.append("intro, outro and interludes shortened to fit the length")
-    ceiling = MAX_TOTAL_S if auto else goal * 1.10
-    # 2. still too long: shorter verses (never below 2 lines)
+    ceiling = MAX_TOTAL_S if auto else goal * hi_ok
+    # 2. still too long: a shorter intro and outro first, then shorter verses (never below 2 lines)
+    if total(lay) > ceiling and not squeezed:
+        lay = [(st, n, max(2.0, b / 2) if st.kind in ("intro", "outro") else b) for st, n, b in lay]
+        changes.append("intro and outro shortened to fit the length")
     while total(lay) > ceiling and lpv > 2 and any(s.lines == V for s in active):
         lpv -= 1
         # keep the (possibly shortened) instrumental bars; only the sung sections are re-measured
@@ -371,9 +384,10 @@ def fit_form(form: str, *, bpm: int, meter: str = "4/4", target_s: Optional[int]
     else:
         target = int(goal)
     ratio = est / target if target else 1.0
-    fit = "tight" if ratio > 1.1 else ("roomy" if ratio < 0.85 else "ok")
+    fit = "tight" if ratio > hi_ok else ("roomy" if ratio < 0.85 else "ok")
     if fit == "tight":
-        changes.append(f"the words need about {round(est)} s but the length is {target} s: singing may feel rushed")
+        changes.append(f"the sections need about {round(est)} s but the length is {target} s: "
+                       + ("the engine will shorten them" if elastic else "singing may feel rushed"))
     return lay, {"target_s": target, "estimated_s": round(est, 1), "dropped": dropped, "changes": changes,
                  "fit": fit, "bar_s": bar_s, "lines_per_verse": lpv, "chorus_lines": min(4, chorus_cap[0])}
 
@@ -448,12 +462,12 @@ def _hint(kind: str, tag: str, final: bool, hints: dict, entering: list[str], vo
 
 def build(*, form: Optional[str], voice_mode: str, bpm: int, meter: str = "4/4", target_s: Optional[int] = None,
           lead: str, supports: list[dict], hints: Optional[dict] = None, lines_per_verse: int = 4,
-          bars_per_line: float = 2.0) -> Blueprint:
+          bars_per_line: float = 2.0, require: tuple[str, ...] = ()) -> Blueprint:
     """Blueprint for a plan. `supports` are plan support dicts ({instrument, role, presence})."""
     hints = hints or {}
     form_used = form_for(form, voice_mode)
     lay, info = fit_form(form_used, bpm=bpm, meter=meter, target_s=target_s, lines_per_verse=lines_per_verse,
-                         bars_per_line=bars_per_line)
+                         bars_per_line=bars_per_line, require=tuple(require))
     changes = list(info["changes"])
     if form and form_used != form:
         changes.insert(0, f"the {form.replace('_', ' ')} form needs sung words; using {form_used.replace('_', ' ')}")

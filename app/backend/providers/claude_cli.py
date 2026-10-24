@@ -50,6 +50,7 @@ class ClaudeCliPlanner(LlmPlanner):
         self.model = model
         self.bare = bare
         self._env = env                     # None -> os.environ at call time
+        self.envelopes: list[dict] = []     # per call: model(s), duration, cost (see envelope_meta)
         self.extra_args = list(extra_args or [])
 
     # ---- availability (no subprocess) ------------------------------------------------------
@@ -110,7 +111,21 @@ class ClaudeCliPlanner(LlmPlanner):
                 detail = _short(err) if (err or "").strip() else _envelope_error(out)
                 raise PlannerUnavailable(f"{LABEL} exited with code {proc.returncode}: {detail}",
                                          code="planner_cli_failed")
+        self.envelopes.append(envelope_meta(out))
         return parse_cli_output(out)
+
+
+def envelope_meta(stdout: str) -> dict:
+    """Who answered and what it cost, from the CLI's JSON envelope (no prompt or answer text). Never raises."""
+    try:
+        env = json.loads(stdout or "")
+    except ValueError:
+        return {}
+    if not isinstance(env, dict):
+        return {}
+    return {"models": sorted((env.get("modelUsage") or {}).keys()), "duration_ms": env.get("duration_ms"),
+            "duration_api_ms": env.get("duration_api_ms"), "total_cost_usd": env.get("total_cost_usd"),
+            "stop_reason": env.get("stop_reason"), "is_error": env.get("is_error")}
 
 
 def _kill_group(proc: subprocess.Popen) -> None:
