@@ -106,7 +106,9 @@ class ClaudeCliPlanner(LlmPlanner):
                     pass
                 raise PlannerTimeout(f"{LABEL} did not answer within {self.timeout_s:g} s.") from e
             if proc.returncode != 0:
-                raise PlannerUnavailable(f"{LABEL} exited with code {proc.returncode}: {_short(err)}",
+                # The CLI reports its own failures (expired login, ...) as a JSON envelope on stdout with an empty stderr.
+                detail = _short(err) if (err or "").strip() else _envelope_error(out)
+                raise PlannerUnavailable(f"{LABEL} exited with code {proc.returncode}: {detail}",
                                          code="planner_cli_failed")
         return parse_cli_output(out)
 
@@ -119,6 +121,17 @@ def _kill_group(proc: subprocess.Popen) -> None:
             proc.kill()
         except OSError:
             pass
+
+
+def _envelope_error(stdout: str) -> str:
+    """The `result` text of an error envelope, or 'no message'. Never raises."""
+    try:
+        env = json.loads(stdout or "")
+        if isinstance(env, list):
+            env = next((e for e in reversed(env) if isinstance(e, dict) and e.get("type") == "result"), {})
+        return _short(str(env.get("result", ""))) if isinstance(env, dict) else "no message"
+    except ValueError:
+        return _short(stdout)
 
 
 def _short(s: str, n: int = 200) -> str:

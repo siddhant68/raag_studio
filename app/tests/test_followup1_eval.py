@@ -53,3 +53,20 @@ def test_missing_recorded_plan_is_an_error_not_a_silent_skip(tmp_path):
     path.write_text("{}", "utf-8")
     with pytest.raises(SystemExit):
         eval_planner.main(["--plans", str(path)])
+
+
+def test_live_run_where_every_plan_falls_back_scores_nothing(tmp_path, monkeypatch, capsys):
+    """A provider that never answers must not produce a 'smart planner' score made of Basic plans."""
+    from backend.planner_base import PlannerUnavailable
+    from backend.providers import registry
+    from backend.providers.claude_cli import ClaudeCliPlanner
+
+    class Dead(ClaudeCliPlanner):
+        def _transport(self, *a, **k):
+            raise PlannerUnavailable("Failed to authenticate: OAuth session expired", code="planner_cli_failed")
+    monkeypatch.setattr(registry, "ClaudeCliPlanner", lambda **kw: Dead(**kw))
+    rec = tmp_path / "plans.json"
+    assert eval_planner.main(["--live", "claude_cli", "--record", str(rec)]) == 2
+    assert not rec.exists()
+    out = capsys.readouterr().out
+    assert "nothing was scored" in out and "OAuth session expired" in out

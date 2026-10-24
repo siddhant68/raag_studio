@@ -68,3 +68,22 @@ HANDOFF_PROMPT.md, STATUS.md, this report, `reports/eval_basic_planner_v2.json`.
 ```sh
 scripts/start.sh && open http://127.0.0.1:8477/     # real engine; scripts/stop.sh to stop
 ```
+
+## Addendum: authorised live evaluation of the Claude CLI planner (2026-10-24)
+You decided to enable the smart planner (Claude CLI) for evaluation, knowing brief text goes to Anthropic. I ran it through the evaluation
+harness only (`python -m experiments.eval_planner --live claude_cli --record ...`); the app's persisted Settings were **not** changed,
+so the app itself still uses Basic. Only the 24 evaluation briefs I wrote were sent (no user briefs, no lyrics).
+
+**Result: no smart plan was obtained.** All 24 calls failed at once with `Failed to authenticate: OAuth session expired and could not
+be refreshed` (the local `claude` login has expired; the CLI exits 1 with an empty stderr). All 24 fell back to Basic and were labelled as
+fallbacks, which is the intended truthful behaviour. No API key was used or requested. Nothing was rendered.
+Fixes made because of this: (1) the provider hid the real reason (it only read stderr); it now reads the CLI's stdout error envelope, so
+the banner/reason says why; (2) the harness refuses to score a run in which every plan fell back (it would have scored Basic under the
+provider's name) and keeps no plans file; a mixed run is flagged as mixing. Tests added for both. A probe I ran to find the cause sent
+one trivial prompt ("Reply with the word ok."), nothing else.
+
+**What I need from you:** sign in again in an interactive terminal (run `claude`, then `/login`). I cannot do that for you and will not
+handle credentials. Then re-run, from `app/`:
+`.venv/bin/python -m experiments.eval_planner --live claude_cli --record ../reports/eval_claude_cli_plans_v2.json --json ../reports/eval_claude_cli_v2.json`
+(about 24 calls, up to 60 s each). To use it in the app itself, Settings must be switched on by you (`PUT /api/settings`
+`planner_provider: claude_cli`, `planner_smart_enabled: true`), which stays your action per IMPLEMENTATION_DECISIONS.md.

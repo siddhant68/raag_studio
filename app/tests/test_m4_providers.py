@@ -526,3 +526,11 @@ def test_draft_lyrics_failure_surfaces_the_smart_error_not_a_silent_substitute()
     fp = registry.FallbackPlanner(Api([httpx.ConnectTimeout("t")]).planner())
     with pytest.raises(PlannerTimeout):
         fp.draft_lyrics(sung_plan().plan)
+
+
+def test_cli_failure_reason_comes_from_the_stdout_envelope_when_stderr_is_empty():
+    from backend.providers.claude_cli import _envelope_error
+    env = '{"type":"result","is_error":true,"result":"Failed to authenticate: OAuth session expired and could not be refreshed"}'
+    assert "OAuth session expired" in _envelope_error(env)
+    assert _envelope_error("") == "no message" and _envelope_error("[]") == "no message"
+    assert _envelope_error("not json at all") == "not json at all"

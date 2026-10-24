@@ -58,12 +58,45 @@ def evaluate(cards: dict[str, BriefCard], briefs: list[dict]) -> dict:
             "all_compile": all(r["compiles"] for r in rows), "rows": rows}
 
 
+def live(provider: str, briefs: list[dict], record: Path, json_out: str | None) -> int:
+    """Call the provider once per brief. A fallback to Basic is recorded as such and NOT scored as the smart planner."""
+    from backend.providers.registry import get_planner
+    planner = get_planner({"planner": {"provider": provider, "smart_enabled": True}})
+    cards, meta = {}, {}
+    for b in briefs:
+        out = planner.plan_with_status(b["brief"])
+        cards[b["id"]] = out.card.model_dump(mode="json")
+        meta[b["id"]] = {"fallback": out.fallback, "reason": out.fallback_reason}
+        print(f"  {b['id']}: {'FALLBACK to Basic (' + str(out.fallback_reason) + ')' if out.fallback else 'smart plan'}", flush=True)
+    record.write_text(json.dumps(cards, indent=2, ensure_ascii=False), "utf-8")
+    record.with_suffix(".meta.json").write_text(json.dumps(meta, indent=2), "utf-8")
+    fell = [k for k, v in meta.items() if v["fallback"]]
+    print(f"recorded {len(cards)} plans to {record}; {len(fell)} fell back to Basic: {', '.join(fell) or 'none'}")
+    if len(fell) == len(cards):
+        # Nothing here came from the provider: scoring would only re-score Basic under another name.
+        record.unlink(missing_ok=True)
+        record.with_suffix(".meta.json").rename(record.with_suffix(".failed.meta.json"))
+        print("No plan came from the provider, so nothing was scored and no plans file was kept. "
+              f"Reason of the first failure: {meta[briefs[0]['id']]['reason']}")
+        return 2
+    print("WARNING: fallback plans are Basic's, not the provider's; scores below mix both." if fell else "")
+    argv = ["--plans", str(record)] + (["--json", json_out] if json_out else [])
+    return main(argv)
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--plans", help="recorded BriefCards from a smart planner; default: run the Basic planner")
     ap.add_argument("--json", help="write the full result here")
+    ap.add_argument("--live", choices=["claude_cli", "anthropic_api"],
+                    help="SENDS each brief to Anthropic through that provider (you authorised this) and records the plans")
+    ap.add_argument("--record", help="with --live: where to write the recorded plans (a --plans file)")
     args = ap.parse_args(argv)
     briefs = load()
+    if args.live:
+        if not args.record:
+            sys.exit("--live needs --record <file> so the plans are kept and re-scorable without another call")
+        return live(args.live, briefs, Path(args.record), args.json)
     if args.plans:
         recorded = json.loads(Path(args.plans).read_text("utf-8"))
         missing = [b["id"] for b in briefs if b["id"] not in recorded]

@@ -79,10 +79,12 @@ Four reviewer-reported bugs (choir crash, refine from_take plan, null reset to A
 
 ## Current state and next tasks (updated 2026-10-24, follow-up 1)
 
-Local, uncommitted-to-remote; never push. Suite: 397 passing (`app/.venv/bin/python -m pytest app/tests -q -p no:cacheprovider`;
+Local, uncommitted-to-remote; never push. Suite: 399 passing (`app/.venv/bin/python -m pytest app/tests -q -p no:cacheprovider`;
 strip proxy env vars if HTTPX fails on SOCKS). Render budget unchanged: **9 of ~12 takes used, ~3 remain; follow-up 1 rendered nothing.**
 Report: `reports/FOLLOWUP1.md`. Done there: effective-arrangement display, selected-take Another take, Try again keeps the failed
 round's plan, recipe reset, `/plan` null refusal, sung-Choir wording, independent planner evaluation set + Basic baseline.
 Next: (1) human listening on the existing unreviewed app takes (paths in the handoff, section 7), (2) the user's decision on enabling a
 smart planner (still OFF; see IMPLEMENTATION_DECISIONS.md), then record smart-planner plans and score them with
 `python -m experiments.eval_planner --plans ...` from `app/`, (3) only then spend the remaining ~3 takes on a listening trial.
+Smart-planner evaluation: authorised by the user 2026-10-24 but blocked: the local `claude` OAuth session has expired (all 24 live calls fell back).
+User must re-login (`claude` then `/login`) and re-run the command in reports/FOLLOWUP1.md (Addendum). App Settings still Basic.
