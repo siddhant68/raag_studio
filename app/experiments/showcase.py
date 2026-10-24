@@ -136,7 +136,10 @@ def targets_markdown(t: dict, plan: Plan) -> str:
               f"- Length: {t['duration_s']} s; tempo target {t['bpm']} BPM; meter {t['meter']}",
               f"- Style preset: {genres.get(t['genre'])['name']} (`{t['genre']}`), song form `{plan.form}`",
               f"- Lead: {inst_db.display_name(t['lead'])}; supports: {sups}",
-              f"- Caption note (flavour): {t['flavour']}"]
+              f"- Caption note (flavour): {t['flavour']}",
+              f"- Song map (planned, not measured): {song_plan.blueprint_for(plan).summary()}"]
+    if t.get("require_sections"):
+        lines.append(f"- Sections the brief asks for, never dropped to fit the length: {', '.join(t['require_sections'])}")
     if t.get("hook"):
         lines += [f"- Hook (must appear unchanged in every chorus): {' / '.join(t['hook'])}",
                   f"- Theme given to the songwriter: {t['theme']}"]
@@ -533,7 +536,8 @@ def write_readme(spec: dict, show_dir: Path) -> None:
         r = info.get("render", {})
         name = take_dir_name(t)
         audio = f"[{t['title']}](audio/{audio_name(t)})" if r.get("status") == "rendered" else f"{t['title']} (no audio yet)"
-        kind = "instrumental" if t["voice"] == "instrumental" else f"{t.get('language', '')} {t.get('singer', '')} vocal"
+        lang = {"hi": "Hindi", "en": "English"}.get(t.get("language"), t.get("language", ""))
+        kind = "instrumental" if t["voice"] == "instrumental" else f"{lang} {t.get('singer', '')} vocal"
         req = f"{t['duration_s']} s, ~{t['bpm']} BPM, {t['meter']}"
         checks = (r.get("technical_checks") or {}).get("status", "-")
         files = f"[brief](takes/{name}/brief.md)" + (f", [lyrics](takes/{name}/lyrics.txt)" if t["voice"] == "sung" else "")
