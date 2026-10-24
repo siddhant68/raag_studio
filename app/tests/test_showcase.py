@@ -142,8 +142,11 @@ def test_prepare_instrumentals_writes_requests_seeds_ratings_and_readme(tmp_path
     assert [r["take"] for r in rows] == ["1", "2", "3", "4"]
     assert list(rows[0]) == showcase.RATING_FIELDS
     assert all(not r[k] for r in rows for k in showcase.RATING_FIELDS[3:])        # every rating blank
+    assert rows[0]["file"] == "audio/01_river_waking_up_bansuri_instrumental.mp3"
     readme = (show / "README.md").read_text()
     assert "Not rendered yet" in readme and "| pending |" in readme and "(no audio yet)" in readme
+    assert "git sparse-checkout set showcase/" in readme and "](audio/" not in readme      # no link to missing audio
+    assert "No take has been rendered yet" in (show / "technical_summary.md").read_text()
 
 
 def test_prepare_song_keeps_the_hook_and_saves_every_draft(tmp_path):
@@ -155,6 +158,8 @@ def test_prepare_song_keeps_the_hook_and_saves_every_draft(tmp_path):
     d = tmp_path / "show/takes/05_thodi_der_aur"
     rec = json.loads((d / "songwriter.json").read_text())
     assert [x["stage"] for x in rec["drafts"]] == ["draft", "revision"]
+    assert rec["drafts"][0]["request"] == p.seen[0]["user"] and rec["drafts"][1]["request"] == p.seen[1]["user"]
+    assert rec["system_prompt"] == p.seen[0]["system"]
     assert any("hook" in m for m in rec["drafts"][1]["asked_to_fix"])
     assert rec["notes"] and "put it at the start of the chorus" in rec["notes"][0]
     sheet = (d / "lyrics.txt").read_text()
@@ -198,7 +203,7 @@ def test_fake_render_into_a_scratch_folder_makes_a_loudness_matched_copy(tmp_pat
     r = info["render"]
     assert r["status"] == "rendered" and r["fake_engine"] is True and r["engine"]["fake"] is True
     c = r["listening_copy"]
-    assert (tmp_path / "show/audio/02_midnight_cafe.mp3").is_file() and c["decode_ok"]
+    assert (tmp_path / "show/audio/02_midnight_cafe_jazz_sax_instrumental.mp3").is_file() and c["decode_ok"]
     assert abs(c["integrated_lufs"] - showcase.TARGET_LUFS) < 1.5 and c["true_peak_dbtp"] <= showcase.MAX_COPY_TP
     assert c["clipped_fraction"] == 0
     assert (tmp_path / "runs/02_midnight_cafe").is_dir()                      # native output kept, never overwritten

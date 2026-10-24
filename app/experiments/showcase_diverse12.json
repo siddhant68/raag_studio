@@ -12,7 +12,7 @@
   ],
   "takes": [
     {
-      "n": 1, "slug": "river_waking_up", "title": "River waking up",
+      "n": 1, "slug": "river_waking_up", "file_tag": "bansuri_instrumental", "title": "River waking up",
       "brief": "River waking up — expressive Indian flute. 120 seconds, approximately 78 BPM, gentle 4/4. Lead bansuri with tanpura, delicate tabla and occasional santoor. Begin with a spacious flute introduction, introduce a graceful recurring melody, then develop it with ornamentation, breath-shaped phrases and a few fluid runs. Tabla should support the flute without crowding it. End by returning quietly to the opening idea. No voices. Aim for the warmth and expressive playing we loved in Yamuna at Dawn.",
       "voice": "instrumental", "duration_s": 120, "bpm": 78, "meter": "4/4", "genre": "raag_bansuri",
       "lead": "bansuri", "style": "singing",
@@ -23,7 +23,7 @@
       "targets": ["spacious flute introduction", "graceful recurring melody", "development with ornaments, breath-shaped phrases, a few fluid runs", "tabla never crowds the flute", "quiet return to the opening idea", "warmth of Yamuna at Dawn"]
     },
     {
-      "n": 2, "slug": "midnight_cafe", "title": "Midnight café",
+      "n": 2, "slug": "midnight_cafe", "file_tag": "jazz_sax_instrumental", "title": "Midnight café",
       "brief": "Midnight café — small jazz ensemble. 90 seconds, approximately 116 BPM, swinging 4/4. Tenor saxophone, Rhodes piano, upright bass and brushed drums. Establish a catchy sax theme, leave space for a short piano answer, then return to the theme. Relaxed, playful and rhythmically alive. Avoid a constant wall of soloing. No voices.",
       "voice": "instrumental", "duration_s": 90, "bpm": 116, "meter": "4/4", "genre": "jazz_lounge",
       "lead": "saxophone", "style": "singing",
@@ -35,7 +35,7 @@
       "targets": ["swinging 4/4", "catchy sax theme", "short piano answer", "return to the theme", "no constant soloing"]
     },
     {
-      "n": 3, "slug": "rise_of_the_mountain", "title": "Rise of the mountain",
+      "n": 3, "slug": "rise_of_the_mountain", "file_tag": "cinematic_orchestral_instrumental", "title": "Rise of the mountain",
       "brief": "Rise of the mountain — cinematic adventure. 120 seconds, approximately 140 BPM, 4/4 with a broad half-time opening. Cello, strings, French horns/brass, taiko and restrained synth bass. Start with a low motif, build through rhythmic strings and percussion, briefly pull back, then deliver an uplifting final statement. Memorable thematic development rather than continuous impacts. No voices.",
       "voice": "instrumental", "duration_s": 120, "bpm": 140, "meter": "4/4", "genre": "cinematic_orchestral",
       "lead": "cello", "style": "singing",
@@ -49,7 +49,7 @@
       "targets": ["broad half-time opening", "low motif", "build through rhythmic strings and percussion", "brief pullback", "uplifting final statement", "thematic development rather than continuous impacts"]
     },
     {
-      "n": 4, "slug": "lanterns_in_the_rain", "title": "Lanterns in the rain",
+      "n": 4, "slug": "lanterns_in_the_rain", "file_tag": "piano_cello_waltz_instrumental", "title": "Lanterns in the rain",
       "brief": "Lanterns in the rain — delicate chamber waltz. 90 seconds, approximately 66 BPM, 3/4. Felt piano, cello, harp and soft strings. Tender, slightly wistful, with a lilting pulse. Piano introduces the melody; cello answers and eventually carries it. Keep the arrangement spacious and give it a complete ending. No voices.",
       "voice": "instrumental", "duration_s": 90, "bpm": 66, "meter": "3/4", "genre": "piano_neoclassical",
       "lead": "piano", "style": "singing",
@@ -61,7 +61,7 @@
       "targets": ["3/4 lilting pulse", "piano introduces the melody", "cello answers and later carries it", "spacious arrangement", "complete ending"]
     },
     {
-      "n": 5, "slug": "thodi_der_aur", "title": "थोड़ी देर और",
+      "n": 5, "slug": "thodi_der_aur", "file_tag": "hindi_male_ballad", "title": "थोड़ी देर और",
       "brief": "थोड़ी देर और — Hindi romantic male solo. 150 seconds, approximately 76 BPM, 4/4. Acoustic guitar, felt piano, warm bass, brushed drums and final-chorus strings. Intimate verses, a higher melodic chorus, vulnerable bridge and warmer final return. Hook: “थोड़ी देर और मेरे पास रह / जो कह न सके, वो आज कह”. Natural Devanagari Hindi, connected singing and clear consonants. Avoid spoken narration.",
       "voice": "sung", "duration_s": 150, "bpm": 76, "meter": "4/4", "genre": "hindi_acoustic_ballad",
       "singer": "male", "language": "hi", "lead": "acoustic_guitar", "style": "simple",
@@ -77,7 +77,7 @@
       "targets": ["intimate verses", "higher melodic chorus", "vulnerable bridge", "warmer final return with strings", "natural Devanagari Hindi, connected singing, clear consonants, no spoken narration"]
     },
     {
-      "n": 6, "slug": "baat_adhuri", "title": "बात अधूरी",
+      "n": 6, "slug": "baat_adhuri", "file_tag": "hindi_female_ghazal", "title": "बात अधूरी",
       "brief": "बात अधूरी — Hindi female ghazal-inspired song. 120 seconds, approximately 68 BPM, gentle 6/8. Harmonium, sarangi, tabla and restrained acoustic guitar. Poetic but understandable language, elegant melodic turns and breathing space between lines. Hook: “बात अधूरी रहने दे / आँखों को कुछ कहने दे”. Prioritize graceful singing over excessive ornamentation.",
       "voice": "sung", "duration_s": 120, "bpm": 68, "meter": "6/8", "genre": "ghazal",
       "singer": "female", "language": "hi", "lead": "harmonium", "style": "simple",
@@ -91,7 +91,7 @@
       "targets": ["gentle 6/8", "poetic but understandable language", "elegant melodic turns", "breathing space between lines", "graceful singing over heavy ornamentation"]
     },
     {
-      "n": 7, "slug": "yahin_kahin_duet", "title": "यहीं कहीं",
+      "n": 7, "slug": "yahin_kahin_duet", "file_tag": "hindi_duet", "title": "यहीं कहीं",
       "brief": "यहीं कहीं — Hindi male/female duet. 150 seconds, approximately 88 BPM, 4/4. Piano, acoustic guitar, bass, light drums and strings. Male verse, female answering verse, shared chorus, contrasting bridge and final duet. Give each character a distinct perspective and appropriate Hindi grammar. Shared hook: “तेरे मेरे बीच कहीं / घर मिला है यहीं कहीं”. Request clear vocal handoffs; report that separation remains unverified until audition.",
       "voice": "sung", "duration_s": 150, "bpm": 88, "meter": "4/4", "genre": "hindi_acoustic_ballad",
       "singer": "duet", "language": "hi", "lead": "piano", "style": "simple",
@@ -107,7 +107,7 @@
       "targets": ["male verse", "female answering verse", "shared chorus", "contrasting bridge", "final duet", "distinct perspectives with correct Hindi gender grammar", "clear vocal handoffs (separation unverified until audition)"]
     },
     {
-      "n": 8, "slug": "run_toward_the_light", "title": "Run Toward the Light",
+      "n": 8, "slug": "run_toward_the_light", "file_tag": "english_male_rock", "title": "Run Toward the Light",
       "brief": "Run Toward the Light — English male rock anthem. 120 seconds, approximately 132 BPM, 4/4. Electric guitars, bass, live drums and restrained organ. Quiet determination in the verse, rising pre-chorus, powerful sung chorus and a brief guitar response. Motivational without generic slogans or constant shouting. Hook: “One more step into the light / I’m still here, I’m still in the fight”.",
       "voice": "sung", "duration_s": 120, "bpm": 132, "meter": "4/4", "genre": "rock_anthem",
       "singer": "male", "language": "en", "lead": "electric_guitar", "style": "singing",
@@ -122,7 +122,7 @@
       "targets": ["quiet determination in the verse", "rising pre-chorus", "powerful sung chorus", "brief guitar response", "no generic slogans, no constant shouting"]
     },
     {
-      "n": 9, "slug": "my_own_sunrise", "title": "My Own Sunrise",
+      "n": 9, "slug": "my_own_sunrise", "file_tag": "english_female_soul_pop", "title": "My Own Sunrise",
       "brief": "My Own Sunrise — English female motivational soul-pop. 120 seconds, approximately 96 BPM, syncopated 4/4. Rhodes, rounded bass, tight drums, handclaps and backing harmonies. Start vulnerable and grow into confident, joyful singing. Include a sparse bridge. Hook: “I can be my own sunrise / Watch me open up the skies”. Test expressive phrasing and harmonies without burying the lead.",
       "voice": "sung", "duration_s": 120, "bpm": 96, "meter": "4/4", "genre": "rnb_soul",
       "singer": "female", "language": "en", "lead": "rhodes", "style": "singing", "background": "light",
@@ -137,7 +137,7 @@
       "targets": ["syncopated 4/4", "starts vulnerable, grows confident and joyful", "sparse bridge", "expressive phrasing", "backing harmonies without burying the lead"]
     },
     {
-      "n": 10, "slug": "aaj_ki_raat", "title": "आज की रात",
+      "n": 10, "slug": "aaj_ki_raat", "file_tag": "hindi_female_party", "title": "आज की रात",
       "brief": "आज की रात — Hindi female-led party song. 120 seconds, approximately 124 BPM, 4/4. Dhol, dholak, electronic drums, synth bass, bright brass and group responses. Immediate rhythmic identity, playful verses and an easy sing-along chorus. Hook: “आज की रात खुल के जी / दिल की धुन पे चल पड़ी”. Celebratory and danceable, with a short percussion break and final chorus.",
       "voice": "sung", "duration_s": 120, "bpm": 124, "meter": "4/4", "genre": "bollywood_dance",
       "singer": "female", "language": "hi", "lead": "brass", "style": "singing", "background": "choir",
@@ -152,7 +152,7 @@
       "targets": ["immediate rhythmic identity", "playful verses", "easy sing-along chorus with group responses", "short percussion break", "final chorus"]
     },
     {
-      "n": 11, "slug": "after_the_rain", "title": "After the Rain",
+      "n": 11, "slug": "after_the_rain", "file_tag": "english_female_edm", "title": "After the Rain",
       "brief": "After the Rain — English female vocal EDM. 150 seconds, approximately 126 BPM, 4/4. Four-on-the-floor kick, sidechain-style pulsing bass/pads, arpeggiated synth and bright melodic lead. Sung verse, emotional pre-chorus, chorus/build, instrumental melodic drop, breakdown and returning final drop. Hook: “After the rain, we come alive / Your hand in mine, electric skies”. The drop should develop the song’s musical identity. Keep intelligible lyrics away from the busiest passages.",
       "voice": "sung", "duration_s": 150, "bpm": 126, "meter": "4/4", "genre": "edm_house",
       "singer": "female", "language": "en", "lead": "synth_lead", "style": "singing",
@@ -168,7 +168,7 @@
       "targets": ["sung verse", "emotional pre-chorus", "chorus as the build", "instrumental melodic drop developing the hook", "breakdown", "returning final drop", "intelligible lyrics away from the busiest passages"]
     },
     {
-      "n": 12, "slug": "apni_raah_rap", "title": "अपनी राह",
+      "n": 12, "slug": "apni_raah_rap", "file_tag": "hindi_male_rap", "title": "अपनी राह",
       "brief": "अपनी राह — Hindi male rap with a sung hook. 120 seconds, approximately 92 BPM, 4/4. Hip-hop drums, 808 bass, piano motif and subtle sarangi. Conversational rap verses about steady effort and setbacks, contrasted with a genuinely sung chorus. Hook: “धीरे सही, मैं चल रहा / अपनी कहानी लिख रहा”. Clear Hindi, internal rhymes and rhythmic variation. Spoken-style delivery belongs in the rap verses; the chorus must be melodic.",
       "voice": "sung", "duration_s": 120, "bpm": 92, "meter": "4/4", "genre": "hindi_hiphop",
       "singer": "male", "language": "hi", "lead": "piano", "style": "simple",

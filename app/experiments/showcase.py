@@ -46,7 +46,7 @@ _APP = Path(__file__).resolve().parents[1]
 if str(_APP) not in sys.path:
     sys.path.insert(0, str(_APP))
 
-from backend import compiler, genres, media, song_compiler, song_plan  # noqa: E402
+from backend import compiler, genres, media, song_compiler, song_plan, songwriter  # noqa: E402
 from backend import instruments as inst_db  # noqa: E402
 from backend.plan_schema import Plan  # noqa: E402
 from backend.planner_base import Controls  # noqa: E402
@@ -75,6 +75,11 @@ def load_spec(path: Path = SPEC) -> dict:
 
 def take_dir_name(t: dict) -> str:
     return f"{t['n']:02d}_{t['slug']}"
+
+
+def audio_name(t: dict) -> str:
+    """The listening copy's file name: number, title and what it is (01_river_waking_up_bansuri_instrumental.mp3)."""
+    return f"{take_dir_name(t)}_{t['file_tag']}.mp3" if t.get("file_tag") else f"{take_dir_name(t)}.mp3"
 
 
 def paths(spec: dict, root: Path = ROOT) -> tuple[Path, Path]:
@@ -151,6 +156,7 @@ def write_lyrics(plan: Plan, t: dict, planner) -> tuple[Plan, dict]:
         # timing and cost of each songwriter call; model names stay in runs/ (see prepare), not in the published record
         "calls": [{k: v for k, v in c.items() if k != "models"}
                   for c in getattr(planner, "envelopes", [])[calls_before:]],
+        "system_prompt": songwriter.SYSTEM_PROMPT,
         "required_hook": t["hook"], "title": song.title, "hook": song.hook, "revised": song.revised,
         "notes": song.notes, "drafts": song.drafts, "final_check": song.review, "final_sections": song.written,
         "sheet": song.text,
@@ -236,6 +242,7 @@ def prepare(spec: dict, *, show_dir: Path, runs_dir: Path, planner=None, only: O
         status.append((t["n"], "prepared"))
     runs_dir.mkdir(parents=True, exist_ok=True)
     write_ratings(spec, show_dir)
+    write_summary(spec, show_dir)
     write_readme(spec, show_dir)
     return {"prepared": status}
 
@@ -407,7 +414,7 @@ def render(spec: dict, *, show_dir: Path, runs_dir: Path, engine_cmd: Optional[l
         result = json.loads((final / "result.json").read_text())
         native = next(final.glob("take_*.*"))
         checks = media.technical_checks(native, float(t["duration_s"]))
-        copy = loudness_copy(native, show_dir / "audio" / f"{take_dir_name(t)}.mp3")
+        copy = loudness_copy(native, show_dir / "audio" / audio_name(t))
         tk = (result.get("takes") or [{}])[0]
         info["render"] = {
             "status": "rendered", "finished_at": now(), "wall_s": wall, "engine": result.get("engine"),
@@ -448,7 +455,7 @@ def write_ratings(spec: dict, show_dir: Path) -> None:
         w = csv.DictWriter(fh, fieldnames=RATING_FIELDS)
         w.writeheader()
         for t in spec["takes"]:
-            w.writerow({"take": t["n"], "title": t["title"], "file": f"audio/{take_dir_name(t)}.mp3"})
+            w.writerow({"take": t["n"], "title": t["title"], "file": f"audio/{audio_name(t)}"})
 
 
 def write_summary(spec: dict, show_dir: Path) -> dict:
@@ -472,6 +479,8 @@ def write_summary(spec: dict, show_dir: Path) -> dict:
     data = {"schema": "raag-showcase-technical/1", "id": spec["id"], "written_at": now(), "takes": rows,
             "note": "Breakage checks only (decoding, length, format, clipping, silence, loudness). They say nothing "
                     "about whether the music is good."}
+    if not any(r["status"] in ("rendered", "failed") for r in rows):
+        data["note"] += " No take has been rendered yet: every row is empty until `render` runs on the Mac."
     write_json(show_dir / "technical_summary.json", data)
 
     def f(v, fmt="{}"):
@@ -497,14 +506,20 @@ def write_summary(spec: dict, show_dir: Path) -> dict:
     return data
 
 
+REPO = "siddhant68/raag_studio"
+BRANCH = "claude/intelligent-knuth-6jv48e"
+
+
 def write_readme(spec: dict, show_dir: Path) -> None:
     infos = takes_info(spec, show_dir)
     rendered = [i for _, i in infos if i.get("render", {}).get("status") == "rendered"]
     failed = [i for _, i in infos if i.get("render", {}).get("status") == "failed"]
+    folder = f"showcase/{spec['id']}"
     state = (f"**{len(rendered)} of {len(infos)} takes rendered**" + (f", {len(failed)} failed (not retried)" if failed else "")
              if rendered or failed else
              "**Not rendered yet.** Plans, lyrics, captions, engine requests and seeds are fixed; the audio has to be "
-             "made on the Mac with the local ACE-Step model (commands below). Nothing in this folder is fake audio.")
+             "made on the Mac with the local ACE-Step model (commands below). There is no audio in this folder yet, "
+             "and nothing here is fake audio.")
     lines = [f"# Showcase: diverse 12 ({spec['id']})", "", state, "",
              f"Engine profile `{spec['profile']}`: ACE-Step 1.5 turbo DiT (`acestep-v15-turbo`), shift 3.0, 8 steps, "
              "no 5Hz LM. One take per brief, rendered one after another, no retries. Lyrics written by Claude through "
@@ -512,31 +527,48 @@ def write_readme(spec: dict, show_dir: Path) -> None:
              "section names only (the duet also names who sings); musical direction is in the caption.", "",
              "Tempo, meter, arrangement and vocal assignments are what was **requested**; whether the engine followed "
              "them is for your ears. Every musical judgment below is **pending** until someone listens.", "",
-             "| # | Listen | Kind | Requested | Seed | Render | Checks | Verdict |", "| --- | --- | --- | --- | --- | --- | --- | --- |"]
+             "| # | Listen | Kind | Requested | Seed | Render | Checks | Brief / lyrics | Verdict |",
+             "| --- | --- | --- | --- | --- | --- | --- | --- | --- |"]
     for t, info in infos:
         r = info.get("render", {})
         name = take_dir_name(t)
-        audio = f"[{t['title']}](audio/{name}.mp3)" if r.get("status") == "rendered" else f"{t['title']} (no audio yet)"
+        audio = f"[{t['title']}](audio/{audio_name(t)})" if r.get("status") == "rendered" else f"{t['title']} (no audio yet)"
         kind = "instrumental" if t["voice"] == "instrumental" else f"{t.get('language', '')} {t.get('singer', '')} vocal"
         req = f"{t['duration_s']} s, ~{t['bpm']} BPM, {t['meter']}"
         checks = (r.get("technical_checks") or {}).get("status", "-")
+        files = f"[brief](takes/{name}/brief.md)" + (f", [lyrics](takes/{name}/lyrics.txt)" if t["voice"] == "sung" else "")
         lines.append(f"| {t['n']} | {audio} | {kind} | {req} | {info.get('seed', '-')} | {r.get('status', '-')} | "
-                     f"{checks} | pending |")
+                     f"{checks} | {files} | pending |")
+    raw = f"https://raw.githubusercontent.com/{REPO}/refs/heads/{BRANCH}/{folder}"
     lines += ["", "Per take, in `takes/NN_slug/`: `brief.md` (brief as written and the requested targets), "
               "`plan.json`, `lyrics.txt` and `songwriter.json` (every Claude draft, its line check, any revision and "
               "notes), `caption.txt`, `request.json` (the exact engine request with its seed), `compile_report.json` "
               "(song map, anything left out of the caption), `take.json` (model, profile, timing, technical checks), "
               "`result.json` (the engine's own record, after rendering).", "",
-              "Rate in `ratings.csv` (1 to 5 per column, blank = not rated). Technical results: "
-              "`technical_summary.md`.", "",
-              "## Reproduce", "",
+              "Rate in `ratings.csv` (1 to 5 per column, blank = not rated; leave the vocal columns blank for "
+              "instrumentals). Technical results: `technical_summary.md`.", "",
+              "## Download", "",
               "```sh",
-              "git fetch origin claude/intelligent-knuth-6jv48e && git checkout claude/intelligent-knuth-6jv48e",
+              "# just this folder",
+              f"git clone --filter=blob:none --no-checkout --branch {BRANCH} https://github.com/{REPO}.git raag_showcase",
+              f"cd raag_showcase && git sparse-checkout set {folder} && git checkout {BRANCH}",
+              f"open {folder}/audio        # macOS",
+              "",
+              "# or one file",
+              f"curl -LO {raw}/audio/{audio_name(spec['takes'][0])}",
+              "```", "",
+              "## Reproduce (on the Mac)", "",
+              "```sh",
+              f"git fetch origin {BRANCH} && git checkout {BRANCH}",
               "cd app",
               ".venv/bin/python -m experiments.showcase prepare     # keeps the saved lyrics; --rewrite-lyrics calls Claude again",
-              ".venv/bin/python -m experiments.showcase render      # Mac only: checks GPU, disk, ComfyUI and other renders first",
+              ".venv/bin/python -m experiments.showcase render      # checks GPU, disk, ComfyUI and other renders, asks, then renders",
               ".venv/bin/python -m experiments.showcase publish     # commits showcase/ and pushes this branch (never master)",
               "```", "",
+              "`render` needs the ACE-Step python and turbo weights next to the project (`../tools`, or `RAAG_TOOLS_DIR`); "
+              "it downloads nothing. It waits while the ComfyUI video queue, the Raag Studio app queue or another "
+              "`run_takes.py` is busy, and stops after 30 minutes of waiting. A take that fails is recorded as failed "
+              "and is not retried.", "",
               "Native 48 kHz FLAC renders stay on the Mac in `runs/_showcase/" + spec["id"] + "/` (not committed). "
               "The MP3s here are listening copies normalised to -16 LUFS with a -1.5 dBTP true-peak ceiling."]
     show_dir.mkdir(parents=True, exist_ok=True)

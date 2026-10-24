@@ -564,7 +564,7 @@ class LlmPlanner(Planner):
         draft = self._structured(songwriter.SYSTEM_PROMPT, request, schema, SONG_LYRICS_TOOL_NAME, validate)
         written = songwriter.to_written(draft, slots)
         result = songwriter.check(plan, written, slots, draft.hook, required_hook)
-        drafts.append({"stage": "draft", "answer": draft.model_dump(), "review": result.to_dict()})
+        drafts.append({"stage": "draft", "request": request, "answer": draft.model_dump(), "review": result.to_dict()})
         revised = False
         notes: list[str] = []
         if result.needs_revision:
@@ -575,7 +575,7 @@ class LlmPlanner(Planner):
             written2 = songwriter.to_written(second, slots)
             result2 = songwriter.check(plan, written2, slots, second.hook or draft.hook, required_hook)
             drafts.append({"stage": "revision", "asked_to_fix": [i.message for i in first_issues if i.severity == "fix"],
-                           "answer": second.model_dump(), "review": result2.to_dict()})
+                           "request": revision_request, "answer": second.model_dump(), "review": result2.to_dict()})
             fixes = sum(1 for i in result.issues if i.severity == "fix")
             fixes2 = sum(1 for i in result2.issues if i.severity == "fix")
             if fixes2 <= fixes and all(written2.get(s["uid"]) for s in slots):
