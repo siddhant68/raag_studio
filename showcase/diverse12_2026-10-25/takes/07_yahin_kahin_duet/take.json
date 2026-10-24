@@ -24,10 +24,117 @@
     "singer": "duet",
     "language": "hi"
   },
-  "prepared_at": "2026-10-24T20:22:35+00:00",
-  "app_commit": "6bbb979",
+  "prepared_at": "2026-10-24T20:29:40+00:00",
+  "app_commit": "3f08f2f",
   "render": {
-    "status": "not_rendered"
+    "status": "rendered",
+    "finished_at": "2026-10-24T20:34:23+00:00",
+    "wall_s": 31.7,
+    "engine": {
+      "source": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/tools/ace-step-1.5",
+      "checkpoint": "acestep-v15-turbo",
+      "device": "mps",
+      "lm": null,
+      "turbo": true,
+      "torch": "2.11.0"
+    },
+    "model_load_s": 8.732,
+    "take_wall_s": 22.066,
+    "pipeline_s": 15.633,
+    "peak_rss_mb": 14137.4,
+    "effective_params": {
+      "shift": 3.0,
+      "inference_steps": 8,
+      "guidance_scale": 1.0,
+      "thinking": false,
+      "bpm": 88,
+      "keyscale": "D major",
+      "timesignature": "4",
+      "duration": 150
+    },
+    "native_file": "runs/_showcase/diverse12_2026-10-25/07_yahin_kahin_duet/take_01_s1756718358.flac",
+    "native_sha256": "6b538345a9690525ef664c14d04e75693bcf966202aca169e8559bcb19322879",
+    "technical_checks": {
+      "label": "Technical checks (breakage only, not a quality score)",
+      "status": "passed",
+      "failures": [],
+      "warnings": [],
+      "checks": {
+        "decodes": {
+          "ok": true,
+          "value": "ok",
+          "limit": "no decoder errors",
+          "severity": "failure"
+        },
+        "duration": {
+          "ok": true,
+          "value": 150.0,
+          "limit": "150.0 +/- 0.25 s",
+          "severity": "failure"
+        },
+        "sample_rate": {
+          "ok": true,
+          "value": 48000,
+          "limit": 48000,
+          "severity": "failure"
+        },
+        "channels": {
+          "ok": true,
+          "value": 2,
+          "limit": 2,
+          "severity": "failure"
+        },
+        "clipping": {
+          "ok": true,
+          "value": 0.0,
+          "limit": "< 0.001",
+          "severity": "failure"
+        },
+        "true_peak": {
+          "ok": true,
+          "value": -1.4,
+          "limit": "<= -1.0 dBTP",
+          "severity": "failure"
+        },
+        "silence": {
+          "ok": true,
+          "value": 0.01967,
+          "limit": "< 0.05 (warning only)",
+          "severity": "warning"
+        }
+      },
+      "facts": {
+        "file": "take_01_s1756718358.flac",
+        "codec": "flac",
+        "sample_fmt": "s32",
+        "bits_per_raw_sample": "24",
+        "sample_rate": 48000,
+        "channels": 2,
+        "duration_s": 150.0,
+        "size_bytes": 27721406,
+        "clipped_fraction": 0.0,
+        "clipped_samples": 0,
+        "silence_s": 2.95,
+        "silence_fraction": 0.01967,
+        "integrated_lufs": -14.6,
+        "loudness_range_lu": 8.3,
+        "true_peak_dbtp": -1.4
+      }
+    },
+    "listening_copy": {
+      "file": "07_yahin_kahin_duet_hindi_duet.mp3",
+      "bytes": 3601196,
+      "duration_s": 150.0,
+      "integrated_lufs": -16.2,
+      "true_peak_dbtp": -3.0,
+      "extra_gain_db": 0.0,
+      "clipped_fraction": 0.0,
+      "decode_ok": true,
+      "native_input_lufs": -14.67,
+      "native_input_tp": -1.4
+    },
+    "network_attempts": [],
+    "fake_engine": false
   },
   "listening": {
     "verdict": "pending"

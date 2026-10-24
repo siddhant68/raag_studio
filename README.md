@@ -1,12 +1,18 @@
 # Raag Studio
 
 A local AI-music application: a feeling or a little story in, takes you can play, compare, change and export out.
-**The app is implemented and runs.** Current run commands are in [Run](#run) below; current state and the next tasks
-are in `STATUS.md` (section "Song pipeline"); the newest report is `reports/SONG_PIPELINE.md` (styles, song maps,
-the songwriter, engine profiles, the old-versus-new listening batch).
+**The app is implemented and runs.** Current app run commands are in [Run](#run) below.
 
-Start here if you are a new agent: `reports/SONG_PIPELINE.md`, then `HANDOFF_NEXT_SESSION_2_2026-10-24.md` and
-`HANDOFF_NEXT_SESSION_2026-10-24.md` (read order, decisions, musical history), `context_pack/docs/IMPLEMENTATION_DECISIONS.md`.
+The local showcase completed on 25 October 2026: **12/12 real ACE-Step takes**, exactly twelve new attempts,
+no retries, ledger 19 → 31. Listen via the [showcase index](showcase/diverse12_2026-10-25/README.md) or
+[playlist](showcase/diverse12_2026-10-25/listen_all.m3u). All files decode at their requested lengths as
+48 kHz stereo; copies meet the -16 LUFS ±0.5 LU / -1.5 dBTP targets. Track 4 has a silence warning.
+Musical judgments and ratings remain pending. This result is committed locally, with no remote push.
+
+Current status: `STATUS.md`; local execution, exact run command, input hashes and technical evidence:
+[LOCAL_SHOWCASE_2026-10-25.md](reports/LOCAL_SHOWCASE_2026-10-25.md). Prior implementation report:
+[SONG_PIPELINE.md](reports/SONG_PIPELINE.md). Resume the showcase using
+`HANDOFF_LOCAL_SHOWCASE_2026-10-25.md`; the older October 24 handoffs describe implementation history.
 
 ## History: the original handoff baseline (dated 24 October 2026, before any code existed)
 

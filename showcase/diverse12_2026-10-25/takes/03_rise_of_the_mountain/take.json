@@ -24,10 +24,117 @@
     "singer": null,
     "language": null
   },
-  "prepared_at": "2026-10-24T20:22:35+00:00",
-  "app_commit": "6bbb979",
+  "prepared_at": "2026-10-24T20:29:40+00:00",
+  "app_commit": "3f08f2f",
   "render": {
-    "status": "not_rendered"
+    "status": "rendered",
+    "finished_at": "2026-10-24T20:32:04+00:00",
+    "wall_s": 32.2,
+    "engine": {
+      "source": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/tools/ace-step-1.5",
+      "checkpoint": "acestep-v15-turbo",
+      "device": "mps",
+      "lm": null,
+      "turbo": true,
+      "torch": "2.11.0"
+    },
+    "model_load_s": 9.579,
+    "take_wall_s": 21.613,
+    "pipeline_s": 14.574,
+    "peak_rss_mb": 14137.8,
+    "effective_params": {
+      "shift": 3.0,
+      "inference_steps": 8,
+      "guidance_scale": 1.0,
+      "thinking": false,
+      "bpm": 140,
+      "keyscale": "D minor",
+      "timesignature": "4",
+      "duration": 120
+    },
+    "native_file": "runs/_showcase/diverse12_2026-10-25/03_rise_of_the_mountain/take_01_s965746278.flac",
+    "native_sha256": "05c9827275a6a3acec89ae601f62c9d0723b69e28de590ca3319d57a2c894b9a",
+    "technical_checks": {
+      "label": "Technical checks (breakage only, not a quality score)",
+      "status": "passed",
+      "failures": [],
+      "warnings": [],
+      "checks": {
+        "decodes": {
+          "ok": true,
+          "value": "ok",
+          "limit": "no decoder errors",
+          "severity": "failure"
+        },
+        "duration": {
+          "ok": true,
+          "value": 120.0,
+          "limit": "120.0 +/- 0.25 s",
+          "severity": "failure"
+        },
+        "sample_rate": {
+          "ok": true,
+          "value": 48000,
+          "limit": 48000,
+          "severity": "failure"
+        },
+        "channels": {
+          "ok": true,
+          "value": 2,
+          "limit": 2,
+          "severity": "failure"
+        },
+        "clipping": {
+          "ok": true,
+          "value": 0.0,
+          "limit": "< 0.001",
+          "severity": "failure"
+        },
+        "true_peak": {
+          "ok": true,
+          "value": -1.5,
+          "limit": "<= -1.0 dBTP",
+          "severity": "failure"
+        },
+        "silence": {
+          "ok": true,
+          "value": 0.04415,
+          "limit": "< 0.05 (warning only)",
+          "severity": "warning"
+        }
+      },
+      "facts": {
+        "file": "take_01_s965746278.flac",
+        "codec": "flac",
+        "sample_fmt": "s32",
+        "bits_per_raw_sample": "24",
+        "sample_rate": 48000,
+        "channels": 2,
+        "duration_s": 120.0,
+        "size_bytes": 22853584,
+        "clipped_fraction": 0.0,
+        "clipped_samples": 0,
+        "silence_s": 5.298,
+        "silence_fraction": 0.04415,
+        "integrated_lufs": -14.1,
+        "loudness_range_lu": 6.5,
+        "true_peak_dbtp": -1.5
+      }
+    },
+    "listening_copy": {
+      "file": "03_rise_of_the_mountain_cinematic_orchestral_instrumental.mp3",
+      "bytes": 2881196,
+      "duration_s": 120.0,
+      "integrated_lufs": -16.2,
+      "true_peak_dbtp": -3.6,
+      "extra_gain_db": 0.0,
+      "clipped_fraction": 0.0,
+      "decode_ok": true,
+      "native_input_lufs": -14.12,
+      "native_input_tp": -1.5
+    },
+    "network_attempts": [],
+    "fake_engine": false
   },
   "listening": {
     "verdict": "pending"

@@ -1,10 +1,33 @@
 # STATUS (single source of truth for resumed sessions)
 
 state: COMPLETE
-heartbeat_utc: 2026-10-23T22:48:35Z   # orchestrator updates this; see ORCHESTRATION.md for the lock rule
+heartbeat_utc: 2026-10-24T20:37:16+00:00
 active_session: idle
 
 Spec: context_pack/docs/PRD_v2_MVP.md (milestones M0..M7). Decisions: context_pack/docs/IMPLEMENTATION_DECISIONS.md. Rules: ORCHESTRATION.md.
+
+<!-- LOCAL_SHOWCASE_START -->
+## Current local showcase (2026-10-25)
+
+12/12 new attempts consumed; 12 rendered, 0 failed; ledger 31. Unattempted: [].
+
+Details: `reports/LOCAL_SHOWCASE_2026-10-25.md`. The handoff supersedes older next actions and render counts below.
+
+| Ledger attempt | Brief | Finished UTC | Seed | Request SHA256 | Native output | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| 20 | 1 River waking up | 2026-10-24T20:30:53+00:00 | 1821732005 | 20eb219d5a94c170d9ef54ce12f3710036bd42035437a4991a32f51e7dc60cf5 | runs/_showcase/diverse12_2026-10-25/01_river_waking_up/take_01_s1821732005.flac | rendered |
+| 21 | 2 Midnight café | 2026-10-24T20:31:25+00:00 | 1628324191 | b3ba4eca2ee2e91016622fd331f67b9949de66787ffa05e6f01506a74f3e4171 | runs/_showcase/diverse12_2026-10-25/02_midnight_cafe/take_01_s1628324191.flac | rendered |
+| 22 | 3 Rise of the mountain | 2026-10-24T20:32:04+00:00 | 965746278 | 9112f2fe658a203bce6f1ae0ca9f75cb6a45c8609b86c928b992a2b1788d6fb6 | runs/_showcase/diverse12_2026-10-25/03_rise_of_the_mountain/take_01_s965746278.flac | rendered |
+| 23 | 4 Lanterns in the rain | 2026-10-24T20:32:36+00:00 | 841152641 | 64c3bd2191f0157b2b02b82829cee9a88b5b6f34be19c8f27010911935b41616 | runs/_showcase/diverse12_2026-10-25/04_lanterns_in_the_rain/take_01_s841152641.flac | rendered |
+| 24 | 5 थोड़ी देर और | 2026-10-24T20:33:15+00:00 | 1905625906 | e16393c116bd9a77beb00e5be976efe45322c85ed83dd5420a6af30d172990c7 | runs/_showcase/diverse12_2026-10-25/05_thodi_der_aur/take_01_s1905625906.flac | rendered |
+| 25 | 6 बात अधूरी | 2026-10-24T20:33:44+00:00 | 309512692 | 86d9bb899de946ee6b03f47d24b99bea78651958b83acf25224f87727aeb6efa | runs/_showcase/diverse12_2026-10-25/06_baat_adhuri/take_01_s309512692.flac | rendered |
+| 26 | 7 यहीं कहीं | 2026-10-24T20:34:23+00:00 | 1756718358 | a0c5a293f79ac33fd1fd5e57e3378e2ccda48fc4eeefb6627f5f438c3f3a9f51 | runs/_showcase/diverse12_2026-10-25/07_yahin_kahin_duet/take_01_s1756718358.flac | rendered |
+| 27 | 8 Run Toward the Light | 2026-10-24T20:34:54+00:00 | 1561407237 | 206b3234473b120843bcb3736693906b47084de74a54bf1abfd1c53db8995af1 | runs/_showcase/diverse12_2026-10-25/08_run_toward_the_light/take_01_s1561407237.flac | rendered |
+| 28 | 9 My Own Sunrise | 2026-10-24T20:35:29+00:00 | 619618584 | d7d6dbf55e60a590e2b1a7d6c81c8847c7d308103c3f420969437e7dd3594a90 | runs/_showcase/diverse12_2026-10-25/09_my_own_sunrise/take_01_s619618584.flac | rendered |
+| 29 | 10 आज की रात | 2026-10-24T20:36:03+00:00 | 580143580 | 8d73718c9dbd25cdc3b67d37fd8bc2081f096f3a34c38f5e9d23e9c7a6f34b1b | runs/_showcase/diverse12_2026-10-25/10_aaj_ki_raat/take_01_s580143580.flac | rendered |
+| 30 | 11 After the Rain | 2026-10-24T20:36:39+00:00 | 220652654 | ad1e14686eda7ecbf04f31c99ad86d4a7a30a12f4953144dc3c6611a70847dd3 | runs/_showcase/diverse12_2026-10-25/11_after_the_rain/take_01_s220652654.flac | rendered |
+| 31 | 12 अपनी राह | 2026-10-24T20:37:15+00:00 | 1456075399 | f6eb82f4cde2dd13ac7fb251190ae0e4accafed601c0c7f92740910b114cf74f | runs/_showcase/diverse12_2026-10-25/12_apni_raah_rap/take_01_s1456075399.flac | rendered |
+<!-- LOCAL_SHOWCASE_END -->
 
 ## Song pipeline (2026-10-24, cloud session; branch claude/intelligent-knuth-6jv48e)
 
@@ -17,10 +40,9 @@ Tests: 612 Python + 33 JS pass (fake engine). **No render, no listening, ledger 
 
 Showcase diverse12 (requested 2026-10-24 for 2026-10-25): 12 briefs, one take each, profile shift3. Prepared in the
 cloud session: plans, eight Claude-written lyric sheets (hooks kept word for word), captions, engine requests and
-seeds in `showcase/diverse12_2026-10-25/`. **Not rendered** (no Mac or GPU in the cloud session); rendering adds 12
-takes to the ledger (19 -> 31). Run `experiments.showcase render`, then `publish`, on the Mac.
+seeds in `showcase/diverse12_2026-10-25/`. Prepared in the cloud, then rendered locally on 2026-10-25: 12/12 outputs, 12 new attempts, ledger 19 → 31. Local evidence and current status are above. Listening pending; no remote push.
 
-Next, in order:
+Historical cloud next actions (superseded by the current local showcase above):
 0. User: render the showcase (`cd app && .venv/bin/python -m experiments.showcase render`), then `publish`; listen
    and fill `showcase/diverse12_2026-10-25/ratings.csv`.
 1. User: render the listening batch (16 takes; `app/experiments/listening_batch.py`), listen blind, `reveal`.
@@ -65,7 +87,7 @@ Next, in order:
 | 18 | 11:30Z | Sample batch #9: 'Waiting by the window before sunrise for someone who said they would c...' voice sung, sung hi male, lyrics drafted by Claude, lead harmonium, +tabla, pace slow, takes=1, 60 s | 837194008 | runs/01M5PTT02RQHABNM4PDHKN6VW5/01M5PTT02SPXQ2V3BRNQQMVRGY/ | technical OK; not listened |
 | 19 | 11:31Z | Sample batch #10: 'Rain on the roof and a name she keeps almost saying, a Hindi ballad of...' voice sung, sung hi female, lyrics drafted by Claude, lead piano, +acoustic_guitar/strings, pace slow, takes=1, 60 s | 35329925 | runs/01M5PTVMVD9D4WPYSYR1R8C8SH/01M5PTVMVECP0V0P1WHQGPRFGZ/ | technical OK (silence warning 5.3%); not listened |
 
-Takes used: 19 (9 of the original ~12, plus the 10-take sample batch the user approved on 2026-10-24; cap raised by the user).
+Takes used: 31 (19 prior + 12 of 12 handoff-authorized showcase attempts).
 
 **User decision 2026-10-24 (in chat): raise the cap for a sample batch of 10 real takes (about 19 total), 8 instrumental/wordless and 2 sung Hindi with Claude-drafted lyrics. Batch ledger rows are appended below by the sample agent; reports/SAMPLES_2026-10-24.md has the details.**
 

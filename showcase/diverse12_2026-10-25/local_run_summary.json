@@ -1,0 +1,35 @@
+{
+  "new_attempts": 12,
+  "rendered": 12,
+  "failed": 0,
+  "ledger_before": 19,
+  "ledger_after": 31,
+  "prepared_commit": "3f08f2ff069ff610b04171b423c5e290979dbba1",
+  "started_at": "2026-10-24T20:30:08+00:00",
+  "finished_at": "2026-10-24T20:37:16+00:00",
+  "batch_elapsed_s": 428.0,
+  "native_audio_bytes": 278468020,
+  "listening_audio_bytes": 35294352,
+  "showcase_package_bytes": 35914846,
+  "native_run_folder_bytes": 279129652,
+  "disk_free_gib": 113.82,
+  "sum_engine_wall_s": 340.593,
+  "peak_rss_mb_max": 14137.8,
+  "duration_total_s": 1470,
+  "network_attempts": [],
+  "keep_awake_pid": 3798,
+  "keep_awake_stopped": true,
+  "issues": [],
+  "silence_warnings": [
+    {
+      "take": 4,
+      "kind": "native",
+      "fraction": 0.06761481111111112
+    },
+    {
+      "take": 4,
+      "kind": "listening",
+      "fraction": 0.06549536666666667
+    }
+  ]
+}

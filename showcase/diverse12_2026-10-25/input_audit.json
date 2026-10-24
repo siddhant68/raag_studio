@@ -1,0 +1,180 @@
+{
+  "prepared_commit": "3f08f2ff069ff610b04171b423c5e290979dbba1",
+  "started_at": "2026-10-24T20:29:33.783392+00:00",
+  "baseline_ledger": 19,
+  "baseline_free_bytes": 134483959808,
+  "takes": [
+    {
+      "n": 1,
+      "title": "River waking up",
+      "seed": 1821732005,
+      "directory": "01_river_waking_up",
+      "hashes": {
+        "plan.json": "e466f25a55fddd3b0084e25b84a2a4e9f3af012c0b227c580354053b02e750e7",
+        "request.json": "20eb219d5a94c170d9ef54ce12f3710036bd42035437a4991a32f51e7dc60cf5",
+        "caption.txt": "af28856132f48cc855f1985ddb17353f295f493911a3c860251a6e5e9a55da0c",
+        "take.json": "b8475f55bf75c33139d0191df1502af5d28f7c4de66372979d5ba5a0b047d1df"
+      },
+      "chorus_hooks_verified": 0
+    },
+    {
+      "n": 2,
+      "title": "Midnight café",
+      "seed": 1628324191,
+      "directory": "02_midnight_cafe",
+      "hashes": {
+        "plan.json": "f10b8c81744cdb074a16cfcca884cff1a9511b0c8bb6faa3aeb36ea0d2b3a332",
+        "request.json": "b3ba4eca2ee2e91016622fd331f67b9949de66787ffa05e6f01506a74f3e4171",
+        "caption.txt": "bdde31d4ea192ccd4f813abdd29646b1ae565b83c094c554622d70977a6f8d16",
+        "take.json": "862fc46438df052b2026cec725d1dcc9f19be365cf8eb8e46062e12a8f33bb61"
+      },
+      "chorus_hooks_verified": 0
+    },
+    {
+      "n": 3,
+      "title": "Rise of the mountain",
+      "seed": 965746278,
+      "directory": "03_rise_of_the_mountain",
+      "hashes": {
+        "plan.json": "77bf431435ebbc237578376e2d399e6bbde57a9adc2201dd7e70c96041214445",
+        "request.json": "9112f2fe658a203bce6f1ae0ca9f75cb6a45c8609b86c928b992a2b1788d6fb6",
+        "caption.txt": "8f93e69ba13e7adabc3a70b71d520f5fffdc36f7fb4e91a63a7d105723ee6961",
+        "take.json": "21122d43244932b9a3c1fc7c9bad2ad6d32347a8fb8b70010e32e482f3bfaf5d"
+      },
+      "chorus_hooks_verified": 0
+    },
+    {
+      "n": 4,
+      "title": "Lanterns in the rain",
+      "seed": 841152641,
+      "directory": "04_lanterns_in_the_rain",
+      "hashes": {
+        "plan.json": "d79798c7b09d8ad0e857740db6476c0775b8aea4efc40a757d3263b19996584d",
+        "request.json": "64c3bd2191f0157b2b02b82829cee9a88b5b6f34be19c8f27010911935b41616",
+        "caption.txt": "92c2cbefeb540a771daa41e053408f4e5f2326fdd3584ec5ab28353edfb0f5ab",
+        "take.json": "dcfe564a1704d9a38d7b1f1e41bee7869e406304a1f84e025c3bdff8e4b60c2e"
+      },
+      "chorus_hooks_verified": 0
+    },
+    {
+      "n": 5,
+      "title": "थोड़ी देर और",
+      "seed": 1905625906,
+      "directory": "05_thodi_der_aur",
+      "hashes": {
+        "plan.json": "19f451eeef8fe2863f596bdb2082f18506029160cf68643eb642a6ebe5b229e7",
+        "request.json": "e16393c116bd9a77beb00e5be976efe45322c85ed83dd5420a6af30d172990c7",
+        "caption.txt": "1e1f255bfecc2361d93afcc7ec1b5eb46435ec92fcd73fc6227f273be323334a",
+        "take.json": "885733f4af2162cdbb8681da1f860555d0ae7348c4358689c9485cfe29fa5783",
+        "lyrics.txt": "c0eea2335aaf799e4a9fbaea050a3ae3162a84e5271173dbefc66a2440751996",
+        "songwriter.json": "d9784399712cddf137d27527983aa55e381a82efa02f99535ea0f52c72521f1d"
+      },
+      "chorus_hooks_verified": 2
+    },
+    {
+      "n": 6,
+      "title": "बात अधूरी",
+      "seed": 309512692,
+      "directory": "06_baat_adhuri",
+      "hashes": {
+        "plan.json": "a3bb37b80f1bf02ab681e5d54207e8b3520c0f6bbc7db0fa09783e6202fccf80",
+        "request.json": "86d9bb899de946ee6b03f47d24b99bea78651958b83acf25224f87727aeb6efa",
+        "caption.txt": "d6b74d0c155f01255295b2575b7ac610a37e7ca7673e56a6603607d90c2f253a",
+        "take.json": "1bd28fa034031be50c0ba024d13948618dd10eb1692174d54159bd2494980e10",
+        "lyrics.txt": "812340bb98348fe3af52afb4937641fbe0ad93985201030c817ef7a95af35e0e",
+        "songwriter.json": "bd5e1511f2efe79e590c013ca0eceba80d4e30e79a1b692b9a5fd703c09d64d3"
+      },
+      "chorus_hooks_verified": 3
+    },
+    {
+      "n": 7,
+      "title": "यहीं कहीं",
+      "seed": 1756718358,
+      "directory": "07_yahin_kahin_duet",
+      "hashes": {
+        "plan.json": "b9b5f6d8f45bcbbb8cae35b1390b10232fe6271147f8807847cf64b7d3024368",
+        "request.json": "a0c5a293f79ac33fd1fd5e57e3378e2ccda48fc4eeefb6627f5f438c3f3a9f51",
+        "caption.txt": "54da35b26c53f93636f4951019328498397693b61a34d7cc1869511d6e27760f",
+        "take.json": "54bcb3495c8606f9751fcdb7c516b9a3de21202170826288d4e466bd990848c5",
+        "lyrics.txt": "bbec0c9173f91fc8cd93e1ba95ff101cc1a9c2644db86abb0cd8a9ecd774f70d",
+        "songwriter.json": "07b1fb68854475619ba5b7ff7a6b8f63d724f207a0b975f32cc4d4edee0fd78e"
+      },
+      "chorus_hooks_verified": 3
+    },
+    {
+      "n": 8,
+      "title": "Run Toward the Light",
+      "seed": 1561407237,
+      "directory": "08_run_toward_the_light",
+      "hashes": {
+        "plan.json": "b2b115e226432fb0ccf503fe52885d916445c317388b9f807bcdfa9788af46eb",
+        "request.json": "206b3234473b120843bcb3736693906b47084de74a54bf1abfd1c53db8995af1",
+        "caption.txt": "eb36c79ffa40b4e736ecf0164a0be99f1f3cf7996f5b7773fe17dcaa43fcbe9f",
+        "take.json": "3d5a95dd8444abbefe720d2cb7b286f2aef2967dc570143f92a8fae290ee6abd",
+        "lyrics.txt": "d42736962b1a3737bdf27f2ab6e3c34a4ba8457db8655439f5f0778446cf1e60",
+        "songwriter.json": "9ffa476cc2270521f37310f69ac637ccdab4539e41e5a40f52e9883ff54f2a17"
+      },
+      "chorus_hooks_verified": 3
+    },
+    {
+      "n": 9,
+      "title": "My Own Sunrise",
+      "seed": 619618584,
+      "directory": "09_my_own_sunrise",
+      "hashes": {
+        "plan.json": "e790d3eb907dff808890ee914ca64b0b0a7e2e6643299c070eff4dc6f5b4d57a",
+        "request.json": "d7d6dbf55e60a590e2b1a7d6c81c8847c7d308103c3f420969437e7dd3594a90",
+        "caption.txt": "6a026885b0be3e90c4c155d1372308436c17096ebfe1dd3512f7e12bad7d6290",
+        "take.json": "fb8393cccec204638f85d459ad5c8a3f71e87d487c61aadf861c0e2130ffaadd",
+        "lyrics.txt": "065e44c022eb47067d833b5f24595b55c0f4dca504d18e398bcc97013897188b",
+        "songwriter.json": "52d1e9e59b19714ea583ba1ecd1d741689e5d2ff9b6626252fde5d68e49a1923"
+      },
+      "chorus_hooks_verified": 2
+    },
+    {
+      "n": 10,
+      "title": "आज की रात",
+      "seed": 580143580,
+      "directory": "10_aaj_ki_raat",
+      "hashes": {
+        "plan.json": "161cec0e8985b9f0eb380ca97f1e3f11ea234346906fdc622d2b569d3a24a38f",
+        "request.json": "8d73718c9dbd25cdc3b67d37fd8bc2081f096f3a34c38f5e9d23e9c7a6f34b1b",
+        "caption.txt": "6fab94006c7e00be3dcc5610c9a1f3f8d8083eab36d10a8d3afec42b7a46c0e1",
+        "take.json": "9cfc9664098ff38401c65d188090c1c867e8a957ab54726cdf3586b38ad6bbef",
+        "lyrics.txt": "2d7c6c1381501a0b68861d0ab4e5d763b6fe85fdb80a293bc4c2c9dab8efc5a5",
+        "songwriter.json": "3701fed24c0591b87a8b448205b67edac8dca44e0d5bbdd100f1caff84cbd665"
+      },
+      "chorus_hooks_verified": 3
+    },
+    {
+      "n": 11,
+      "title": "After the Rain",
+      "seed": 220652654,
+      "directory": "11_after_the_rain",
+      "hashes": {
+        "plan.json": "c6f461e8a7cea5277ef4044baa0591162f323be2db2b52a61f0f8a016bb130a8",
+        "request.json": "ad1e14686eda7ecbf04f31c99ad86d4a7a30a12f4953144dc3c6611a70847dd3",
+        "caption.txt": "1efc17589d71fdc05567279a712d1f1abd6000e506a1c7b8d3f9324af90ccc62",
+        "take.json": "652dcb78db46e6346969d4497c85440a1bcddf8636e6a9c64ea77fdb84768fd5",
+        "lyrics.txt": "cf19c4ee2c88a5e741530802ef649944f6451aa9991985fc3c8a44a0d292a3eb",
+        "songwriter.json": "b91c42bfdf23c941a5e488f61c37348ebd85ebf554049ebe4a70f3698307d8e6"
+      },
+      "chorus_hooks_verified": 2
+    },
+    {
+      "n": 12,
+      "title": "अपनी राह",
+      "seed": 1456075399,
+      "directory": "12_apni_raah_rap",
+      "hashes": {
+        "plan.json": "a96f7f8be9c27455be662842b3a9b7e15ab6158441155d058f165cd4f0c2172e",
+        "request.json": "f6eb82f4cde2dd13ac7fb251190ae0e4accafed601c0c7f92740910b114cf74f",
+        "caption.txt": "a58e89193d46430dee1b73544c093f6ef12cf712a4d21c6ae958ab12d90516b2",
+        "take.json": "4130cf3bb0ff497c17c6c82b2cf81ca38c845782cf67437e4246c5608acc3f2d",
+        "lyrics.txt": "69318f5705f7bbe79891421c42c9521d0169cc805159656bbf1b519c94367a07",
+        "songwriter.json": "8a626e5f209533218a540882c7c62bd669166d22206d5ed80772ea9f3f1b17ef"
+      },
+      "chorus_hooks_verified": 3
+    }
+  ]
+}

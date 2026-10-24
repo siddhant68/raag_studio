@@ -24,10 +24,119 @@
     "singer": null,
     "language": null
   },
-  "prepared_at": "2026-10-24T20:22:35+00:00",
-  "app_commit": "6bbb979",
+  "prepared_at": "2026-10-24T20:29:40+00:00",
+  "app_commit": "3f08f2f",
   "render": {
-    "status": "not_rendered"
+    "status": "rendered",
+    "finished_at": "2026-10-24T20:32:36+00:00",
+    "wall_s": 26.7,
+    "engine": {
+      "source": "/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/tools/ace-step-1.5",
+      "checkpoint": "acestep-v15-turbo",
+      "device": "mps",
+      "lm": null,
+      "turbo": true,
+      "torch": "2.11.0"
+    },
+    "model_load_s": 8.628,
+    "take_wall_s": 17.06,
+    "pipeline_s": 11.705,
+    "peak_rss_mb": 14137.1,
+    "effective_params": {
+      "shift": 3.0,
+      "inference_steps": 8,
+      "guidance_scale": 1.0,
+      "thinking": false,
+      "bpm": 66,
+      "keyscale": "A minor",
+      "timesignature": "3",
+      "duration": 90
+    },
+    "native_file": "runs/_showcase/diverse12_2026-10-25/04_lanterns_in_the_rain/take_01_s841152641.flac",
+    "native_sha256": "493c5670705d4995fd0176853580cd2c590680303a9a6dec3fe366d20da1c8c2",
+    "technical_checks": {
+      "label": "Technical checks (breakage only, not a quality score)",
+      "status": "warning",
+      "failures": [],
+      "warnings": [
+        "silence"
+      ],
+      "checks": {
+        "decodes": {
+          "ok": true,
+          "value": "ok",
+          "limit": "no decoder errors",
+          "severity": "failure"
+        },
+        "duration": {
+          "ok": true,
+          "value": 90.0,
+          "limit": "90.0 +/- 0.25 s",
+          "severity": "failure"
+        },
+        "sample_rate": {
+          "ok": true,
+          "value": 48000,
+          "limit": 48000,
+          "severity": "failure"
+        },
+        "channels": {
+          "ok": true,
+          "value": 2,
+          "limit": 2,
+          "severity": "failure"
+        },
+        "clipping": {
+          "ok": true,
+          "value": 0.0,
+          "limit": "< 0.001",
+          "severity": "failure"
+        },
+        "true_peak": {
+          "ok": true,
+          "value": -1.5,
+          "limit": "<= -1.0 dBTP",
+          "severity": "failure"
+        },
+        "silence": {
+          "ok": false,
+          "value": 0.06761,
+          "limit": "< 0.05 (warning only)",
+          "severity": "warning"
+        }
+      },
+      "facts": {
+        "file": "take_01_s841152641.flac",
+        "codec": "flac",
+        "sample_fmt": "s32",
+        "bits_per_raw_sample": "24",
+        "sample_rate": 48000,
+        "channels": 2,
+        "duration_s": 90.0,
+        "size_bytes": 14498772,
+        "clipped_fraction": 0.0,
+        "clipped_samples": 0,
+        "silence_s": 6.085,
+        "silence_fraction": 0.06761,
+        "integrated_lufs": -16.2,
+        "loudness_range_lu": 11.3,
+        "true_peak_dbtp": -1.5
+      }
+    },
+    "listening_copy": {
+      "file": "04_lanterns_in_the_rain_piano_cello_waltz_instrumental.mp3",
+      "bytes": 2161196,
+      "duration_s": 90.0,
+      "integrated_lufs": -16.2,
+      "true_peak_dbtp": -2.0,
+      "extra_gain_db": 0.0,
+      "clipped_fraction": 0.0,
+      "decode_ok": true,
+      "native_input_lufs": -16.22,
+      "native_input_tp": -1.49
+    },
+    "network_attempts": [],
+    "fake_engine": false
   },
   "listening": {
     "verdict": "pending"
