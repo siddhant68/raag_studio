@@ -344,8 +344,43 @@ class Service:
                 "needs_user_input", "applied", "changes", "notice", "planner_status")
         return {k: card[k] for k in keys if k in card}
 
-    def _plan_from_body(self, brief: str, controls: Controls, supplied: Optional[dict]) -> tuple[Plan, dict, str]:
+    def _draft_lyrics(self, plan: Plan, card: dict) -> tuple[Plan, dict]:
+        """'Write for me': a sung plan with policy 'write' and no text gets lyrics from the smart planner, once.
+
+        The draft is stored in the plan (so every later round reuses exactly these words), marked as drafted, and never
+        replaces the user's own words (policy 'exact' is never touched). No silent substitute: if the provider cannot
+        write them the request is refused with the reason, and Basic (which cannot write lyrics) leaves the plan as it
+        was, so the compiler asks the user for words as before.
+        """
+        if plan.voice_mode != "sung" or plan.lyrics.policy != "write" or (plan.lyrics.text or "").strip():
+            return plan, card
+        planner = self.planner()
+        if not getattr(planner, "can_write_lyrics", False):
+            return plan, card
+        label = getattr(planner, "label", "The smart planner")
+        try:
+            draft = planner.draft_lyrics(plan)
+        except PlannerError as exc:
+            raise ApiError(409, exc.code, f"{label} could not write the lyrics: {exc.message} Paste your own words "
+                           "(Use my words exactly), or try again.")
+        plan = plan.model_copy(update={"lyrics": plan.lyrics.model_copy(update={"text": draft.text})})
+        plan = plan.with_provenance("lyrics", "suggested", f"drafted by {label}; paste your own words to replace them")
+        card = dict(card, plan=plan.model_dump(mode="json"),
+                    needs_user_input=[n for n in card.get("needs_user_input", []) if n != "lyrics"],
+                    unsupported=[u for u in card.get("unsupported", []) if u.get("kind") != "write_lyrics"],
+                    notes=list(card.get("notes", [])) + [f"Lyrics were drafted by {label} from your brief. "
+                                                          "Read them below; paste your own to use exact words instead."])
+        return plan, card
+
+    def _plan_from_body(self, brief: str, controls: Controls, supplied: Optional[dict],
+                        draft_lyrics: bool = False) -> tuple[Plan, dict, str]:
         """(plan, card dict, plan source). Runs the planner unless a plan was supplied."""
+        plan, card, source = self._plan_from_body_raw(brief, controls, supplied)
+        if draft_lyrics:
+            plan, card = self._draft_lyrics(plan, card)
+        return plan, card, source
+
+    def _plan_from_body_raw(self, brief: str, controls: Controls, supplied: Optional[dict]) -> tuple[Plan, dict, str]:
         if supplied is not None:
             try:
                 plan = Plan.model_validate(supplied)
@@ -375,7 +410,7 @@ class Service:
         if replay:
             return replay
         controls = make_controls(_control_dict(body))
-        plan, card, source = self._plan_from_body(body.brief, controls, body.plan)
+        plan, card, source = self._plan_from_body(body.brief, controls, body.plan, draft_lyrics=True)
         compiled, request, _ = self._compile(plan, plan.takes)
         self._admit()
         song_id = ulid()
@@ -426,7 +461,7 @@ class Service:
         merged = dict(loads(prev["controls_json"], {}))
         merged.update(_control_dict(body))
         controls = make_controls(merged)
-        plan, card, source = self._plan_from_body(brief, controls, None)
+        plan, card, source = self._plan_from_body(brief, controls, None, draft_lyrics=True)
         report: Optional[dict] = None
         compile_error: Optional[dict] = None
         try:

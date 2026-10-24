@@ -253,3 +253,75 @@ def test_planner_block_follows_the_setting_and_the_help_text_is_not_stale(tmp_pa
         assert "smart planner is on" in on["how_to_enable"] and "Smart planners are off" not in on["how_to_enable"]
         back = c.put("/api/settings", json={"planner_provider": "basic", "planner_smart_enabled": False}).json()["planner"]
         assert back["write_for_me"]["enabled"] is False and "Smart planners are off" in back["how_to_enable"]
+
+
+# --------------------------------------------------------------------------- "Write for me" is wired to the drafter
+class _StubSmart:
+    """Basic's plan (sung, policy write, no text) with a provider that can write lyrics. No network, no CLI."""
+    name, label, is_llm, can_write_lyrics = "claude_cli", "Claude (local CLI)", True, True
+
+    def __init__(self, error=None, text="Subah ki dhoop mein\nTera naam hai\n"):
+        self.calls, self.error, self.text, self._basic = 0, error, text, BasicPlanner()
+
+    def plan(self, brief, controls=None, context=None):
+        return self._basic.plan(brief, controls, context)
+
+    def patch(self, plan, request_text):
+        return self._basic.patch(plan, request_text)
+
+    def draft_lyrics(self, plan):
+        self.calls += 1
+        if self.error:
+            raise self.error
+        from backend.planner_base import LyricsDraft
+        return LyricsDraft(text=self.text, provider=self.name)
+
+
+SUNG_BRIEF = "a tender Hindi song about waiting at dawn"
+
+
+def test_write_for_me_drafts_once_stores_the_words_and_later_rounds_reuse_them(tmp_path):
+    with client_for(tmp_path) as c:
+        stub = _StubSmart()
+        c.svc.planner = lambda: stub
+        r = c.post("/api/songs", json={"brief": SUNG_BRIEF, "voice": "sung", "duration": 30, "takes": 1})
+        assert r.status_code == 202, r.text
+        data = r.json()
+        wait_job(c, data["job_id"])
+        plan = data["plan"]
+        assert plan["lyrics"]["policy"] == "write" and plan["lyrics"]["text"] == stub.text
+        assert plan["provenance"]["lyrics"]["source"] == "suggested" and "drafted by Claude" in plan["provenance"]["lyrics"]["reason"]
+        assert "lyrics" not in data["card"]["needs_user_input"]
+        assert any("drafted" in n for n in data["card"]["notes"])
+        lyr = data["compile_report"]["lyrics"]
+        assert lyr["mode"] == "draft"
+        sent = c.get(f"/api/songs/{data['song_id']}").json()["rounds"][0]["request"]["engine_request"]["params"]["lyrics"]
+        assert "Tera naam hai" in sent
+        again = c.post(f"/api/songs/{data['song_id']}/rounds", json={"kind": "another"})
+        assert again.status_code == 202
+        wait_job(c, again.json()["job_id"])
+        assert stub.calls == 1                                       # drafted once; the same words are reused
+
+
+def test_a_failed_draft_is_refused_with_the_reason_and_creates_nothing(tmp_path):
+    from backend.planner_base import PlannerTimeout
+    with client_for(tmp_path) as c:
+        c.svc.planner = lambda: _StubSmart(error=PlannerTimeout("Claude (local CLI) did not answer within 60 s."))
+        r = c.post("/api/songs", json={"brief": SUNG_BRIEF, "voice": "sung", "duration": 30, "takes": 1})
+        assert r.status_code == 409 and r.json()["error"]["code"] == "planner_timeout"
+        assert "could not write the lyrics" in r.json()["error"]["message"] and "Paste your own words" in r.json()["error"]["message"]
+        assert c.get("/api/songs").json()["songs"] == []
+
+
+def test_basic_planner_still_asks_for_words_and_exact_words_are_never_drafted(tmp_path):
+    with client_for(tmp_path) as c:
+        r = c.post("/api/songs", json={"brief": SUNG_BRIEF, "voice": "sung", "duration": 30, "takes": 1})
+        assert r.status_code == 422 and r.json()["error"]["code"] == "needs_user_input"
+        stub = _StubSmart()
+        c.svc.planner = lambda: stub
+        ok = c.post("/api/songs", json={"brief": SUNG_BRIEF, "voice": "sung", "duration": 30, "takes": 1,
+                                        "lyrics": "Mere apne shabd\nsuno zara\n"})
+        assert ok.status_code == 202, ok.text
+        wait_job(c, ok.json()["job_id"])
+        assert stub.calls == 0 and ok.json()["plan"]["lyrics"]["policy"] == "exact"
+        assert ok.json()["plan"]["lyrics"]["text"] == "Mere apne shabd\nsuno zara\n"

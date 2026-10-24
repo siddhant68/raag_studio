@@ -124,3 +124,17 @@ reported `write_for_me.enabled: true`). Reproduced in the built-in browser on an
 and when the tab becomes visible, and repaints the Create form if the planner or "Write for me" changed (`main.js`, `create.js`). The settings
 help text was also stale ("Smart planners are off" while one was on); it now follows the setting. Verified in the browser (disabled -> enabled
 after a focus event, badge updated) and by a test; suite 400 passing.
+
+## Addendum 4: "an iteration failed, it didn't have lyrics" (Write for me was never wired)
+Cause: with the smart planner on, "Write for me" was enabled in the UI, but nothing in the create path ever called `draft_lyrics()` (the M4 provider
+code existed, the wiring was listed as pending). A sung brief with no pasted words therefore reached the compiler with policy "write" and no text,
+which refuses it: `POST /api/songs` -> 422 `needs_user_input`. No song or job was created, which is why the Library shows nothing failed
+(server log: one 422 after the settings change).
+Fix (`jobs.py` `_draft_lyrics`): on create and plan-only, a sung plan with policy "write" and no text is sent to the active smart planner once;
+the words are stored in the plan (provenance "suggested", "drafted by Claude (local CLI)"), shown in the plan panel ("Lyrics drafted for you"),
+and reused by every later round (another/refine do not call the provider again). Exact words are never drafted or touched. If the provider
+cannot write them the request is refused with the reason (409) rather than silently continuing; Basic still asks for your words.
+Verified: 3 new tests (stub provider: drafted once and reused, failure refused with reason and nothing created, Basic/exact unchanged); one live call
+through the real Claude CLI on an isolated fake-engine server returned Devanagari lyrics, stored with the plan. Suite 403 passing.
+Caveats: the live draft was written from a female speaker's view ("मैं द्वार पे") although the brief asked for a male voice, so read drafts before
+rendering. The drafter's quality as sung Hindi is unevaluated. The running app must be restarted to pick this up.

@@ -79,7 +79,7 @@ Four reviewer-reported bugs (choir crash, refine from_take plan, null reset to A
 
 ## Current state and next tasks (updated 2026-10-24, follow-up 1)
 
-Local, uncommitted-to-remote; never push. Suite: 400 passing (`app/.venv/bin/python -m pytest app/tests -q -p no:cacheprovider`;
+Local, uncommitted-to-remote; never push. Suite: 403 passing (`app/.venv/bin/python -m pytest app/tests -q -p no:cacheprovider`;
 strip proxy env vars if HTTPX fails on SOCKS). Render budget unchanged: **9 of ~12 takes used, ~3 remain; follow-up 1 rendered nothing.**
 Report: `reports/FOLLOWUP1.md`. Done there: effective-arrangement display, selected-take Another take, Try again keeps the failed
 round's plan, recipe reset, `/plan` null refusal, sung-Choir wording, independent planner evaluation set + Basic baseline.

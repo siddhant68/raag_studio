@@ -177,6 +177,11 @@ function renderPlan(container, planRec, report, isTop) {
         pi ? h("span", { class: "why" }, h("span", { class: `tag tag-${row.prov.source}` }, pi.label), row.prov.reason || "") : null,
         row.adjusted ? h("span", { class: "why adjusted" }, h("span", { class: "tag tag-rule" }, "Adjusted"), row.adjusted) : null));
   }))));
+  if (plan.lyrics && plan.lyrics.policy === "write" && plan.lyrics.text) {
+    kids.push(h("details", { class: "drafted-lyrics" }, h("summary", {}, "Lyrics drafted for you (open to read)"),
+      h("pre", { class: "lyrics-text" }, plan.lyrics.text),
+      h("p", { class: "help" }, "Written once for this song; every take uses these exact words. To sing your own instead, start a new song with Voice → Sung words → Use my words exactly.")));
+  }
   const notes = plannerNotes(card);
   if (notes.length) kids.push(h("ul", { class: "report" }, notes.map((n) => h("li", { class: "note" }, n))));
   const extra = [...(card.unsupported || []).map((u) => u.message || JSON.stringify(u)), ...(card.needs_user_input || [])];

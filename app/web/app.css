@@ -251,3 +251,6 @@ dialog::backdrop { background: rgba(0, 0, 0, 0.5); }
   .choices-row { grid-template-columns: repeat(2, 1fr); }
   .nav a { padding-inline: 0.65rem; }
 }
+
+.drafted-lyrics { margin: .75rem 0; }
+.drafted-lyrics .lyrics-text { white-space: pre-wrap; font: inherit; background: var(--surface-2); padding: .75rem 1rem; border-radius: 8px; margin: .5rem 0; }
