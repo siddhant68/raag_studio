@@ -66,14 +66,14 @@ def choose_genre(plan: Plan, brief: str, control_genre: Optional[str]) -> tuple[
         if not genres.exists(control_genre):
             raise ValueError(f"unknown genre '{control_genre}'")
         return control_genre, "you", "you picked the style"
-    if plan.genre and genres.exists(plan.genre):
+    if plan.genre and genres.exists(plan.genre) and _source(plan, "genre") in ("you", "suggested", None):
         src = _source(plan, "genre") or "suggested"
         reason = plan.provenance["genre"].reason if "genre" in plan.provenance else "the planner picked this style"
         return plan.genre, src, reason
-    hits = genres.match(brief)
-    if hits:                       # a voice the person chose still wins; the blueprint adapts the form to it
-        pid, kw = hits[0]
-        return pid, "suggested", f"you wrote '{kw}'"
+    lang = plan.voices.language if plan.voice_mode == "sung" and _voice_part_chosen(plan, "language") else None
+    hit = genres.pick(brief, language=lang, voice=plan.voice_mode if chosen(plan, "voice_mode") else None)
+    if hit:                        # a voice the person chose still wins; the blueprint adapts the form to it
+        return hit[0], "suggested", f"you wrote '{hit[1]}'"
     rec = genres.for_recipe(plan.recipe_id)
     if rec and _source(plan, "recipe_id") == "you":
         return rec, "you", "the sound you picked"

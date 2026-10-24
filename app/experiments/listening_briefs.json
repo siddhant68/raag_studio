@@ -1,0 +1,20 @@
+{
+  "schema": "raag-listening-briefs/1",
+  "notes": [
+    "Briefs for the old-versus-new listening batch (experiments/listening_batch.py).",
+    "Every condition gets the same brief, the same controls, the same length and the same seed, so the pipeline is what differs.",
+    "Sung briefs use fixed lyrics so the words are held constant. Thodi's words come from the accepted recipe (r3); chai_bollywood uses the original Hindi fixture written for the earlier lyric research; the English ballad and the Hindi wedding song were written for this batch. None of them quote an existing song."
+  ],
+  "briefs": [
+    {"id": "yamuna", "brief": "Dawn on the Yamuna: an expressive bansuri leads over a tanpura drone and gentle tabla, sparse santoor, peaceful and luminous, no singing", "voice": "instrumental", "duration_s": 150},
+    {"id": "rooftop_sitar", "brief": "A long slow evening raga on a rooftop, the sitar answering itself while the city goes quiet and the lamps come on, tabla joining later, no singing", "voice": "instrumental", "duration_s": 120},
+    {"id": "daylight", "brief": "Warm melodic piano hook answered by flute and acoustic guitar, strings swelling into a wordless choir chorus, hopeful", "voice": "wordless", "duration_s": 132},
+    {"id": "cinematic", "brief": "Epic cinematic orchestral piece, quiet strings at first, rising to a heroic climax with brass and big drums, no singing", "voice": "instrumental", "duration_s": 120},
+    {"id": "thodi", "brief": "A Hindi romantic acoustic ballad, warm male voice, fingerpicked guitar and piano, tender longing", "voice": "sung", "duration_s": 152, "singer": "male", "language": "hi", "lyrics_from_recipe": "r3_hindi_ballad"},
+    {"id": "chai_bollywood", "brief": "A Bollywood romantic song about one more cup of tea at the window, strings and tabla, warm male voice", "voice": "sung", "duration_s": 150, "singer": "male", "language": "hi", "lyrics_file": "../../elevenlabs-rea/experiments/E20/lyrics.txt"},
+    {"id": "sangeet_dance", "brief": "A festive Bollywood dance number for a wedding sangeet, dhol and synths, bright female voice, everyone dancing", "voice": "sung", "duration_s": 120, "singer": "female", "language": "hi",
+     "lyrics": "[Verse 1]\nढोल बजे तो दिल ये नाचे\nआज ना रुकना यारों\nमेहंदी वाले हाथ उठा लो\nचलो रंग बिखेरो\n\n[Pre-Chorus]\nधड़कन बोले धिन धिन धा\nआजा आजा अब ना शरमा\n\n[Chorus]\nनाच ले, नाच ले, सारी रात\nढोल की थाप पे यारों के साथ\nनाच ले, नाच ले, मत रुक जाना\nआज तो बस खुशियाँ मनाना\n\n[Verse 2]\nदूल्हे राजा घोड़ी चढ़ के\nआए हैं सज-धज के\nदुल्हन की सखियाँ हँस के बोलें\nजूते लाओ पहले\n\n[Chorus]\nनाच ले, नाच ले, सारी रात\nढोल की थाप पे यारों के साथ\nनाच ले, नाच ले, मत रुक जाना\nआज तो बस खुशियाँ मनाना"},
+    {"id": "last_train", "brief": "An English pop ballad on piano about the last train home after a breakup, quiet verses building to a big chorus with strings, female voice", "voice": "sung", "duration_s": 150, "singer": "female", "language": "en",
+     "lyrics": "[Verse 1]\nPlatform lights are flickering low\nYour coat still smells of autumn rain\nI count the stops I used to know\nAnd trace your name across the pane\n\n[Pre-Chorus]\nAnd every station slips away\nLike words I never learned to say\n\n[Chorus]\nOn the last train home\nI keep the seat beside me\nOn the last train home\nYour shadow rides behind me\n\n[Verse 2]\nThe window shows a stranger's face\nTired eyes and borrowed time\nA ticket folded in its place\nYour number underlined\n\n[Bridge]\nMaybe you're waiting at the end of the line\nMaybe the lights are still on\nMaybe I'm only counting the signs\nOf a love that's already gone\n\n[Chorus]\nOn the last train home\nI keep the seat beside me\nOn the last train home\nYour shadow rides behind me"}
+  ]
+}

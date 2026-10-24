@@ -2,10 +2,11 @@
 
 A local AI-music application: a feeling or a little story in, takes you can play, compare, change and export out.
 **The app is implemented and runs.** Current run commands are in [Run](#run) below; current state and the next tasks
-are in `STATUS.md` (section "Current state and next tasks"); the newest follow-up is `reports/FOLLOWUP1.md`.
+are in `STATUS.md` (section "Song pipeline"); the newest report is `reports/SONG_PIPELINE.md` (styles, song maps,
+the songwriter, engine profiles, the old-versus-new listening batch).
 
-Start here if you are a new agent: `HANDOFF_NEXT_SESSION_2026-10-24.md` (read order, decisions, backlog), then
-`context_pack/docs/IMPLEMENTATION_DECISIONS.md` and `reports/BUGFIX_REVIEW1.md`.
+Start here if you are a new agent: `reports/SONG_PIPELINE.md`, then `HANDOFF_NEXT_SESSION_2_2026-10-24.md` and
+`HANDOFF_NEXT_SESSION_2026-10-24.md` (read order, decisions, musical history), `context_pack/docs/IMPLEMENTATION_DECISIONS.md`.
 
 ## History: the original handoff baseline (dated 24 October 2026, before any code existed)
 
@@ -90,17 +91,38 @@ The Library keeps every song with its plan, seeds and the exact request that was
   labels every response `engine:"fake"`, shows a red banner in the page, and is never a real render. Without that
   variable the app always uses the real engine.
 
+### Song pipeline (styles, song maps, songwriter)
+
+New songs pick a **Style** (38 presets, Hindi and English, sung and instrumental; or Auto from the brief's words)
+and get a **song map**: the sections, their rough times, energy and who comes in. The caption follows ACE-Step's
+own guide (genre, mood, voice, instruments, the section journey, production; tempo/key/meter as parameters) and the
+lyrics carry section tags. With Claude on, sung songs get lyrics written section by section and checked (syllables,
+hook, script, Hindi singer-gender agreement), with every chorus repeated word for word. Classic plans and the four
+accepted recipes compile exactly as before; `song_pipeline: false` (Settings → Music engine, or
+`RAAG_SONG_PIPELINE=0`) keeps new songs on the classic template unless a style or a new instrument is chosen.
+
+Engine profiles (Settings → Music engine): `auto` (classic plans: shift 1.0; styled songs: shift 3.0), `classic`,
+`shift3`, `lm` (+ 5Hz LM 1.7B), `xl` (XL turbo 4B), `xl_lm`. LM and XL weights are downloaded only by
+`python3 scripts/fetch_models.py lm|xl` (asks first); a render never downloads.
+
+Old-versus-new blind listening: `cd app && .venv/bin/python -m experiments.listening_batch prepare|render|reveal`
+(see `reports/SONG_PIPELINE.md`). Personal ElevenLabs renders of a plan: `scripts/personal/elevenlabs_render.py`
+(preview by default; never called by the app; personal use only).
+
 ### Status and limits (honest list)
 
-- The planner is **Basic rules** (keywords on this computer). It cannot read stories or analogies and cannot write
-  lyrics. Smart planners (`claude -p`, Anthropic API) are built but **off**; the web page cannot turn them on. Turning
-  one on is a deliberate `PUT /api/settings` that you make yourself, and it sends your brief text to Anthropic.
+- The default planner is **Basic rules** (keywords on this computer). It cannot read stories or analogies and cannot
+  write lyrics. Smart planners (`claude -p`, Anthropic API) are built and **off by default**; the web page cannot turn
+  them on. Turning one on is a deliberate `PUT /api/settings` that you make yourself, and it sends your brief text to
+  Anthropic. (On the Mac the Claude CLI planner was switched on by the user on 2026-10-24.)
+- **Nobody has listened to the song pipeline yet** (built in a cloud session without a GPU). Run the listening batch.
 - **No take made by this application has a recorded human verdict yet** (the historical Yamuna, Daylight and Thodi examples do; see `context_pack/examples/AUDIO_GUIDE.md`). "Technical checks passed" only means the file is not broken
   (right length, not silent, not clipped). Whether it is good music is your verdict.
 - Hindi singing is **experimental** and English sung words are **untested**. Exact lyrics are sent unchanged; only
   listening tells you whether they were sung correctly. Instrumental and wordless voices come first.
 - Controls are creative direction, not guarantees: no per-instrument volume, no exact singer counts, no melody lock.
 - "More like this", cover, repaint and similar edits are not offered (experiments).
+- Instrumental section tags and the 5Hz LM / XL profiles are untested by ear; LM and XL also raise memory use.
 - Disk is tight (about 30 GiB free). Clean-up of old full-quality audio is manual and asks first; nothing is deleted
   automatically.
 - The page was checked by hand in Chrome and the built-in browser at desktop and phone widths; there is no automated

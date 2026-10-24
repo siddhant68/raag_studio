@@ -213,9 +213,9 @@ class BasicPlanner(Planner):
         if ctl.genre:
             genre_id, genre_why = ctl.genre, "you picked the style"
         else:
-            g_hits = genres.match(text)
-            if g_hits:
-                genre_id, kw = g_hits[0]
+            g_hit = genres.pick(text, voice=ctl.voice)
+            if g_hit:
+                genre_id, kw = g_hit
                 genre_why = f"you wrote '{kw}'"
                 matched.append(kw)
         # --- voice

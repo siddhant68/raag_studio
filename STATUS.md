@@ -6,6 +6,22 @@ active_session: idle
 
 Spec: context_pack/docs/PRD_v2_MVP.md (milestones M0..M7). Decisions: context_pack/docs/IMPLEMENTATION_DECISIONS.md. Rules: ORCHESTRATION.md.
 
+## Song pipeline (2026-10-24, cloud session; branch claude/intelligent-knuth-6jv48e)
+
+Built: style presets (38), 56 instruments, song maps (forms fitted to tempo and length), the songwriter step with a
+lyric check and one revision, the song compiler (ACE-Step-guide captions, tagged lyrics, meter), engine profiles
+(classic / shift3 / lm / xl / xl_lm) with LM and XL support in run_takes.py, scripts/fetch_models.py, Style picker
+(C26), song map on the song page, Settings → Music engine, the old-versus-new listening batch, and a personal
+ElevenLabs script kept outside the app. Details, checks and limits: `reports/SONG_PIPELINE.md`.
+Tests: 584 Python + 33 JS pass (fake engine). **No render, no listening, ledger unchanged at 19.**
+
+Next, in order:
+1. User: render the listening batch (16 takes; `app/experiments/listening_batch.py`), listen blind, `reveal`.
+2. User OK given for the 5Hz LM: `python3 scripts/fetch_models.py lm`, then a small `new` vs `new_lm` batch.
+3. Decide on XL turbo (~10 GB download, more memory).
+4. With Claude on: create two sung songs with "Write for me" (Hindi and English) and read the lyric check notes.
+5. Tune presets and hints from what the listening says (one change at a time).
+
 ## Milestone board
 
 | Milestone | Scope | State | Notes |

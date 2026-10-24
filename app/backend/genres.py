@@ -120,16 +120,20 @@ def _norm(s: str) -> str:
 # ("a bollywood sufi qawwali" is a qawwali).
 GENERIC_KEYWORDS = {"bollywood", "pop", "folk", "rock", "indie", "acoustic", "dance", "ballad", "fusion", "cinematic",
                     "chill", "edm", "rap", "hip hop", "hip-hop", "devotional", "epic", "classical", "film song",
-                    "movie song", "party song", "soundtrack", "score", "trailer", "orchestral", "atmospheric"}
+                    "movie song", "party song", "soundtrack", "score", "trailer", "orchestral", "atmospheric",
+                    "hindi song", "hindi gaana", "हिंदी गाना", "romantic hindi song", "hindi love song"}
 
 
-def match(text: str) -> list[tuple[str, str]]:
+def match(text: str, language: Optional[str] = None) -> list[tuple[str, str]]:
     """Presets whose keywords appear in the text: [(preset_id, matched keyword)], best first.
 
-    Ranking: a specific keyword beats an umbrella word, then the longer keyword wins, then the one written later
-    (the head noun of "hindi rock ballad" comes last)."""
+    Ranking: a specific keyword beats an umbrella word; then, for sung music, a style in the song's language beats
+    one in another language ("a Hindi romantic acoustic ballad" is not an English acoustic-pop song); then the
+    longer keyword wins, then the one written later (the head noun of "hindi rock ballad" comes last)."""
     t = _norm(text)
-    hits: list[tuple[int, int, int, int, str, str]] = []
+    if language is None and re.search(r"\bhindi\b|हिंदी|हिन्दी|[\u0900-\u097F]", t):
+        language = "hi"
+    hits: list[tuple[int, int, int, int, int, str, str]] = []
     for order, p in enumerate(_load()):
         best = None                       # (generic, -len, -pos, keyword)
         for kw in p["keywords"]:
@@ -145,9 +149,21 @@ def match(text: str) -> list[tuple[str, str]]:
             if best is None or cand < best:
                 best = cand
         if best:
-            hits.append((best[0], best[1], best[2], order, p["id"], best[3]))
+            other_lang = int(bool(language) and p["voice"] == "sung" and language not in p["languages"])
+            hits.append((best[0], other_lang, best[1], best[2], order, p["id"], best[3]))
     hits.sort()
     return [(pid, kw) for *_, pid, kw in hits]
+
+
+def pick(text: str, *, language: Optional[str] = None, voice: Optional[str] = None) -> Optional[tuple[str, str]]:
+    """The best preset for a brief, or None. With a voice the person chose, an umbrella word ("acoustic", "ballad")
+    never puts a wordless or instrumental piece into a sung style (a specific word like "qawwali" still does: an
+    instrumental qawwali is a real request)."""
+    for pid, kw in match(text, language):
+        if voice and get(pid)["voice"] != voice and kw.lower() in GENERIC_KEYWORDS:
+            continue
+        return pid, kw
+    return None
 
 
 def summary_for_llm() -> str:
