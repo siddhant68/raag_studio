@@ -246,6 +246,10 @@ def create_app(config: Optional[Config] = None) -> FastAPI:
     def instruments():
         return ui_api.instruments_view()
 
+    @app.get("/api/genres")
+    def genres_list() -> dict:
+        return ui_api.genres_view()
+
     @app.get("/api/ledger")
     def ledger():
         return ui_api.ledger_view(svc)

@@ -11,6 +11,10 @@ import pytest
 
 from test_m2_support import client_for, wait_job
 
+# These tests pin the classic template compiler's contract (its caption slots, "Auto" = the Basic planner's card,
+# recipe resets). The song pipeline has its own tests in test_song_pipeline.py.
+CLASSIC = {"RAAG_SONG_PIPELINE": "0"}
+
 from backend import compiler
 from backend.plan_schema import INSTRUMENT_IDS, Plan
 from backend.planner_base import Controls
@@ -52,7 +56,7 @@ def test_every_allow_listed_instrument_has_a_role():
 
 @pytest.mark.parametrize("controls", [{"instruments": ["choir"]}, {"lead": "choir"}])
 def test_choir_with_voice_auto_infers_wordless_voices(tmp_path, controls):
-    with client_for(tmp_path) as c:
+    with client_for(tmp_path, **CLASSIC) as c:
         data = create(c, **controls)                            # was: KeyError('choir') / instrumental plan
         plan = data["plan"]
         assert plan["voice_mode"] == "wordless"
@@ -68,7 +72,7 @@ def test_choir_with_voice_auto_infers_wordless_voices(tmp_path, controls):
 
 
 def test_choir_support_with_explicit_instrumental_is_a_reported_conflict(tmp_path):
-    with client_for(tmp_path) as c:
+    with client_for(tmp_path, **CLASSIC) as c:
         data = create(c, voice="instrumental", instruments=["choir", "tabla"])
         assert data["plan"]["voice_mode"] == "instrumental"
         assert any(x["kind"] == "instrumental_with_choir" for x in data["compile_report"]["conflicts"])
@@ -77,7 +81,7 @@ def test_choir_support_with_explicit_instrumental_is_a_reported_conflict(tmp_pat
 
 
 def test_choir_lead_with_explicit_instrumental_never_says_choir_leads(tmp_path):
-    with client_for(tmp_path) as c:
+    with client_for(tmp_path, **CLASSIC) as c:
         data = create(c, voice="instrumental", lead="choir", instruments=["piano"])
         assert data["plan"]["voice_mode"] == "instrumental"
         conflicts = [x for x in data["compile_report"]["conflicts"] if x["kind"] == "instrumental_with_choir"]
@@ -99,7 +103,7 @@ def test_compiler_resolves_instrumental_choir_lead_without_a_planner():
 
 @pytest.mark.parametrize("role", ["instruments", "lead"])
 def test_every_allow_listed_instrument_as_support_and_lead_gives_a_plan_or_a_4xx(tmp_path, role):
-    with client_for(tmp_path) as c:
+    with client_for(tmp_path, **CLASSIC) as c:
         for inst in INSTRUMENT_IDS:
             ctl = {"instruments": [inst]} if role == "instruments" else {"lead": inst}
             r = c.post("/api/songs", json={"brief": QUIET, "controls": ctl, "duration": 10, "takes": 1})
@@ -124,7 +128,7 @@ def test_every_allow_listed_instrument_as_support_and_lead_gives_a_plan_or_a_4xx
 
 
 def test_patching_choir_in_and_out_follows_the_same_rule(tmp_path):
-    with client_for(tmp_path) as c:
+    with client_for(tmp_path, **CLASSIC) as c:
         data = create(c)
         sid = data["song_id"]
         assert data["plan"]["voice_mode"] == "instrumental"
@@ -143,7 +147,7 @@ def test_patching_choir_in_and_out_follows_the_same_rule(tmp_path):
 
 # --------------------------------------------------------------------------- bug 2: refine from a take
 def test_refine_from_take_uses_that_takes_plan_not_the_latest(tmp_path):
-    with client_for(tmp_path) as c:
+    with client_for(tmp_path, **CLASSIC) as c:
         data = create(c, brief="A peaceful bansuri at dawn", lead="bansuri")
         sid = data["song_id"]
         t1 = c.get(f"/api/songs/{sid}").json()["takes"][0]
@@ -170,7 +174,7 @@ def test_refine_from_take_uses_that_takes_plan_not_the_latest(tmp_path):
 
 
 def test_refine_without_from_take_still_uses_the_latest_plan(tmp_path):
-    with client_for(tmp_path) as c:
+    with client_for(tmp_path, **CLASSIC) as c:
         data = create(c, brief="A peaceful bansuri at dawn", lead="bansuri")
         sid = data["song_id"]
         c.patch(f"/api/songs/{sid}/controls", json={"lead": "piano"})
@@ -181,7 +185,7 @@ def test_refine_without_from_take_still_uses_the_latest_plan(tmp_path):
 
 
 def test_another_from_take_reuses_that_takes_plan_and_foreign_take_is_404(tmp_path):
-    with client_for(tmp_path) as c:
+    with client_for(tmp_path, **CLASSIC) as c:
         data = create(c, brief="A peaceful bansuri at dawn", lead="bansuri")
         sid = data["song_id"]
         t1 = c.get(f"/api/songs/{sid}").json()["takes"][0]
@@ -227,7 +231,7 @@ RESET_CASES = [
 @pytest.mark.parametrize("case", RESET_CASES, ids=[x[0] for x in RESET_CASES])
 def test_null_reset_recomputes_the_field_as_auto_and_drops_you_provenance(tmp_path, case):
     name, controls, body_extra, patch, getter, prov_key, remaining = case
-    with client_for(tmp_path) as c:
+    with client_for(tmp_path, **CLASSIC) as c:
         data = create(c, **controls, **body_extra)
         sid = data["song_id"]
         assert data["plan"]["provenance"][prov_key]["source"] == "you", "setup: the control must start as 'you'"
@@ -257,7 +261,7 @@ def test_null_reset_recomputes_the_field_as_auto_and_drops_you_provenance(tmp_pa
 
 
 def test_reset_leaves_other_explicit_controls_and_chip_changes_alone(tmp_path):
-    with client_for(tmp_path) as c:
+    with client_for(tmp_path, **CLASSIC) as c:
         data = create(c, lead="piano", key="G minor", fullness="full")
         sid = data["song_id"]
         r = c.patch(f"/api/songs/{sid}/controls", json={"key": None})
@@ -275,7 +279,7 @@ def test_reset_leaves_other_explicit_controls_and_chip_changes_alone(tmp_path):
 
 
 def test_resetting_one_of_two_explicit_pace_controls_keeps_the_other(tmp_path):
-    with client_for(tmp_path) as c:
+    with client_for(tmp_path, **CLASSIC) as c:
         data = create(c, pace="lively", bpm=112)
         sid = data["song_id"]
         plan = c.patch(f"/api/songs/{sid}/controls", json={"bpm": None}).json()["plan"]
@@ -292,7 +296,7 @@ def assert_change_entries(entries, sources):
 
 
 def test_refine_chip_changes_use_the_standard_schema(tmp_path):
-    with client_for(tmp_path) as c:
+    with client_for(tmp_path, **CLASSIC) as c:
         data = create(c, brief="A peaceful bansuri at dawn, gentle tabla")
         sid = data["song_id"]
         t1 = c.get(f"/api/songs/{sid}").json()["takes"][0]
@@ -310,7 +314,7 @@ def test_refine_chip_changes_use_the_standard_schema(tmp_path):
 
 
 def test_patch_controls_changes_use_the_standard_schema(tmp_path):
-    with client_for(tmp_path) as c:
+    with client_for(tmp_path, **CLASSIC) as c:
         data = create(c, brief="A peaceful bansuri at dawn")
         sid = data["song_id"]
         r = c.patch(f"/api/songs/{sid}/controls", json={"fullness": "full", "bpm": 90, "instruments": ["tabla"]})

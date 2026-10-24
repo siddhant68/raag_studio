@@ -5,6 +5,10 @@ Everything runs through the HTTP API with the fake engine (RAAG_ENGINE=fake); no
 import pytest
 
 from test_m2_support import client_for, wait_job
+
+# These tests pin the classic template compiler's contract (its caption slots, "Auto" = the Basic planner's card,
+# recipe resets). The song pipeline has its own tests in test_song_pipeline.py.
+CLASSIC = {"RAAG_SONG_PIPELINE": "0"}
 from test_bugfix_review1 import create, caption_of
 
 from backend import compiler
@@ -20,7 +24,7 @@ def arrangement(report):
 
 # --------------------------------------------------------------------------- P1: effective arrangement
 def test_instrumental_with_choir_lead_reports_the_real_lead_and_no_voices(tmp_path):
-    with client_for(tmp_path) as c:
+    with client_for(tmp_path, **CLASSIC) as c:
         data = create(c, voice="instrumental", lead="choir")
         arr = arrangement(data["compile_report"])
         assert arr["requested"]["lead"] == "choir"                       # what the user asked for stays inspectable
@@ -40,7 +44,7 @@ def test_instrumental_with_choir_lead_reports_the_real_lead_and_no_voices(tmp_pa
 
 
 def test_effective_lead_is_what_the_caption_names(tmp_path):
-    with client_for(tmp_path) as c:
+    with client_for(tmp_path, **CLASSIC) as c:
         data = create(c, brief=BANSURI, voice="instrumental", lead="choir", instruments=["tabla"])
         eff = arrangement(data["compile_report"])["effective"]
         caption = caption_of(c, data["song_id"], data["round_id"]).lower()
@@ -50,7 +54,7 @@ def test_effective_lead_is_what_the_caption_names(tmp_path):
 
 
 def test_auto_voice_with_choir_lead_keeps_the_recorded_precedence_and_needs_no_adjustment(tmp_path):
-    with client_for(tmp_path) as c:
+    with client_for(tmp_path, **CLASSIC) as c:
         data = create(c, brief="instrumental only, no voices", lead="choir")
         assert data["plan"]["voice_mode"] == "wordless"                  # recorded user decision
         arr = arrangement(data["compile_report"])
@@ -59,7 +63,7 @@ def test_auto_voice_with_choir_lead_keeps_the_recorded_precedence_and_needs_no_a
 
 
 def test_nothing_adjusted_means_requested_equals_effective(tmp_path):
-    with client_for(tmp_path) as c:
+    with client_for(tmp_path, **CLASSIC) as c:
         data = create(c, brief=BANSURI)
         arr = arrangement(data["compile_report"])
         assert arr["adjustments"] == []
@@ -86,7 +90,7 @@ def test_over_budget_support_drop_is_reported_as_an_adjustment():
 
 # --------------------------------------------------------------------------- P1: selected take / retry
 def test_another_from_selected_older_take_uses_its_plan_and_lineage(tmp_path):
-    with client_for(tmp_path) as c:
+    with client_for(tmp_path, **CLASSIC) as c:
         data = create(c, brief=BANSURI, lead="bansuri")
         sid = data["song_id"]
         t1 = c.get(f"/api/songs/{sid}").json()["takes"][0]
@@ -104,7 +108,7 @@ def test_another_from_selected_older_take_uses_its_plan_and_lineage(tmp_path):
 
 
 def test_another_without_a_selected_take_uses_the_latest_plan(tmp_path):
-    with client_for(tmp_path) as c:
+    with client_for(tmp_path, **CLASSIC) as c:
         data = create(c, brief=BANSURI, lead="bansuri")
         sid = data["song_id"]
         c.patch(f"/api/songs/{sid}/controls", json={"lead": "piano"})
@@ -115,7 +119,7 @@ def test_another_without_a_selected_take_uses_the_latest_plan(tmp_path):
 
 
 def test_take_count_comes_from_the_base_plan_when_takes_is_omitted(tmp_path):
-    with client_for(tmp_path) as c:
+    with client_for(tmp_path, **CLASSIC) as c:
         body = {"brief": BANSURI, "duration": 10, "takes": 1}
         data = c.post("/api/songs", json=body).json()
         wait_job(c, data["job_id"])
@@ -127,7 +131,7 @@ def test_take_count_comes_from_the_base_plan_when_takes_is_omitted(tmp_path):
 
 
 def test_retry_repeats_the_failed_rounds_own_plan_not_the_newest(tmp_path):
-    with client_for(tmp_path) as c:
+    with client_for(tmp_path, **CLASSIC) as c:
         data = create(c, brief=BANSURI, lead="bansuri")
         sid = data["song_id"]
         t1 = c.get(f"/api/songs/{sid}").json()["takes"][0]
@@ -143,7 +147,7 @@ def test_retry_repeats_the_failed_rounds_own_plan_not_the_newest(tmp_path):
 
 
 def test_from_round_is_validated(tmp_path):
-    with client_for(tmp_path) as c:
+    with client_for(tmp_path, **CLASSIC) as c:
         data = create(c, brief=BANSURI)
         sid = data["song_id"]
         other = create(c, brief="A quiet piano night")
@@ -160,7 +164,7 @@ def test_from_round_is_validated(tmp_path):
 def test_recipe_reset_recomputes_recipe_fields_and_keeps_your_choices(tmp_path):
     from test_bugfix_review1 import auto_plan
     from backend.jobs import RECIPE_FIELDS
-    with client_for(tmp_path) as c:
+    with client_for(tmp_path, **CLASSIC) as c:
         data = create(c, brief=BANSURI, recipe_id="r2_warm_ensemble", key="G minor", lead="piano")
         sid = data["song_id"]
         before = data["plan"]
@@ -186,7 +190,7 @@ def test_recipe_reset_recomputes_recipe_fields_and_keeps_your_choices(tmp_path):
 
 
 def test_recipe_reset_keeps_a_chip_change_made_after_the_recipe(tmp_path):
-    with client_for(tmp_path) as c:
+    with client_for(tmp_path, **CLASSIC) as c:
         data = create(c, brief=BANSURI, recipe_id="r2_warm_ensemble")
         sid = data["song_id"]
         t1 = c.get(f"/api/songs/{sid}").json()["takes"][0]
@@ -201,7 +205,7 @@ def test_recipe_reset_keeps_a_chip_change_made_after_the_recipe(tmp_path):
 
 
 def test_plan_endpoint_refuses_null_resets_and_patch_still_resets(tmp_path):
-    with client_for(tmp_path) as c:
+    with client_for(tmp_path, **CLASSIC) as c:
         data = create(c, brief=BANSURI, lead="piano")
         sid = data["song_id"]
         for body in ({"controls": {"lead": None}}, {"shape": {"lead": None}}, {"voice": None}, {"recipe_id": None}):
@@ -243,7 +247,7 @@ def test_wordless_without_background_voices_is_an_adjustment():
 
 # --------------------------------------------------------------------------- planner state shown after it is switched
 def test_planner_block_follows_the_setting_and_the_help_text_is_not_stale(tmp_path):
-    with client_for(tmp_path) as c:                       # no song is created, so no provider is ever called
+    with client_for(tmp_path, **CLASSIC) as c:                       # no song is created, so no provider is ever called
         off = c.get("/api/settings").json()["planner"]
         assert off["write_for_me"]["enabled"] is False and "off" in off["how_to_enable"].lower()
         r = c.put("/api/settings", json={"planner_provider": "claude_cli", "planner_smart_enabled": True})
@@ -281,7 +285,7 @@ SUNG_BRIEF = "a tender Hindi song about waiting at dawn"
 
 
 def test_write_for_me_drafts_once_stores_the_words_and_later_rounds_reuse_them(tmp_path):
-    with client_for(tmp_path) as c:
+    with client_for(tmp_path, **CLASSIC) as c:
         stub = _StubSmart()
         c.svc.planner = lambda: stub
         r = c.post("/api/songs", json={"brief": SUNG_BRIEF, "voice": "sung", "duration": 30, "takes": 1})
@@ -305,7 +309,7 @@ def test_write_for_me_drafts_once_stores_the_words_and_later_rounds_reuse_them(t
 
 def test_a_failed_draft_is_refused_with_the_reason_and_creates_nothing(tmp_path):
     from backend.planner_base import PlannerTimeout
-    with client_for(tmp_path) as c:
+    with client_for(tmp_path, **CLASSIC) as c:
         c.svc.planner = lambda: _StubSmart(error=PlannerTimeout("Claude (local CLI) did not answer within 60 s."))
         r = c.post("/api/songs", json={"brief": SUNG_BRIEF, "voice": "sung", "duration": 30, "takes": 1})
         assert r.status_code == 409 and r.json()["error"]["code"] == "planner_timeout"
@@ -314,7 +318,7 @@ def test_a_failed_draft_is_refused_with_the_reason_and_creates_nothing(tmp_path)
 
 
 def test_basic_planner_still_asks_for_words_and_exact_words_are_never_drafted(tmp_path):
-    with client_for(tmp_path) as c:
+    with client_for(tmp_path, **CLASSIC) as c:
         r = c.post("/api/songs", json={"brief": SUNG_BRIEF, "voice": "sung", "duration": 30, "takes": 1})
         assert r.status_code == 422 and r.json()["error"]["code"] == "needs_user_input"
         stub = _StubSmart()

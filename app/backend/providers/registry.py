@@ -205,6 +205,10 @@ class FallbackPlanner(Planner):
         """Smart provider only; no silent substitute. Typed errors reach the caller (Basic cannot write lyrics)."""
         return self.primary.draft_lyrics(plan)
 
+    def draft_song_lyrics(self, plan: Plan, blueprint):
+        """Song-pipeline lyrics come only from the smart provider (no silent fallback to anything else)."""
+        return self.primary.draft_song_lyrics(plan, blueprint)
+
 
 # ---------------------------------------------------------------------------------------------
 # Factory and status

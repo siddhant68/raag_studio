@@ -10,6 +10,7 @@ Environment:
   RAAG_TOOLS_DIR  ACE python / source (read by scripts/preflight.py as well)
   RAAG_VIDEO_QUEUE_URL  ComfyUI queue URL checked before every render
   RAAG_HOST / RAAG_PORT  bind address (127.0.0.1:8477)
+  RAAG_SONG_PIPELINE     "1" (default) new songs use the song pipeline; "0" keeps the classic template compiler
 """
 from __future__ import annotations
 
@@ -38,8 +39,11 @@ DEFAULT_SETTINGS: dict[str, Any] = {
     "silence_fail_fraction": 0.40,         # beyond this the take counts as broken
     "retry_on_technical_failure": True,    # one automatic retry with a new seed, never for taste
     "job_timeout_s": 1800,
+    "song_pipeline": True,                 # new songs use genre presets, blueprints and the song compiler
+    "engine_profile": "auto",              # auto | classic | shift3 | lm (see song_compiler.ENGINE_PROFILES)
 }
 PLANNER_PROVIDERS = ("basic", "claude_cli", "anthropic_api")
+ENGINE_PROFILE_SETTINGS = ("auto", "classic", "shift3", "lm")
 
 
 @dataclass
@@ -75,6 +79,8 @@ class Config:
         overrides: dict[str, Any] = {}
         if env.get("RAAG_VIDEO_QUEUE_URL"):
             overrides["video_queue_url"] = env["RAAG_VIDEO_QUEUE_URL"]
+        if env.get("RAAG_SONG_PIPELINE") in ("0", "1"):           # default for new songs (tests pin classic with 0)
+            overrides["song_pipeline"] = env["RAAG_SONG_PIPELINE"] == "1"
         return cls(
             data_dir=Path(env.get("RAAG_DATA_DIR") or ROOT / "data").resolve(),
             runs_dir=Path(env.get("RAAG_RUNS_DIR") or ROOT / "runs").resolve(),
@@ -96,6 +102,9 @@ def validate_settings(patch: Mapping[str, Any]) -> dict[str, Any]:
         if key == "planner_provider":
             if value not in PLANNER_PROVIDERS:
                 raise ValueError(f"planner_provider must be one of {list(PLANNER_PROVIDERS)}")
+        elif key == "engine_profile":
+            if value not in ENGINE_PROFILE_SETTINGS:
+                raise ValueError(f"engine_profile must be one of {list(ENGINE_PROFILE_SETTINGS)}")
         elif isinstance(default, bool):
             if not isinstance(value, bool):
                 raise ValueError(f"{key} must be true or false")

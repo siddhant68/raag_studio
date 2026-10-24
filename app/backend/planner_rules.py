@@ -13,8 +13,9 @@ import re
 import unicodedata
 from typing import Any, Optional
 
-from . import compiler, copyright_policy
-from .plan_schema import BUCKET_DEFAULT_BPM, INSTRUMENT_IDS, Plan, bucket_for_bpm
+from . import compiler, copyright_policy, genres
+from . import instruments as inst_db
+from .plan_schema import BUCKET_DEFAULT_BPM, CLASSIC_INSTRUMENT_IDS, INSTRUMENT_IDS, Plan, bucket_for_bpm
 from .planner_base import (BriefCard, Controls, LyricsDraft, Planner, PlanPatch, UnsupportedByPlanner, change_entry)
 
 # --------------------------------------------------------------------------- vocabulary
@@ -36,15 +37,21 @@ INSTRUMENT_ALIASES: dict[str, list[str]] = {
     "choir": ["choir", "choral", "क्वायर", "कोरस"],
     "harmonium": ["harmonium", "हारमोनियम", "हार्मोनियम"],
 }
+# The song-pipeline instruments bring their own aliases (backend/instruments.py).
+for _inst in inst_db.NEW_IDS:
+    INSTRUMENT_ALIASES[_inst] = list(inst_db.get(_inst)["aliases"])
 assert set(INSTRUMENT_ALIASES) == set(INSTRUMENT_IDS)
 
 DISPLAY = {"bansuri": "flute", "acoustic_guitar": "guitar", "light_percussion": "drums"}
-MELODIC = ["bansuri", "sitar", "santoor", "violin", "cello", "piano", "acoustic_guitar", "harmonium", "strings"]
-INDIAN_LEADS = {"bansuri", "sitar", "santoor", "tabla", "ghatam", "tanpura", "harmonium"}
+MELODIC = ["bansuri", "sitar", "santoor", "violin", "cello", "piano", "acoustic_guitar", "harmonium", "strings"] + [
+    i for i in inst_db.NEW_IDS if inst_db.can_lead(i) and inst_db.get(i)["family"] in ("melodic", "harmony")]
+INDIAN_LEADS = {"bansuri", "sitar", "santoor", "tabla", "ghatam", "tanpura", "harmonium"} | {
+    i for i in inst_db.NEW_IDS if inst_db.get(i)["indian"]}
 ROLE = {"bansuri": "answer", "tabla": "rhythm", "tanpura": "drone", "santoor": "texture", "sitar": "texture",
         "ghatam": "rhythm", "violin": "answer", "cello": "harmony", "strings": "harmony", "piano": "harmony",
         "acoustic_guitar": "harmony", "bass": "harmony", "light_percussion": "rhythm", "harmonium": "drone",
         "choir": "harmony"}
+ROLE.update({i: inst_db.default_role(i) for i in inst_db.NEW_IDS})
 assert set(ROLE) == set(INSTRUMENT_IDS)
 
 STRONG_INSTRUMENTAL = [
@@ -201,9 +208,22 @@ class BasicPlanner(Planner):
         for u in pol.unsupported:
             notes.append(u["message"])
 
+        # --- style (genre preset)
+        genre_id, genre_why = None, None
+        if ctl.genre:
+            genre_id, genre_why = ctl.genre, "you picked the style"
+        else:
+            g_hits = genres.match(text)
+            if g_hits:
+                genre_id, kw = g_hits[0]
+                genre_why = f"you wrote '{kw}'"
+                matched.append(kw)
         # --- voice
         choir_pick = choir_pick_of(ctl)
         mode, voice_why = self._voice(text, ctl, matched)
+        if genre_id and not ctl.voice and voice_why.startswith("no voice words"):
+            mode = genres.get(genre_id)["voice"]
+            voice_why = f"{genres.get(genre_id)['name']} is usually {'sung' if mode == 'sung' else mode}"
         # --- instruments
         mentions, avoid = self._instruments(text, matched)
         choir_in_brief = "choir" in mentions
@@ -227,8 +247,8 @@ class BasicPlanner(Planner):
         else:
             prov["recipe_id"] = {"source": "suggested", "reason": recipe_why}
 
-        # lead + supports
-        self._lead_and_supports(data, put, rec, ctl, mentions, avoid, mode, text, notes)
+        # lead + supports (with a style named, the style preset fills the supporting bed later, not the recipe)
+        self._lead_and_supports(data, put, rec, ctl, mentions, avoid, mode, text, notes, top_up=not genre_id)
         # duration
         secs, said, dnote = parse_duration(pol.text)
         if ctl.duration_s:
@@ -298,6 +318,15 @@ class BasicPlanner(Planner):
             notes.append("Hindi singing is experimental: one heard take, diction imperfect.")
         notes.append("This is the Basic planner (keyword rules, not an AI). It cannot read stories or analogies.")
 
+        used = [data["lead"]["instrument"]] + [s["instrument"] for s in data.get("supports", [])]
+        if genre_id:
+            data["genre"] = genre_id
+            prov["genre"] = {"source": "you" if ctl.genre else "suggested", "reason": genre_why}
+        if ctl.meter:
+            data["meter"] = ctl.meter
+            prov["meter"] = {"source": "you", "reason": "you set the meter"}
+        if genre_id or ctl.meter or any(i not in CLASSIC_INSTRUMENT_IDS for i in used):
+            data["pipeline"] = "song"
         plan_dict = dict(data, brief=brief, recipe_id=recipe_id, notes_for_user=notes[:12],
                          provenance={k: v for k, v in prov.items()})
         plan = Plan.model_validate(plan_dict)
@@ -337,8 +366,15 @@ class BasicPlanner(Planner):
     def _instruments(self, text: str, matched: list[str]) -> tuple[dict[str, dict], list[str]]:
         found: dict[str, dict] = {}
         avoid: list[str] = []
+        # every alias hit; a hit inside a longer hit of another instrument ("guitar" in "electric guitar",
+        # "bass" in "808 bass") belongs to the longer one
+        all_hits = [(s, e, w, inst) for inst, aliases in INSTRUMENT_ALIASES.items() for s, e, w in _find_any(text, aliases)]
+        shadowed = {(s, e, inst) for s, e, _, inst in all_hits
+                    for s2, e2, _, inst2 in all_hits if inst2 != inst and s2 <= s and e <= e2 and (e2 - s2) > (e - s)}
         for inst, aliases in INSTRUMENT_ALIASES.items():
             for s, e, word in _find_any(text, aliases):
+                if (s, e, inst) in shadowed:
+                    continue
                 if NEGATION.search(text[max(0, s - 14):s]):
                     avoid.append(word if word.isascii() else DISPLAY.get(inst, inst.replace("_", " ")))
                     matched.append(f"no {word}")
@@ -391,10 +427,10 @@ class BasicPlanner(Planner):
             return "r2_warm_ensemble", "joyful or epic mood: Warm ensemble recipe"
         return "r1_flute_focus", "default start: Flute focus recipe"
 
-    def _lead_and_supports(self, data, put, rec, ctl, mentions, avoid, mode, text, notes) -> None:
+    def _lead_and_supports(self, data, put, rec, ctl, mentions, avoid, mode, text, notes, top_up: bool = True) -> None:
         avoid_words = " ".join(avoid).lower()
         def avoided(inst: str) -> bool:
-            return any(re.search(rf"\b{re.escape(w)}", avoid_words) for w in compiler.INSTR[inst]["avoid_words"]) if avoid_words else False
+            return any(re.search(rf"\b{re.escape(w)}", avoid_words) for w in _avoid_words(inst)) if avoid_words else False
         named = [i for i in mentions if not avoided(i)]
         if ctl.lead:
             lead = ctl.lead
@@ -429,7 +465,7 @@ class BasicPlanner(Planner):
             notes.append("I kept the first three supports you named; the rest are left out so the lead stays clear.")
         have = {s["instrument"] for s in sups} | {lead}
         filled = []
-        if not solo:
+        if not solo and top_up:
             for s in data["supports"]:                                  # top up from the recipe to at least two supports
                 if len(sups) >= 2:
                     break
@@ -576,6 +612,12 @@ class BasicPlanner(Planner):
     def draft_lyrics(self, plan: Plan) -> LyricsDraft:
         raise UnsupportedByPlanner("Writing lyrics needs the smart planner, which is off. The Basic planner "
                                    "cannot write lyrics. Paste your own words instead.", code="write_lyrics_unsupported")
+
+
+def _avoid_words(inst: str) -> list[str]:
+    if inst in compiler.INSTR:
+        return compiler.INSTR[inst]["avoid_words"]
+    return [a for a in inst_db.get(inst)["aliases"] if a.isascii()] or [inst.replace("_", " ")]
 
 
 def _near_instrument(text: str, end: int) -> bool:

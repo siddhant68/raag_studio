@@ -11,7 +11,7 @@ from typing import Any, Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from .plan_schema import Arc, Background, Fullness, InstrumentId, Plan, RecipeId, Singer, Style, VoiceMode
+from .plan_schema import Arc, Background, Fullness, InstrumentId, Meter, Plan, RecipeId, Singer, Style, VoiceMode
 
 REFINE_NOTICE = ("These are new performances from an updated plan. "
                  "They will not be exact edits of the take you started from.")
@@ -81,6 +81,8 @@ _DIFF_FIELDS: tuple[tuple[str, Any], ...] = (
     ("voices.singer", lambda d: d["voices"]["singer"]),
     ("voices.background", lambda d: d["voices"]["background"]),
     ("voices.language", lambda d: d["voices"]["language"]),
+    ("genre", lambda d: d.get("genre")),
+    ("meter", lambda d: d.get("meter", "4/4")),
 )
 
 
@@ -120,6 +122,8 @@ class Controls(BaseModel):
     background: Optional[Background] = None
     language: Optional[str] = None
     lyrics_text: Optional[str] = None                       # "Use my words exactly"
+    genre: Optional[str] = Field(default=None, pattern=r"^[a-z0-9_]{3,40}$")   # a genre preset id
+    meter: Optional[Meter] = None
 
 
 class BriefCard(BaseModel):

@@ -13,17 +13,15 @@ from typing import Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from . import instruments
+
 SCHEMA_VERSION = "2.0"
 
-# The validated instrument list (PRD 5.4). harmonium is aliased and unvalidated.
-INSTRUMENT_IDS = (
-    "bansuri", "tabla", "tanpura", "santoor", "sitar", "ghatam", "violin", "cello",
-    "strings", "piano", "acoustic_guitar", "bass", "light_percussion", "choir", "harmonium",
-)
-InstrumentId = Literal[
-    "bansuri", "tabla", "tanpura", "santoor", "sitar", "ghatam", "violin", "cello",
-    "strings", "piano", "acoustic_guitar", "bass", "light_percussion", "choir", "harmonium",
-]
+# The classic instrument list (PRD 5.4; harmonium is aliased and unvalidated). The classic compiler and the
+# accepted recipes know only these. The song pipeline accepts the wider vocabulary in backend/instruments.py.
+CLASSIC_INSTRUMENT_IDS = instruments.CLASSIC_IDS
+INSTRUMENT_IDS = instruments.INSTRUMENT_IDS
+InstrumentId = Literal[instruments.INSTRUMENT_IDS]
 RECIPE_IDS = ("r1_flute_focus", "r2_warm_ensemble", "r3_hindi_ballad", "r4_fusion")
 RecipeId = Literal["r1_flute_focus", "r2_warm_ensemble", "r3_hindi_ballad", "r4_fusion"]
 
@@ -38,6 +36,10 @@ Singer = Literal["auto", "male", "female", "duet"]
 Background = Literal["none", "light", "choir", "big"]
 LyricsPolicy = Literal["none", "write", "exact"]
 ProvenanceSource = Literal["you", "suggested", "recipe", "rule"]
+Pipeline = Literal["classic", "song"]          # classic = the original template compiler; song = blueprint compiler
+Meter = Literal["4/4", "3/4", "6/8", "2/4"]
+# Fields added with the song pipeline. A plan that leaves them at these defaults fingerprints exactly as before.
+SONG_FIELD_DEFAULTS = {"genre": None, "pipeline": "classic", "meter": "4/4", "form": None}
 
 # C8 pace buckets (BPM ranges from PRD section 4)
 BUCKET_RANGES = {"slow": (68, 78), "medium": (80, 96), "lively": (100, 116)}
@@ -109,6 +111,10 @@ class Plan(_Strict):
     flavour: Optional[str] = Field(default=None, max_length=120)
     notes_for_user: list[str] = Field(default_factory=list, max_length=12)
     takes: int = Field(default=3, ge=1, le=4)
+    genre: Optional[str] = Field(default=None, pattern=r"^[a-z0-9_]{3,40}$")
+    pipeline: Pipeline = "classic"
+    meter: Meter = "4/4"
+    form: Optional[str] = Field(default=None, pattern=r"^[a-z_]{3,30}$")
     provenance: dict[str, FieldProvenance] = Field(default_factory=dict)
 
     @field_validator("brief")
@@ -158,6 +164,18 @@ class Plan(_Strict):
             raise ValueError("lyrics.policy 'exact' needs lyrics.text")
         if self.voice_mode == "sung" and self.lyrics.policy == "none":
             raise ValueError("sung voice_mode needs lyrics.policy 'write' or 'exact'")
+        if self.pipeline == "classic":
+            extra = [i for i in [self.lead.instrument] + names if i not in CLASSIC_INSTRUMENT_IDS]
+            if extra:
+                raise ValueError(f"instruments {extra} need the song pipeline (pipeline 'song')")
+        if self.genre is not None:
+            from . import genres
+            if not genres.exists(self.genre):
+                raise ValueError(f"unknown genre preset '{self.genre}'")
+        if self.form is not None:
+            from . import song_blueprint
+            if self.form not in song_blueprint.FORMS:
+                raise ValueError(f"unknown song form '{self.form}'")
         fields = set(type(self).model_fields) - {"provenance"}
         for key in self.provenance:
             if key.split(".")[0] not in fields:
@@ -171,5 +189,9 @@ class Plan(_Strict):
         return self.model_copy(update={"provenance": prov})
 
     def fingerprint(self) -> str:
-        blob = json.dumps(self.model_dump(mode="json"), sort_keys=True, ensure_ascii=False)
+        data = self.model_dump(mode="json")
+        for key, default in SONG_FIELD_DEFAULTS.items():        # classic plans keep their original fingerprint
+            if data.get(key) == default:
+                data.pop(key, None)
+        blob = json.dumps(data, sort_keys=True, ensure_ascii=False)
         return hashlib.sha256(blob.encode("utf-8")).hexdigest()

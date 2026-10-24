@@ -24,9 +24,9 @@ from typing import Any, Callable, Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
-from .. import copyright_policy
-from ..plan_schema import (BUCKET_DEFAULT_BPM, BUCKET_RANGES, INSTRUMENT_IDS, Arc, Fullness, Lead, Pace, Plan,
-                           Support, VoiceMode, Voices, bucket_for_bpm)
+from .. import copyright_policy, genres, songwriter
+from ..plan_schema import (BUCKET_DEFAULT_BPM, BUCKET_RANGES, CLASSIC_INSTRUMENT_IDS, INSTRUMENT_IDS, Arc, Fullness,
+                           Lead, Meter, Pace, Plan, Support, VoiceMode, Voices, bucket_for_bpm)
 from ..planner_base import (BriefCard, Controls, LyricsDraft, PlanPatch, Planner, PlannerInvalidOutput,
                             PlannerTimeout, PlannerUnavailable, UnsupportedByPlanner, change_entry)
 
@@ -38,10 +38,12 @@ LYRICS_CAP = 4000
 CARD_TOOL_NAME = "submit_brief_card"
 PATCH_TOOL_NAME = "submit_plan_patch"
 LYRICS_TOOL_NAME = "submit_lyrics"
+SONG_LYRICS_TOOL_NAME = songwriter.TOOL_NAME
 
 # Recipes the model may pick (R4 is hidden until the user rates it).
 _RecipeChoice = Literal["r1_flute_focus", "r2_warm_ensemble", "r3_hindi_ballad"]
 _Policy = Literal["none", "write"]
+_GenreChoice = Literal[genres.ids()]
 
 
 # ---------------------------------------------------------------------------------------------
@@ -66,6 +68,8 @@ class LlmCardDraft(BaseModel):
     lyrics_topic: Optional[str] = Field(default=None, max_length=200)
     avoid: list[str] = Field(default_factory=list, max_length=10)
     flavour: Optional[str] = Field(default=None, max_length=120)
+    genre: Optional[_GenreChoice] = Field(default=None, description="the closest style preset id")
+    meter: Optional[Meter] = None
     matched: list[str] = Field(default_factory=list, max_length=12, description="phrases of the brief you used")
     notes: list[str] = Field(default_factory=list, max_length=6, description="short notes for the user")
 
@@ -84,6 +88,7 @@ class LlmPatchDraft(BaseModel):
     avoid: Optional[list[str]] = Field(default=None, max_length=10)
     flavour: Optional[str] = Field(default=None, max_length=120)
     duration_s: Optional[int] = Field(default=None, ge=10, le=240)
+    genre: Optional[_GenreChoice] = None
     summary: list[str] = Field(default_factory=list, max_length=6)
 
 
@@ -113,7 +118,12 @@ SYSTEM_PROMPT = (
     "Rules:\n"
     "- instrument ids must come from this list only: " + ", ".join(INSTRUMENT_IDS) + ".\n"
     "- lead is the one melodic instrument; supports are other instruments (not the lead), most important first, "
-    "usually 1 to 3.\n"
+    "usually 2 to 4.\n"
+    "- genre: pick the closest style preset id from this list (it sets the song form, the caption's genre words "
+    "and the lyric conventions):\n" + genres.summary_for_llm() + "\n"
+    "  Choose instruments, tempo and key that suit the genre and the brief (for example dhol and synths for a "
+    "dance number, harmonium and tabla for a ghazal, 808 bass for trap). meter: 4/4 unless the brief suggests a "
+    "waltz (3/4) or a lilting 6/8.\n"
     "- feeling: up to 6 single mood words (for example tender, warm, yearning). avoid: short phrases for what to "
     "leave out. flavour: leave null unless the brief gives a short descriptive phrase.\n"
     "- voice_mode: instrumental (no voices), wordless (ooh/aah only) or sung (words). If the settings say the user "
@@ -360,6 +370,23 @@ def assemble_card(brief: str, pol: copyright_policy.PolicyResult, draft: LlmCard
         if exact_text:
             notes.append(f"Your words were not used: the voice is set to {mode}.")
 
+    # style, meter and pipeline: a style preset or an instrument outside the classic 15 needs the song pipeline
+    if ctl.genre:
+        data["genre"] = ctl.genre
+        put("genre", "you", "you picked the style")
+    elif draft.genre:
+        data["genre"] = draft.genre
+        put("genre", "suggested", why_llm)
+    if ctl.meter:
+        data["meter"] = ctl.meter
+        put("meter", "you", "you set the meter")
+    elif draft.meter:
+        data["meter"] = draft.meter
+        put("meter", "suggested", why_llm)
+    used = [data["lead"]["instrument"]] + [s["instrument"] for s in data["supports"]]
+    if data.get("genre") or any(i not in CLASSIC_INSTRUMENT_IDS for i in used):
+        data["pipeline"] = "song"
+
     # notes
     for k in ignored:
         if not k.lower().startswith("lyric"):
@@ -511,12 +538,69 @@ class LlmPlanner(Planner):
 
         return self._structured(LYRICS_SYSTEM_PROMPT, user, llm_schema(LlmLyricsDraft), LYRICS_TOOL_NAME, validate)
 
+    def draft_song_lyrics(self, plan: Plan, blueprint) -> "SongLyrics":
+        """Lyrics for a song-pipeline plan: write each blueprint section once, check, revise once, assemble.
+
+        Returns the tagged lyric sheet (every chorus repeat copied word for word), the title and hook, and the
+        check result. Raises PlannerInvalidOutput when a requested section is still missing after the revision.
+        """
+        if plan.lyrics.policy == "exact":
+            raise UnsupportedByPlanner("Your own words are used exactly; nothing is drafted for them.",
+                                       code="lyrics_exact_not_drafted")
+        if plan.voice_mode != "sung":
+            raise UnsupportedByPlanner("Lyrics are only drafted for sung music.", code="lyrics_not_sung")
+        slots = blueprint.lyric_slots
+        if not slots:
+            raise UnsupportedByPlanner("This song form has no sung sections to write.", code="lyrics_no_sections")
+        self._require_enabled()
+        request = songwriter.build_request(plan, slots)
+        schema = llm_schema(songwriter.SongLyricsDraft)
+
+        def validate(raw: Any) -> songwriter.SongLyricsDraft:
+            return self._model(songwriter.SongLyricsDraft, raw)
+
+        draft = self._structured(songwriter.SYSTEM_PROMPT, request, schema, SONG_LYRICS_TOOL_NAME, validate)
+        written = songwriter.to_written(draft, slots)
+        result = songwriter.check(plan, written, slots, draft.hook)
+        revised = False
+        if result.needs_revision:
+            first_issues = result.issues
+            second = self._structured(songwriter.SYSTEM_PROMPT, songwriter.build_revision(request, draft, first_issues),
+                                      schema, SONG_LYRICS_TOOL_NAME, validate)
+            written2 = songwriter.to_written(second, slots)
+            result2 = songwriter.check(plan, written2, slots, second.hook or draft.hook)
+            fixes = sum(1 for i in result.issues if i.severity == "fix")
+            fixes2 = sum(1 for i in result2.issues if i.severity == "fix")
+            if fixes2 <= fixes and all(written2.get(s["uid"]) for s in slots):
+                draft, written, result, revised = second, written2, result2, True
+        missing = [s["name"] for s in slots if not written.get(s["uid"])]
+        if missing:
+            raise PlannerInvalidOutput(f"{self.label} did not write: {', '.join(missing)}.")
+        sheet = songwriter.assemble_sheet(plan, blueprint, written)
+        if len(sheet) > LYRICS_CAP:
+            raise PlannerInvalidOutput(f"the lyric sheet is {len(sheet)} characters; the limit is {LYRICS_CAP}.")
+        title = copyright_policy.sanitize(_plain(draft.title, 80)).text.strip()
+        hook = copyright_policy.sanitize(_plain(draft.hook, 60)).text.strip()
+        return SongLyrics(text=sheet, title=title, hook=hook, written=written, review=result.to_dict(),
+                          revised=revised, provider=self.name)
+
+
+class SongLyrics(BaseModel):
+    """A drafted, checked and assembled song lyric sheet."""
+    text: str
+    title: str = ""
+    hook: str = ""
+    written: dict[str, list[str]] = Field(default_factory=dict)
+    review: dict = Field(default_factory=dict)
+    revised: bool = False
+    provider: str = ""
+
 
 def _plan_state(plan: Plan) -> dict:
     """The plan fields a change request may touch (no brief, no lyrics)."""
     d = plan.model_dump(mode="json")
     return {k: d[k] for k in ("voice_mode", "duration_s", "lead", "supports", "feeling", "pace", "key", "arc",
-                              "fullness", "avoid", "flavour")}
+                              "fullness", "avoid", "flavour", "genre")}
 
 
 def apply_patch_draft(plan: Plan, draft: LlmPatchDraft, request_text: str, pol: copyright_policy.PolicyResult, *,
@@ -570,6 +654,14 @@ def apply_patch_draft(plan: Plan, draft: LlmPatchDraft, request_text: str, pol: 
         v = getattr(draft, f)
         if v is not None:
             set_field(f, v)
+    if draft.genre is not None and draft.genre != data.get("genre"):
+        set_field("genre", draft.genre)
+        data["pipeline"] = "song"
+        data["form"] = None                       # the new style brings its own form
+        data["provenance"].pop("form", None)
+    used = [data["lead"]["instrument"]] + [s["instrument"] for s in data["supports"]]
+    if any(i not in CLASSIC_INSTRUMENT_IDS for i in used):
+        data["pipeline"] = "song"
     extras = _extras(draft)
     if any(k.lower() in ("voice_mode", "lyrics", "lyrics_text", "brief") or k.lower().startswith("lyric")
            for k in extras):

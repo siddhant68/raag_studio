@@ -77,6 +77,15 @@ class SystemProbe:
     def checkpoints(self) -> dict:
         return self.preflight.check_checkpoints()
 
+    def lm_dir(self) -> Path:
+        from .song_compiler import LM_MODEL
+        return Path(self.preflight.ACE_SOURCE) / "checkpoints" / LM_MODEL
+
+    def lm_installed(self) -> bool:
+        """The optional 5Hz LM is present (config plus weights). Never downloads anything."""
+        base = self.lm_dir()
+        return (base / "config.json").is_file() and any(base.glob("*.safetensors"))
+
     def memory(self) -> dict:
         """Rough free-memory snapshot recorded with each job (a sanity record, not a gate)."""
         try:
@@ -126,4 +135,7 @@ class SystemProbe:
             "queue": queue,
             "capabilities": self.capabilities_summary(),
             "ace_python": {"path": str(self.ace_python), "exists": self.ace_python.is_file()},
+            "song_pipeline": settings.get("song_pipeline", True),
+            "engine_profile": settings.get("engine_profile", "auto"),
+            "lm": {"dir": str(self.lm_dir()), "installed": self.lm_installed()},
         }

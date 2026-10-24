@@ -147,7 +147,8 @@ def test_new_read_only_endpoints(tmp_path):
         assert caps["controls"]["C15"]["needs_label"] is True
 
         ins = c.get("/api/instruments").json()["instruments"]
-        assert len(ins) == 15 and {i["id"] for i in ins} >= {"bansuri", "tabla"}
+        assert len([i for i in ins if i["classic"]]) == 15 and {i["id"] for i in ins} >= {"bansuri", "tabla", "dhol"}
+        assert len(ins) == len(set(i["id"] for i in ins)) > 15
 
         led = c.get("/api/ledger").json()
         assert led["totals"]["takes"] == 0 and led["by_recipe"] == {}

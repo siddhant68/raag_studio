@@ -7,7 +7,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import pytest
 from pydantic import ValidationError
 
-from backend.plan_schema import INSTRUMENT_IDS, Plan
+from backend.plan_schema import CLASSIC_INSTRUMENT_IDS, INSTRUMENT_IDS, Plan
 
 BASE = {"brief": "a quiet flute", "voice_mode": "instrumental", "lead": {"instrument": "bansuri"}}
 
@@ -36,8 +36,8 @@ def test_unknown_instrument_rejected():
 
 
 def test_all_fifteen_instruments_accepted():
-    assert len(INSTRUMENT_IDS) == 15
-    for inst in INSTRUMENT_IDS:
+    assert len(CLASSIC_INSTRUMENT_IDS) == 15
+    for inst in CLASSIC_INSTRUMENT_IDS:
         make(lead={"instrument": inst})
 
 

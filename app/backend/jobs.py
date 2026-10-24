@@ -20,7 +20,7 @@ from typing import Any, Optional
 
 from pydantic import ValidationError
 
-from . import compiler
+from . import compiler, genres, song_compiler, song_plan
 from .db import Database, dumps, loads, now_iso, ulid
 from .events import EventBus
 from .plan_schema import BUCKET_DEFAULT_BPM, Plan, bucket_for_bpm
@@ -85,9 +85,13 @@ def _control_dict(body: CreateSongBody | PlanOnlyBody) -> dict[str, Any]:
 
 def make_controls(raw: dict[str, Any]) -> Controls:
     try:
-        return Controls.model_validate(raw)
+        ctl = Controls.model_validate(raw)
     except ValidationError as exc:
         raise ApiError(422, "invalid_controls", _first_error(exc), fields=_errors(exc))
+    if ctl.genre and not genres.exists(ctl.genre):
+        raise ApiError(422, "invalid_controls", f"genre: unknown style '{ctl.genre}'",
+                       fields=[{"loc": ["genre"], "msg": "unknown style"}])
+    return ctl
 
 
 def _errors(exc: ValidationError) -> list[dict]:
@@ -153,6 +157,16 @@ def apply_controls(plan: Plan, ctl: dict[str, Any]) -> Plan:
             d["voices"][field] = ctl[key]; voices_touched = True
     if voices_touched:
         mark("voices")
+    if "genre" in ctl:
+        d["genre"] = ctl["genre"]; mark("genre", "you picked the style")
+        d["pipeline"] = "song"
+        if (prov.get("form") or {}).get("source") != "you":       # the new style brings its own form
+            d["form"] = None
+            prov.pop("form", None)
+    if "meter" in ctl:
+        d["meter"] = ctl["meter"]; mark("meter"); d["pipeline"] = "song"
+    if any(i not in compiler.INSTR for i in [d["lead"]["instrument"]] + [s["instrument"] for s in d["supports"]]):
+        d["pipeline"] = "song"
     try:
         return Plan.model_validate(d)
     except ValidationError as exc:
@@ -219,6 +233,13 @@ def adopt_auto(d: dict, auto: dict, key: str, merged: dict) -> None:
     elif key == "lyrics_text":
         d["lyrics"] = auto["lyrics"]
         take("lyrics")
+    elif key in ("genre", "meter"):
+        d[key] = auto.get(key)
+        take(key)
+        if key == "genre":
+            d["form"] = auto.get("form")
+            take("form")
+            d["pipeline"] = auto.get("pipeline", d.get("pipeline", "classic"))
 
 
 class Service:
@@ -278,10 +299,45 @@ class Service:
                 "running_job_id": running["id"] if running else None}
 
     # ------------------------------------------------------------------ plan + compile
+    def engine_profile(self, plan: Plan) -> str:
+        """The engine profile a plan renders with: the setting, with 'auto' meaning classic for classic plans (the
+        accepted recipes are reproduced exactly) and ACE-Step's recommended shift 3.0 for song plans."""
+        setting = self.settings().get("engine_profile", "auto")
+        if plan.pipeline != "song":
+            return "classic"
+        return song_compiler.DEFAULT_PROFILE if setting == "auto" else setting
+
+    def compile_plan(self, plan: Plan) -> dict:
+        return song_compiler.compile_any(plan, engine_profile=self.engine_profile(plan))
+
+    def _song_plan(self, plan: Plan, card: dict, brief: str, controls: Controls) -> tuple[Plan, dict]:
+        """Move a planner's card onto the song pipeline when the settings or the plan call for it.
+
+        A person who picked one of the classic accepted sounds (and nothing that needs the song pipeline) keeps the
+        classic compiler, so those recipes still reproduce exactly."""
+        wants = plan.pipeline == "song" or controls.genre or controls.meter
+        if not wants:
+            if not self.settings().get("song_pipeline", True) or controls.recipe_id:
+                return plan, card
+        try:
+            new = song_plan.to_song_plan(plan, brief, controls.genre)
+        except (ValueError, ValidationError) as exc:
+            raise ApiError(422, "invalid_plan", f"could not apply the style: {exc}")
+        preset = genres.get(new.genre)
+        why = new.provenance["genre"].reason if "genre" in new.provenance else ""
+        note = f"Style: {preset['name']}" + (f" ({why})" if why else "") + f". {preset['blurb']}"
+        card = dict(card, plan=new.model_dump(mode="json"), notes=[note] + list(card.get("notes", [])))
+        return new, card
+
     def _compile(self, plan: Plan, takes: int) -> tuple[dict, dict, list[int]]:
         """Plan -> (compiled, engine_request, seeds). Raises ApiError with the compiler's own message."""
+        profile = self.engine_profile(plan)
+        if profile == "lm" and not self.config.is_fake and not self.probe.lm_installed():
+            raise ApiError(409, "lm_not_installed", "The 5Hz LM engine profile is selected but the "
+                           f"{song_compiler.LM_MODEL} weights are not installed. Run scripts/fetch_lm.sh (about "
+                           "3.5 GB) or set the engine profile back to auto.")
         try:
-            compiled = compiler.compile(plan)
+            compiled = song_compiler.compile_any(plan, engine_profile=profile)
         except compiler.OverBudget as exc:
             raise ApiError(422, "over_budget", exc.message, caption=exc.caption)
         except compiler.LyricsMissing as exc:
@@ -290,8 +346,22 @@ class Service:
         except compiler.CompileError as exc:
             raise ApiError(422, exc.code, exc.message)
         seeds = random.SystemRandom().sample(range(2**31), takes)
-        request = compiler.to_engine_request(compiled, seeds, audio_format="flac", meta={"app": "raag-studio"})
+        request = compiler.to_engine_request(compiled, seeds, audio_format="flac", meta={
+            "app": "raag-studio", "pipeline": plan.pipeline, "engine_profile": compiled.get("engine_profile", "classic"),
+            "genre": plan.genre})
+        if compiled.get("lm_model"):
+            request["lm"] = {"model": compiled["lm_model"], "backend": "mlx"}
         return compiled, request, seeds
+
+    def _restyle(self, plan: Plan, controls: Controls) -> Plan:
+        """Re-apply the plan's style after a change of genre (fields nobody chose follow the new style)."""
+        pid = plan.genre or song_plan.default_genre(plan)[0]
+        src = plan.provenance["genre"].source if "genre" in plan.provenance else "rule"
+        why = plan.provenance["genre"].reason if "genre" in plan.provenance else "the style of this song"
+        try:
+            return song_plan.apply_genre(plan, pid, src, why)
+        except (ValueError, ValidationError) as exc:
+            raise ApiError(422, "invalid_plan", f"could not apply the style: {exc}")
 
     def _insert_plan(self, c: sqlite3.Connection, song_id: str, rev: int, source: str, card: dict,
                      controls: dict, plan: Plan, brief: str) -> str:
@@ -358,6 +428,8 @@ class Service:
         if not getattr(planner, "can_write_lyrics", False):
             return plan, card
         label = getattr(planner, "label", "The smart planner")
+        if plan.pipeline == "song" and hasattr(planner, "draft_song_lyrics"):
+            return self._draft_song_lyrics(planner, label, plan, card)
         try:
             draft = planner.draft_lyrics(plan)
         except PlannerError as exc:
@@ -370,6 +442,29 @@ class Service:
                     unsupported=[u for u in card.get("unsupported", []) if u.get("kind") != "write_lyrics"],
                     notes=list(card.get("notes", [])) + [f"Lyrics were drafted by {label} from your brief. "
                                                           "Read them below; paste your own to use exact words instead."])
+        return plan, card
+
+    def _draft_song_lyrics(self, planner: Planner, label: str, plan: Plan, card: dict) -> tuple[Plan, dict]:
+        """Song pipeline: the songwriter writes each blueprint section, the draft is checked and revised once, and
+        the assembled sheet (chorus repeats copied word for word) is stored in the plan."""
+        blueprint = song_plan.blueprint_for(plan)
+        try:
+            song = planner.draft_song_lyrics(plan, blueprint)
+        except PlannerError as exc:
+            raise ApiError(409, exc.code, f"{label} could not write the lyrics: {exc.message} Paste your own words "
+                           "(Use my words exactly), or try again.")
+        lyr = plan.lyrics.model_copy(update={"text": song.text, "topic": plan.lyrics.topic or song.hook or None})
+        plan = plan.model_copy(update={"lyrics": lyr})
+        plan = plan.with_provenance("lyrics", "suggested", f"written by {label} for this song's sections; paste your "
+                                                           "own words to replace them")
+        left = [i["message"] for i in song.review.get("issues", [])]
+        note = (f"Lyrics written by {label}" + (f": \"{song.title}\"" if song.title else "")
+                + (" (revised once after the line check)" if song.revised else "") + ".")
+        card = dict(card, plan=plan.model_dump(mode="json"),
+                    needs_user_input=[n for n in card.get("needs_user_input", []) if n != "lyrics"],
+                    unsupported=[u for u in card.get("unsupported", []) if u.get("kind") != "write_lyrics"],
+                    notes=list(card.get("notes", [])) + [note] + [f"Lyric check: {m}" for m in left[:4]],
+                    lyrics_review=song.review, song_title=song.title, song_hook=song.hook)
         return plan, card
 
     def _plan_from_body(self, brief: str, controls: Controls, supplied: Optional[dict],
@@ -401,7 +496,8 @@ class Service:
             raise ApiError(422, "invalid_brief", str(exc))
         card_dict = card.model_dump(mode="json")
         card_dict["planner_status"] = status
-        return card.plan, card_dict, PLAN_SOURCE.get(card.provider, "rules")
+        plan, card_dict = self._song_plan(card.plan, card_dict, brief, controls)
+        return plan, card_dict, PLAN_SOURCE.get(card.provider, "rules")
 
     # ------------------------------------------------------------------ songs
     def create_song(self, body: CreateSongBody, header_key: Optional[str]) -> dict:
@@ -417,7 +513,8 @@ class Service:
         try:
             with self.db.tx() as c:
                 c.execute("INSERT INTO songs(id, title, brief, created_at) VALUES(?,?,?,?)",
-                          (song_id, body.title or make_title(body.brief), body.brief, now_iso()))
+                          (song_id, body.title or card.get("song_title") or make_title(body.brief), body.brief,
+                           now_iso()))
                 plan_id = self._insert_plan(c, song_id, 1, source, card, controls.model_dump(exclude_none=True),
                                             plan, body.brief)
                 round_id, job_id = self._insert_round(c, song_id, plan_id, "create", None, None, compiled,
@@ -465,7 +562,7 @@ class Service:
         report: Optional[dict] = None
         compile_error: Optional[dict] = None
         try:
-            report = compiler.compile(plan)["compile_report"]
+            report = self.compile_plan(plan)["compile_report"]
         except compiler.CompileError as exc:
             compile_error = {"code": "needs_user_input" if isinstance(exc, compiler.LyricsMissing) else exc.code,
                              "message": exc.message}
@@ -518,9 +615,12 @@ class Service:
             p = plan.provenance.get(field.split(".")[0])
             return "you" if p and p.source == "you" else "rule"
 
+        if plan.pipeline == "song" and (plan.genre != old_plan.genre or old_plan.pipeline != "song"
+                                        or {"genre", "meter"} & set(patch)):
+            plan = self._restyle(plan, controls)
         changes = plan_changes(old_plan, plan, source_of)
         try:
-            report = compiler.compile(plan)["compile_report"]
+            report = self.compile_plan(plan)["compile_report"]
         except compiler.CompileError as exc:
             report = None
             note = {"code": exc.code, "message": exc.message}
@@ -594,6 +694,10 @@ class Service:
                 raise ApiError(422, "nothing_to_change", "That change could not be applied.",
                                unsupported=patch.unsupported)
             plan = patch.plan
+            if plan.pipeline == "song" and (plan.genre != prev_card["plan"].get("genre")
+                                            or prev_card["plan"].get("pipeline", "classic") != "song"):
+                plan = self._restyle(plan, Controls())
+                patch = patch.model_copy(update={"plan": plan})
             patch_card = patch.model_dump(mode="json")
             patch_card["planner_status"] = pstatus
             patch_card.setdefault("provider_label", pstatus["used_label"])

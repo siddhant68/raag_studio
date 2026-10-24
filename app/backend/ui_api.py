@@ -55,9 +55,22 @@ def capabilities_view() -> dict:
 
 
 def instruments_view() -> dict:
-    return {"instruments": [{"id": i, "name": INSTRUMENT_NAMES[i], "validated": i in VALIDATED}
+    from . import instruments as inst_db
+    return {"instruments": [{"id": i, "name": INSTRUMENT_NAMES.get(i) or inst_db.display_name(i),
+                             "validated": i in VALIDATED, "classic": i in inst_db.CLASSIC_IDS,
+                             "family": inst_db.get(i)["family"], "can_lead": inst_db.can_lead(i)}
                             for i in INSTRUMENT_IDS],
-            "note": "Evidence exists only for the validated ones; the rest are plausible but untested."}
+            "note": "Evidence exists only for the validated ones; the rest are plausible but untested. "
+                    "Instruments outside the classic 15 use the song pipeline."}
+
+
+def genres_view() -> dict:
+    """GET /api/genres: the style presets the Create page offers (names, blurbs, defaults; no artist names)."""
+    from . import genres
+    keys = ("id", "name", "family", "blurb", "languages", "voice", "singer", "bpm", "bpm_default", "meter", "key",
+            "lead", "supports", "form")
+    return {"genres": [{k: p[k] for k in keys} for p in genres.presets()],
+            "note": "Styles are starting points: every field can be changed, and none of them names an artist."}
 
 
 def ledger_view(svc) -> dict:
