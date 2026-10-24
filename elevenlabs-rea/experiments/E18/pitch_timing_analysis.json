@@ -1,0 +1,46 @@
+{
+  "method": "librosa pYIN65\u20131000Hz, mono22.05kHz,2048frame/256hop; source is full mix; no vocal separation",
+  "librosa_version": "1.0.0",
+  "elapsed_s": 0.8259921073913574,
+  "files": [
+    {
+      "file": "E18-source-30-45.wav",
+      "decoded_duration_s": 15.0,
+      "frame_count": 1292,
+      "pyin_voiced_fraction": 0.6323529411764706,
+      "pyin_median_estimated_hz": 69.26403260585147,
+      "median_voiced_probability": 0.011853505394683413
+    },
+    {
+      "file": "E18-roger-converted.mp3",
+      "decoded_duration_s": 15.046530612244897,
+      "frame_count": 1297,
+      "pyin_voiced_fraction": 0.8727833461835004,
+      "pyin_median_estimated_hz": 65.0,
+      "median_voiced_probability": 0.010000000000221913
+    }
+  ],
+  "paired_estimates": {
+    "paired_finite_frame_count": 776,
+    "all_compared_frames": 1292,
+    "log_f0_correlation_at_zero_lag": 0.6763929447891467,
+    "median_signed_cents_difference": -109.99999999999977,
+    "median_absolute_cents_difference": 109.99999999999977,
+    "within_100_cents_fraction": 0.38917525773195877
+  },
+  "rms_envelope": {
+    "zero_lag_correlation": 0.5987247200548472,
+    "best_lag_ms_within_300ms": 23.219954648526077
+  },
+  "onset_envelope": {
+    "zero_lag_correlation": 0.3237640563530592,
+    "best_lag_ms_within_300ms": 23.219954648526077
+  },
+  "interpretation": "Pitch comparison rejected as unreliable: medians near65Hz lower bound and median voiced probabilities about0.01. Do not use correlation/cents as evidence of preserved or changed melody. Gross duration measured only.",
+  "limitations": [
+    "Source is a mixed generated song, so dominant instrumental pitches may drive pYIN.",
+    "No reliable source-vocal F0 reference; octave errors and voiced-mask mismatches possible.",
+    "Frame estimates are not musical note alignment or singer identity evidence.",
+    "No singing, diction or perceptual quality success is established."
+  ]
+}
