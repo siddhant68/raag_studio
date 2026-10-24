@@ -467,13 +467,15 @@ def build(*, form: Optional[str], voice_mode: str, bpm: int, meter: str = "4/4",
         final = i == last_chorus
         energy = 5 if final else st.energy
         playing = _playing(energy, lead, supports, voice_mode)
+        sh = style_hint(st.kind, st.tag, final, hints, voice_mode, present)
+        playing += [m for m in sorted(inst_db.mentioned(sh) & present) if m not in playing]   # the style asks for it here
         entering = [p for p in playing if p not in prev and i > 0]
         sections.append(Section(
             kind=st.kind, name=st.name, tag=st.tag, lyric=n > 0 and voice_mode != "instrumental", lines=n,
             bars=round(bars, 2), seconds=round(bars * info["bar_s"] * scale, 1), energy=energy,
-            hint=_hint(st.kind, st.tag, final, hints, entering, voice_mode, present), playing=playing,
-            entering=entering, uid=st.uid, repeat_of=st.repeat_of, final=final,
-            style_hint=style_hint(st.kind, st.tag, final, hints, voice_mode, present)))
+            hint=_hint(st.kind, st.tag, final, hints, [e for e in entering if e not in inst_db.mentioned(sh)],
+                       voice_mode, present), playing=playing,
+            entering=entering, uid=st.uid, repeat_of=st.repeat_of, final=final, style_hint=sh))
         prev = set(playing)
     slots = [{"uid": s.uid, "name": s.name, "kind": s.kind, "lines": s.lines}
              for s in sections if s.uid and s.lines > 0]

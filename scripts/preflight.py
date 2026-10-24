@@ -25,6 +25,7 @@ ACE_PYTHON = TOOLS/'acestep-venv/bin/python'
 ACE_SOURCE = TOOLS/'ace-step-1.5'
 QUEUE_URL = os.environ.get('RAAG_VIDEO_QUEUE_URL', 'http://127.0.0.1:8388/queue')
 MIN_DISK_GIB = 5.0
+OPTIONAL_MODELS = ('acestep-5Hz-lm-1.7B', 'acestep-v15-xl-turbo')   # see scripts/fetch_models.py
 REQUIRED_CHECKPOINTS = (
     'acestep-v15-turbo/config.json', 'acestep-v15-turbo/model.safetensors',
     'acestep-v15-turbo/silence_latent.pt', 'vae/config.json',
@@ -68,7 +69,9 @@ def check_video_queue():
 def check_checkpoints():
     base = ACE_SOURCE/'checkpoints'
     files = {name: (base/name).is_file() for name in REQUIRED_CHECKPOINTS}
-    return {'dir': str(base), 'all_present': all(files.values()), 'files': files}
+    optional = {name: (base/name/'config.json').is_file() and any((base/name).glob('*.safetensors'))
+                for name in OPTIONAL_MODELS}
+    return {'dir': str(base), 'all_present': all(files.values()), 'files': files, 'optional_models': optional}
 
 
 def collect():

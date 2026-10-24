@@ -77,14 +77,18 @@ class SystemProbe:
     def checkpoints(self) -> dict:
         return self.preflight.check_checkpoints()
 
-    def lm_dir(self) -> Path:
-        from .song_compiler import LM_MODEL
-        return Path(self.preflight.ACE_SOURCE) / "checkpoints" / LM_MODEL
+    def weights_dir(self, name: str) -> Path:
+        return Path(self.preflight.ACE_SOURCE) / "checkpoints" / name
 
-    def lm_installed(self) -> bool:
-        """The optional 5Hz LM is present (config plus weights). Never downloads anything."""
-        base = self.lm_dir()
+    def weights_installed(self, name: str) -> bool:
+        """A checkpoint folder is present (config plus weights). Never downloads anything."""
+        base = self.weights_dir(name)
         return (base / "config.json").is_file() and any(base.glob("*.safetensors"))
+
+    def optional_models(self) -> dict:
+        from .song_compiler import DIT_XL, LM_MODEL
+        return {name: {"dir": str(self.weights_dir(name)), "installed": self.weights_installed(name)}
+                for name in (LM_MODEL, DIT_XL)}
 
     def memory(self) -> dict:
         """Rough free-memory snapshot recorded with each job (a sanity record, not a gate)."""
@@ -137,5 +141,5 @@ class SystemProbe:
             "ace_python": {"path": str(self.ace_python), "exists": self.ace_python.is_file()},
             "song_pipeline": settings.get("song_pipeline", True),
             "engine_profile": settings.get("engine_profile", "auto"),
-            "lm": {"dir": str(self.lm_dir()), "installed": self.lm_installed()},
+            "optional_models": self.optional_models(),
         }

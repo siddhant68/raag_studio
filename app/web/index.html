@@ -49,6 +49,13 @@
       <textarea id="brief" name="brief" rows="4" maxlength="4000" aria-describedby="brief-help create-hint" autocomplete="off" required></textarea>
     </div>
 
+    <div class="field" data-control="C26">
+      <label for="genre" class="label">Style <small>optional</small> <span class="cap-slot" data-cap-for="C26"></span></label>
+      <p class="help" id="genre-help">Leave it on Auto and I will pick one from your words. A style chooses the song form (verse and chorus, mukhda and antara, alaap to jhala...), the usual instruments and the tempo. You can still change all of them.</p>
+      <select id="genre" aria-describedby="genre-help"><option value="">Auto (from my words)</option></select>
+      <p class="help" id="genre-blurb" role="note" hidden></p>
+    </div>
+
     <fieldset class="field" data-control="C2">
       <legend class="label">Voice <span class="cap-slot" data-cap-for="C2"></span></legend>
       <div class="choices">
@@ -307,6 +314,10 @@
   <section class="panel" aria-labelledby="h-set-planner">
     <h2 id="h-set-planner">Planner</h2>
     <div id="settings-planner"></div>
+  </section>
+  <section class="panel" aria-labelledby="h-set-engine">
+    <h2 id="h-set-engine">Music engine</h2>
+    <div id="settings-engine"></div>
   </section>
   <section class="panel" aria-labelledby="h-set-sys">
     <h2 id="h-set-sys">This computer</h2>

@@ -293,3 +293,41 @@ test("selection note explains an older take's plan; lineage names the base take 
   assert.match(s, /Another take of round 1, T2: that take's own plan \(plan version 1\)/);
   assert.match(L.lineageText({ kind: "another" }, null, 4), /same plan \(plan version 4\)/);
 });
+
+// ---- song pipeline -----------------------------------------------------------------------------------------------
+test("a picked style is sent as a control; Auto sends nothing", () => {
+  assert.equal(L.buildCreateBody(form()).shape, undefined);
+  assert.deepEqual(L.buildCreateBody(form({ genre: "ghazal" })).shape, { genre: "ghazal" });
+});
+
+test("song map: times add up section by section, hints and entrances are listed, classic plans have none", () => {
+  const report = { blueprint: { target_s: 60, sections: [
+    { name: "Intro", seconds: 10, hint: "guitar intro", entering: [], lyric: false, lines: 0, energy: 1 },
+    { name: "Verse 1", seconds: 25, hint: "intimate, tabla enters", entering: ["tabla"], lyric: true, lines: 4, energy: 2 },
+    { name: "Final Chorus", seconds: 25, hint: "soaring", entering: [], lyric: true, lines: 4, energy: 5, final: true },
+  ] } };
+  const m = L.songMap(report, (id) => id.toUpperCase());
+  assert.deepEqual(m.map((x) => x.start), ["0:00", "0:10", "0:35"]);
+  assert.deepEqual(m[1].entering, ["TABLA"]);
+  assert.equal(m[2].final, true);
+  assert.match(m[1].text, /Verse 1 \(intimate, tabla enters\), 4 sung lines/);
+  assert.deepEqual(L.songMap(null), []);
+  assert.deepEqual(L.songMap({ char_count: 300 }), []);
+});
+
+test("engine line names the profile, classic by default", () => {
+  assert.equal(L.engineLine({ engine_profile: "classic" }), "Classic (as the accepted recipes)");
+  assert.equal(L.engineLine({ engine_profile: "shift3", engine_profile_label: "Turbo, shift 3.0" }), "Turbo, shift 3.0");
+  assert.equal(L.engineLine(null), "");
+});
+
+test("the plan table shows the style and a non-4/4 meter", () => {
+  const plan = { genre: "ghazal", pipeline: "song", meter: "6/8", voice_mode: "instrumental", duration_s: 90, takes: 1,
+                 lead: { instrument: "harmonium", style: "singing" }, supports: [], feeling: [], pace: { bucket: "slow", bpm: 68 },
+                 fullness: "balanced", arc: "steady", key: "C minor", provenance: { genre: { source: "you", reason: "you picked the style" } } };
+  const rows = L.planRows(plan, (x) => x, { genre_name: "Ghazal" });
+  const style = rows.find((r) => r.key === "genre");
+  assert.equal(style.value, "Ghazal");
+  assert.equal(style.prov.source, "you");
+  assert.equal(rows.find((r) => r.key === "meter").value, "6/8");
+});

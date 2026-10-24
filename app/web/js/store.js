@@ -1,6 +1,7 @@
 // Shared, read-mostly state: what the server told us at start-up.
 export const store = {
-  instruments: [],   // [{id, name, validated}] from /api/instruments
+  instruments: [],   // [{id, name, validated, classic, family, can_lead}] from /api/instruments
+  genres: [],        // [{id, name, family, blurb, voice, ...}] from /api/genres
   planner: null,     // planner block of /api/settings: {provider, label, smart_enabled, providers, write_for_me, how_to_enable}
   settings: null,
   system: null,      // last /api/system

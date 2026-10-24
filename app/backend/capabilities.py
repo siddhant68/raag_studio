@@ -6,7 +6,7 @@ from functools import lru_cache
 from pathlib import Path
 
 _PATH = Path(__file__).with_name("capabilities.json")
-CONTROL_IDS = tuple(f"C{i}" for i in range(1, 26))
+CONTROL_IDS = tuple(f"C{i}" for i in range(1, 27))   # C26 (Style) was added with the song pipeline
 USER_FACING_CLASSES = ("b", "d")  # classes whose label must be shown next to the control
 
 
@@ -84,5 +84,5 @@ def validate_registry() -> list[str]:
                 problems.append(f"{cid} references unknown capability {cap}")
     extra = set(reg["controls"]) - set(CONTROL_IDS)
     if extra:
-        problems.append(f"controls outside C1-C25: {sorted(extra)}")
+        problems.append(f"controls outside C1-C26: {sorted(extra)}")
     return problems

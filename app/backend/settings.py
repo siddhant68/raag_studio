@@ -40,10 +40,10 @@ DEFAULT_SETTINGS: dict[str, Any] = {
     "retry_on_technical_failure": True,    # one automatic retry with a new seed, never for taste
     "job_timeout_s": 1800,
     "song_pipeline": True,                 # new songs use genre presets, blueprints and the song compiler
-    "engine_profile": "auto",              # auto | classic | shift3 | lm (see song_compiler.ENGINE_PROFILES)
+    "engine_profile": "auto",              # auto | classic | shift3 | lm | xl | xl_lm (song_compiler.ENGINE_PROFILES)
 }
 PLANNER_PROVIDERS = ("basic", "claude_cli", "anthropic_api")
-ENGINE_PROFILE_SETTINGS = ("auto", "classic", "shift3", "lm")
+ENGINE_PROFILE_SETTINGS = ("auto", "classic", "shift3", "lm", "xl", "xl_lm")
 
 
 @dataclass

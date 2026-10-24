@@ -233,6 +233,17 @@ def create_app(config: Optional[Config] = None) -> FastAPI:
         settings = svc.update_settings(body)
         return {"settings": settings, "planner": ui_api.planner_view(svc)}
 
+    @app.put("/api/settings/engine")
+    def put_engine_settings(body: dict[str, Any]):
+        """The only settings the web page may write: which local pipeline and model renders. Planner settings are
+        refused here (switching a smart planner on sends your brief to Anthropic; that stays a deliberate call)."""
+        allowed = {"engine_profile", "song_pipeline"}
+        extra = sorted(set(body) - allowed)
+        if extra:
+            raise ApiError(422, "invalid_settings", f"only {sorted(allowed)} can be changed here, not {extra}")
+        settings = svc.update_settings(body)
+        return {"settings": settings, "planner": ui_api.planner_view(svc)}
+
     # ------------------------------------------------------------------ read-only data for the web UI (M3)
     @app.get("/api/recipes")
     def recipes():

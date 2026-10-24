@@ -254,3 +254,14 @@ dialog::backdrop { background: rgba(0, 0, 0, 0.5); }
 
 .drafted-lyrics { margin: .75rem 0; }
 .drafted-lyrics .lyrics-text { white-space: pre-wrap; font: inherit; background: var(--surface-2); padding: .75rem 1rem; border-radius: 8px; margin: .5rem 0; }
+/* Song map: one row per section, a bar on the left shows the energy (1-5). */
+.song-map { margin: .75rem 0; }
+.song-map-list { list-style: none; padding: 0; margin: .5rem 0; font-size: .9rem; }
+.song-map-list li { padding: .2rem .5rem; margin: .15rem 0; border-left: 4px solid var(--surface-2); border-radius: 4px; overflow-wrap: anywhere; }
+.song-map-list li[data-energy="2"] { border-left-color: color-mix(in srgb, var(--accent) 35%, transparent); }
+.song-map-list li[data-energy="3"] { border-left-color: color-mix(in srgb, var(--accent) 55%, transparent); }
+.song-map-list li[data-energy="4"] { border-left-color: color-mix(in srgb, var(--accent) 75%, transparent); }
+.song-map-list li[data-energy="5"] { border-left-color: var(--accent); }
+.song-map-list li.final b::after { content: " (final)"; font-weight: normal; }
+.song-map-list .sm-time { font-variant-numeric: tabular-nums; color: var(--muted, inherit); margin-right: .25rem; }
+#genre { max-width: 100%; }

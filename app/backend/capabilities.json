@@ -2,77 +2,596 @@
   "schema": "raag-capabilities/1",
   "note": "Single source of truth for UI honesty labels (PRD v2 section 11). The UI reads this file; tests assert every control id C1-C25 has an entry.",
   "classes": {
-    "a": {"label": "Real input", "tooltip": "Sent to the engine, or a real audio operation we run ourselves."},
-    "b": {"label": "Creative direction", "tooltip": "Written into the prompt as words. The music may follow it loosely or not at all."},
-    "c": {"label": "Not possible", "tooltip": "Needs a score, stems or multitrack audio that this engine does not produce."},
-    "d": {"label": "Unverified", "tooltip": "We pass it in, but nobody has verified that the result follows it."},
-    "n/a": {"label": "", "tooltip": ""}
+    "a": {
+      "label": "Real input",
+      "tooltip": "Sent to the engine, or a real audio operation we run ourselves."
+    },
+    "b": {
+      "label": "Creative direction",
+      "tooltip": "Written into the prompt as words. The music may follow it loosely or not at all."
+    },
+    "c": {
+      "label": "Not possible",
+      "tooltip": "Needs a score, stems or multitrack audio that this engine does not produce."
+    },
+    "d": {
+      "label": "Unverified",
+      "tooltip": "We pass it in, but nobody has verified that the result follows it."
+    },
+    "n/a": {
+      "label": "",
+      "tooltip": ""
+    }
   },
   "controls": {
-    "C1": {"name": "Brief", "classes": ["n/a"], "visible": "create", "maps_to": "planner input", "ui_wording": "Tell me what you feel or imagine.", "capability": []},
-    "C2": {"name": "Voice", "classes": ["a", "b"], "visible": "create", "maps_to": "instrumental flag, lyrics skeleton", "ui_wording": "request", "capability": ["voice_modes"]},
-    "C3": {"name": "Length", "classes": ["a"], "visible": "create", "maps_to": "duration", "ui_wording": "exact", "capability": ["length"]},
-    "C4": {"name": "Versions", "classes": ["a"], "visible": "create", "maps_to": "number of seeds", "ui_wording": "exact", "capability": ["seed_take_count"]},
-    "C5": {"name": "Sound I liked", "classes": ["b"], "visible": "create", "maps_to": "recipe template", "ui_wording": "creative direction", "capability": ["lead_and_supports"]},
-    "C6": {"name": "Instruments", "classes": ["b"], "visible": "shape_it", "maps_to": "lead + up to 3 supports", "ui_wording": "creative direction", "capability": ["lead_and_supports", "no_faders"]},
-    "C7": {"name": "Feeling", "classes": ["b"], "visible": "shape_it", "maps_to": "mood adjectives", "ui_wording": "creative direction", "capability": ["lead_and_supports"]},
-    "C8": {"name": "Pace", "classes": ["a", "d"], "visible": "shape_it", "maps_to": "bpm bucket", "ui_wording": "target", "capability": ["bpm_key_meter"]},
-    "C9": {"name": "How full", "classes": ["b"], "visible": "shape_it", "maps_to": "support count and wording", "ui_wording": "creative direction", "capability": ["lead_and_supports"]},
-    "C10": {"name": "Story of the piece", "classes": ["b"], "visible": "shape_it", "maps_to": "arc sentence and section tags", "ui_wording": "plan; boundaries not guaranteed", "capability": ["arc_sections"]},
-    "C11": {"name": "Playing style (lead)", "classes": ["b"], "visible": "shape_it", "maps_to": "lead technique terms", "ui_wording": "direction, not skill", "capability": ["ornate"]},
-    "C12": {"name": "Avoid", "classes": ["b"], "visible": "shape_it", "maps_to": "planner omission and structural flags", "ui_wording": "left out of the request; may still appear", "capability": ["avoid"]},
-    "C13": {"name": "Singer", "classes": ["b"], "visible": "voices", "maps_to": "lead-voice phrase", "ui_wording": "creative direction", "capability": ["voice_modes"]},
-    "C14": {"name": "Background voices", "classes": ["b"], "visible": "voices", "maps_to": "choir phrase and wordless lyric lines", "ui_wording": "approximate", "capability": ["choir_size", "exact_headcount"]},
-    "C15": {"name": "Language", "classes": ["a", "d"], "visible": "voices", "maps_to": "vocal_language", "ui_wording": "experimental", "capability": ["hindi_singing", "english_sung"]},
-    "C16": {"name": "Lyrics source", "classes": ["n/a"], "visible": "lyrics", "maps_to": "lyrics policy", "ui_wording": "Write for me needs the smart planner.", "capability": ["write_lyrics", "exact_lyrics"]},
-    "C17": {"name": "My lyrics", "classes": ["a", "d"], "visible": "lyrics", "maps_to": "lyrics (sha256 stored)", "ui_wording": "sent unchanged; listen to check", "capability": ["exact_lyrics"]},
-    "C18": {"name": "Favourite and rating", "classes": ["n/a"], "visible": "after", "maps_to": "feedback events", "ui_wording": "", "capability": ["machine_scores"]},
-    "C19": {"name": "Change request", "classes": ["b"], "visible": "after", "maps_to": "plan patch, new round", "ui_wording": "New performances from an updated plan, not exact edits of the take.", "capability": ["lead_and_supports"]},
-    "C20": {"name": "Another take / More like this", "classes": ["a", "d"], "visible": "after", "maps_to": "new seeds / retake_variance", "ui_wording": "Another take is exact; More like this is experimental.", "capability": ["seed_take_count", "retake_cover_repaint"]},
-    "C21": {"name": "Export", "classes": ["a"], "visible": "after", "maps_to": "ffmpeg", "ui_wording": "exact", "capability": ["audio_ops"]},
-    "C22": {"name": "Exact BPM", "classes": ["a", "d"], "visible": "drawer", "maps_to": "bpm", "ui_wording": "target", "capability": ["bpm_key_meter"]},
-    "C23": {"name": "Key", "classes": ["a", "d"], "visible": "drawer", "maps_to": "keyscale", "ui_wording": "target", "capability": ["bpm_key_meter"]},
-    "C24": {"name": "Seed", "classes": ["a"], "visible": "drawer", "maps_to": "seed", "ui_wording": "exact; not a similarity dial", "capability": ["seed_take_count"]},
-    "C25": {"name": "End fade seconds", "classes": ["a"], "visible": "drawer", "maps_to": "ffmpeg afade on export", "ui_wording": "exact", "capability": ["audio_ops"]}
+    "C1": {
+      "name": "Brief",
+      "classes": [
+        "n/a"
+      ],
+      "visible": "create",
+      "maps_to": "planner input",
+      "ui_wording": "Tell me what you feel or imagine.",
+      "capability": []
+    },
+    "C2": {
+      "name": "Voice",
+      "classes": [
+        "a",
+        "b"
+      ],
+      "visible": "create",
+      "maps_to": "instrumental flag, lyrics skeleton",
+      "ui_wording": "request",
+      "capability": [
+        "voice_modes"
+      ]
+    },
+    "C3": {
+      "name": "Length",
+      "classes": [
+        "a"
+      ],
+      "visible": "create",
+      "maps_to": "duration",
+      "ui_wording": "exact",
+      "capability": [
+        "length"
+      ]
+    },
+    "C4": {
+      "name": "Versions",
+      "classes": [
+        "a"
+      ],
+      "visible": "create",
+      "maps_to": "number of seeds",
+      "ui_wording": "exact",
+      "capability": [
+        "seed_take_count"
+      ]
+    },
+    "C5": {
+      "name": "Sound I liked",
+      "classes": [
+        "b"
+      ],
+      "visible": "create",
+      "maps_to": "recipe template",
+      "ui_wording": "creative direction",
+      "capability": [
+        "lead_and_supports"
+      ]
+    },
+    "C6": {
+      "name": "Instruments",
+      "classes": [
+        "b"
+      ],
+      "visible": "shape_it",
+      "maps_to": "lead + up to 3 supports",
+      "ui_wording": "creative direction",
+      "capability": [
+        "lead_and_supports",
+        "no_faders"
+      ]
+    },
+    "C7": {
+      "name": "Feeling",
+      "classes": [
+        "b"
+      ],
+      "visible": "shape_it",
+      "maps_to": "mood adjectives",
+      "ui_wording": "creative direction",
+      "capability": [
+        "lead_and_supports"
+      ]
+    },
+    "C8": {
+      "name": "Pace",
+      "classes": [
+        "a",
+        "d"
+      ],
+      "visible": "shape_it",
+      "maps_to": "bpm bucket",
+      "ui_wording": "target",
+      "capability": [
+        "bpm_key_meter"
+      ]
+    },
+    "C9": {
+      "name": "How full",
+      "classes": [
+        "b"
+      ],
+      "visible": "shape_it",
+      "maps_to": "support count and wording",
+      "ui_wording": "creative direction",
+      "capability": [
+        "lead_and_supports"
+      ]
+    },
+    "C10": {
+      "name": "Story of the piece",
+      "classes": [
+        "b"
+      ],
+      "visible": "shape_it",
+      "maps_to": "arc sentence and section tags",
+      "ui_wording": "plan; boundaries not guaranteed",
+      "capability": [
+        "arc_sections"
+      ]
+    },
+    "C11": {
+      "name": "Playing style (lead)",
+      "classes": [
+        "b"
+      ],
+      "visible": "shape_it",
+      "maps_to": "lead technique terms",
+      "ui_wording": "direction, not skill",
+      "capability": [
+        "ornate"
+      ]
+    },
+    "C12": {
+      "name": "Avoid",
+      "classes": [
+        "b"
+      ],
+      "visible": "shape_it",
+      "maps_to": "planner omission and structural flags",
+      "ui_wording": "left out of the request; may still appear",
+      "capability": [
+        "avoid"
+      ]
+    },
+    "C13": {
+      "name": "Singer",
+      "classes": [
+        "b"
+      ],
+      "visible": "voices",
+      "maps_to": "lead-voice phrase",
+      "ui_wording": "creative direction",
+      "capability": [
+        "voice_modes"
+      ]
+    },
+    "C14": {
+      "name": "Background voices",
+      "classes": [
+        "b"
+      ],
+      "visible": "voices",
+      "maps_to": "choir phrase and wordless lyric lines",
+      "ui_wording": "approximate",
+      "capability": [
+        "choir_size",
+        "exact_headcount"
+      ]
+    },
+    "C15": {
+      "name": "Language",
+      "classes": [
+        "a",
+        "d"
+      ],
+      "visible": "voices",
+      "maps_to": "vocal_language",
+      "ui_wording": "experimental",
+      "capability": [
+        "hindi_singing",
+        "english_sung"
+      ]
+    },
+    "C16": {
+      "name": "Lyrics source",
+      "classes": [
+        "n/a"
+      ],
+      "visible": "lyrics",
+      "maps_to": "lyrics policy",
+      "ui_wording": "Write for me needs the smart planner.",
+      "capability": [
+        "write_lyrics",
+        "exact_lyrics"
+      ]
+    },
+    "C17": {
+      "name": "My lyrics",
+      "classes": [
+        "a",
+        "d"
+      ],
+      "visible": "lyrics",
+      "maps_to": "lyrics (sha256 stored)",
+      "ui_wording": "sent unchanged; listen to check",
+      "capability": [
+        "exact_lyrics"
+      ]
+    },
+    "C18": {
+      "name": "Favourite and rating",
+      "classes": [
+        "n/a"
+      ],
+      "visible": "after",
+      "maps_to": "feedback events",
+      "ui_wording": "",
+      "capability": [
+        "machine_scores"
+      ]
+    },
+    "C19": {
+      "name": "Change request",
+      "classes": [
+        "b"
+      ],
+      "visible": "after",
+      "maps_to": "plan patch, new round",
+      "ui_wording": "New performances from an updated plan, not exact edits of the take.",
+      "capability": [
+        "lead_and_supports"
+      ]
+    },
+    "C20": {
+      "name": "Another take / More like this",
+      "classes": [
+        "a",
+        "d"
+      ],
+      "visible": "after",
+      "maps_to": "new seeds / retake_variance",
+      "ui_wording": "Another take is exact; More like this is experimental.",
+      "capability": [
+        "seed_take_count",
+        "retake_cover_repaint"
+      ]
+    },
+    "C21": {
+      "name": "Export",
+      "classes": [
+        "a"
+      ],
+      "visible": "after",
+      "maps_to": "ffmpeg",
+      "ui_wording": "exact",
+      "capability": [
+        "audio_ops"
+      ]
+    },
+    "C22": {
+      "name": "Exact BPM",
+      "classes": [
+        "a",
+        "d"
+      ],
+      "visible": "drawer",
+      "maps_to": "bpm",
+      "ui_wording": "target",
+      "capability": [
+        "bpm_key_meter"
+      ]
+    },
+    "C23": {
+      "name": "Key",
+      "classes": [
+        "a",
+        "d"
+      ],
+      "visible": "drawer",
+      "maps_to": "keyscale",
+      "ui_wording": "target",
+      "capability": [
+        "bpm_key_meter"
+      ]
+    },
+    "C24": {
+      "name": "Seed",
+      "classes": [
+        "a"
+      ],
+      "visible": "drawer",
+      "maps_to": "seed",
+      "ui_wording": "exact; not a similarity dial",
+      "capability": [
+        "seed_take_count"
+      ]
+    },
+    "C25": {
+      "name": "End fade seconds",
+      "classes": [
+        "a"
+      ],
+      "visible": "drawer",
+      "maps_to": "ffmpeg afade on export",
+      "ui_wording": "exact",
+      "capability": [
+        "audio_ops"
+      ]
+    },
+    "C26": {
+      "name": "Style",
+      "classes": [
+        "b"
+      ],
+      "visible": "create",
+      "maps_to": "genre preset: song form, caption genre words, usual instruments, tempo, lyric conventions",
+      "ui_wording": "creative direction",
+      "capability": [
+        "lead_and_supports",
+        "arc_sections"
+      ]
+    }
   },
   "capabilities": {
-    "length": {"name": "Length", "classes": ["a"], "what_we_do": "pass duration; verify with ffprobe", "ui_wording": "exact"},
-    "seed_take_count": {"name": "Seed, take count", "classes": ["a"], "what_we_do": "explicit seeds, serial", "ui_wording": "exact"},
-    "bpm_key_meter": {"name": "BPM, key, meter", "classes": ["a", "d"], "what_we_do": "pass metadata; do not claim measured match", "ui_wording": "target"},
-    "voice_modes": {"name": "Instrumental / wordless / sung", "classes": ["a", "b"], "what_we_do": "instrumental flag + lyric skeleton", "ui_wording": "request"},
-    "lead_and_supports": {"name": "Lead and supports named", "classes": ["b"], "what_we_do": "caption words", "ui_wording": "creative direction"},
-    "ornate": {"name": "Ornate / virtuosic", "classes": ["b", "d"], "what_we_do": "technique words", "ui_wording": "direction, not skill"},
-    "arc_sections": {"name": "Arc and sections", "classes": ["b"], "what_we_do": "caption beats and tags", "ui_wording": "plan; boundaries not guaranteed"},
-    "choir_size": {"name": "Choir size words", "classes": ["b"], "what_we_do": "scale words; no counts", "ui_wording": "approximate"},
-    "exact_headcount": {"name": "Exact headcount", "classes": ["d"], "what_we_do": "not offered", "ui_wording": "n/a"},
-    "avoid": {"name": "Avoid", "classes": ["b"], "weak": true, "what_we_do": "omission + structural flags", "ui_wording": "left out of the request; may still appear"},
-    "raga_tala": {"name": "Raga, tala", "classes": ["d"], "what_we_do": "words only, no control", "ui_wording": "n/a"},
-    "hindi_singing": {"name": "Hindi singing", "classes": ["a", "d"], "what_we_do": "vocal_language=hi, Devanagari", "ui_wording": "experimental"},
-    "english_sung": {"name": "English sung words", "classes": ["d"], "what_we_do": "untested", "ui_wording": "untested"},
-    "exact_lyrics": {"name": "Exact lyrics", "classes": ["a", "d"], "what_we_do": "byte-preserved text", "ui_wording": "sent unchanged; listen to check"},
-    "write_lyrics": {"name": "Write lyrics", "classes": ["software"], "what_we_do": "smart planner only", "ui_wording": "needs smart planner"},
-    "no_faders": {"name": "Faders, pan, EQ per instrument", "classes": ["c"], "what_we_do": "not offered", "ui_wording": "n/a"},
-    "stems": {"name": "Stems", "classes": ["a", "c"], "what_we_do": "backlog: 4 estimated stems", "ui_wording": "estimated"},
-    "chords_notes_melody": {"name": "Chords, exact notes, keep melody", "classes": ["c"], "what_we_do": "not offered", "ui_wording": "n/a"},
-    "audio_ops": {"name": "Trim, fade, gain, loudness, format", "classes": ["a"], "what_we_do": "ffmpeg", "ui_wording": "exact"},
-    "splice": {"name": "Splice outside a region unchanged", "classes": ["a"], "what_we_do": "sample-equality test", "ui_wording": "exact"},
-    "retake_cover_repaint": {"name": "Repaint / cover / retake / flow-edit", "classes": ["d"], "what_we_do": "experiments E2-E5", "ui_wording": "experimental"},
-    "lego_extract_complete": {"name": "lego / extract / complete", "classes": ["unavailable"], "what_we_do": "base checkpoint only", "ui_wording": "n/a"},
-    "guidance_strength": {"name": "Guidance strength", "classes": ["unavailable"], "what_we_do": "turbo forces 1.0", "ui_wording": "n/a"},
-    "copyright": {"name": "Copyright clearance", "classes": ["none"], "what_we_do": "name stripping only", "ui_wording": "personal use"},
-    "machine_scores": {"name": "Machine quality scores", "classes": ["not_offered"], "what_we_do": "checks are breakage-only", "ui_wording": "n/a"}
+    "length": {
+      "name": "Length",
+      "classes": [
+        "a"
+      ],
+      "what_we_do": "pass duration; verify with ffprobe",
+      "ui_wording": "exact"
+    },
+    "seed_take_count": {
+      "name": "Seed, take count",
+      "classes": [
+        "a"
+      ],
+      "what_we_do": "explicit seeds, serial",
+      "ui_wording": "exact"
+    },
+    "bpm_key_meter": {
+      "name": "BPM, key, meter",
+      "classes": [
+        "a",
+        "d"
+      ],
+      "what_we_do": "pass metadata; do not claim measured match",
+      "ui_wording": "target"
+    },
+    "voice_modes": {
+      "name": "Instrumental / wordless / sung",
+      "classes": [
+        "a",
+        "b"
+      ],
+      "what_we_do": "instrumental flag + lyric skeleton",
+      "ui_wording": "request"
+    },
+    "lead_and_supports": {
+      "name": "Lead and supports named",
+      "classes": [
+        "b"
+      ],
+      "what_we_do": "caption words",
+      "ui_wording": "creative direction"
+    },
+    "ornate": {
+      "name": "Ornate / virtuosic",
+      "classes": [
+        "b",
+        "d"
+      ],
+      "what_we_do": "technique words",
+      "ui_wording": "direction, not skill"
+    },
+    "arc_sections": {
+      "name": "Arc and sections",
+      "classes": [
+        "b"
+      ],
+      "what_we_do": "caption beats and tags",
+      "ui_wording": "plan; boundaries not guaranteed"
+    },
+    "choir_size": {
+      "name": "Choir size words",
+      "classes": [
+        "b"
+      ],
+      "what_we_do": "scale words; no counts",
+      "ui_wording": "approximate"
+    },
+    "exact_headcount": {
+      "name": "Exact headcount",
+      "classes": [
+        "d"
+      ],
+      "what_we_do": "not offered",
+      "ui_wording": "n/a"
+    },
+    "avoid": {
+      "name": "Avoid",
+      "classes": [
+        "b"
+      ],
+      "weak": true,
+      "what_we_do": "omission + structural flags",
+      "ui_wording": "left out of the request; may still appear"
+    },
+    "raga_tala": {
+      "name": "Raga, tala",
+      "classes": [
+        "d"
+      ],
+      "what_we_do": "words only, no control",
+      "ui_wording": "n/a"
+    },
+    "hindi_singing": {
+      "name": "Hindi singing",
+      "classes": [
+        "a",
+        "d"
+      ],
+      "what_we_do": "vocal_language=hi, Devanagari",
+      "ui_wording": "experimental"
+    },
+    "english_sung": {
+      "name": "English sung words",
+      "classes": [
+        "d"
+      ],
+      "what_we_do": "untested",
+      "ui_wording": "untested"
+    },
+    "exact_lyrics": {
+      "name": "Exact lyrics",
+      "classes": [
+        "a",
+        "d"
+      ],
+      "what_we_do": "byte-preserved text",
+      "ui_wording": "sent unchanged; listen to check"
+    },
+    "write_lyrics": {
+      "name": "Write lyrics",
+      "classes": [
+        "software"
+      ],
+      "what_we_do": "smart planner only",
+      "ui_wording": "needs smart planner"
+    },
+    "no_faders": {
+      "name": "Faders, pan, EQ per instrument",
+      "classes": [
+        "c"
+      ],
+      "what_we_do": "not offered",
+      "ui_wording": "n/a"
+    },
+    "stems": {
+      "name": "Stems",
+      "classes": [
+        "a",
+        "c"
+      ],
+      "what_we_do": "backlog: 4 estimated stems",
+      "ui_wording": "estimated"
+    },
+    "chords_notes_melody": {
+      "name": "Chords, exact notes, keep melody",
+      "classes": [
+        "c"
+      ],
+      "what_we_do": "not offered",
+      "ui_wording": "n/a"
+    },
+    "audio_ops": {
+      "name": "Trim, fade, gain, loudness, format",
+      "classes": [
+        "a"
+      ],
+      "what_we_do": "ffmpeg",
+      "ui_wording": "exact"
+    },
+    "splice": {
+      "name": "Splice outside a region unchanged",
+      "classes": [
+        "a"
+      ],
+      "what_we_do": "sample-equality test",
+      "ui_wording": "exact"
+    },
+    "retake_cover_repaint": {
+      "name": "Repaint / cover / retake / flow-edit",
+      "classes": [
+        "d"
+      ],
+      "what_we_do": "experiments E2-E5",
+      "ui_wording": "experimental"
+    },
+    "lego_extract_complete": {
+      "name": "lego / extract / complete",
+      "classes": [
+        "unavailable"
+      ],
+      "what_we_do": "base checkpoint only",
+      "ui_wording": "n/a"
+    },
+    "guidance_strength": {
+      "name": "Guidance strength",
+      "classes": [
+        "unavailable"
+      ],
+      "what_we_do": "turbo forces 1.0",
+      "ui_wording": "n/a"
+    },
+    "copyright": {
+      "name": "Copyright clearance",
+      "classes": [
+        "none"
+      ],
+      "what_we_do": "name stripping only",
+      "ui_wording": "personal use"
+    },
+    "machine_scores": {
+      "name": "Machine quality scores",
+      "classes": [
+        "not_offered"
+      ],
+      "what_we_do": "checks are breakage-only",
+      "ui_wording": "n/a"
+    }
   },
   "options": {
     "C15": {
-      "hi": {"label": "Hindi", "badge": "experimental", "capability": "hindi_singing"},
-      "en": {"label": "English", "badge": "untested", "capability": "english_sung", "note": "sung words: untested"},
-      "other": {"label": "Other language", "badge": "experimental", "capability": "hindi_singing"}
+      "hi": {
+        "label": "Hindi",
+        "badge": "experimental",
+        "capability": "hindi_singing"
+      },
+      "en": {
+        "label": "English",
+        "badge": "untested",
+        "capability": "english_sung",
+        "note": "sung words: untested"
+      },
+      "other": {
+        "label": "Other language",
+        "badge": "experimental",
+        "capability": "hindi_singing"
+      }
     },
     "C14": {
-      "none": {"label": "None"},
-      "light": {"label": "Light harmonies", "badge": "approximate"},
-      "choir": {"label": "Choir", "badge": "approximate"},
-      "big": {"label": "Big choir", "badge": "approximate"}
+      "none": {
+        "label": "None"
+      },
+      "light": {
+        "label": "Light harmonies",
+        "badge": "approximate"
+      },
+      "choir": {
+        "label": "Choir",
+        "badge": "approximate"
+      },
+      "big": {
+        "label": "Big choir",
+        "badge": "approximate"
+      }
     }
   }
 }

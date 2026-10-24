@@ -29,13 +29,18 @@ from .plan_schema import Plan
 
 CAPTION_HARD_CAP = compiler.CAPTION_HARD_CAP
 LM_MODEL = "acestep-5Hz-lm-1.7B"
+DIT_TURBO, DIT_XL = "acestep-v15-turbo", "acestep-v15-xl-turbo"
 ENGINE_PROFILES: dict[str, dict[str, Any]] = {
-    "classic": {"shift": 1.0, "inference_steps": 8, "thinking": False,
-                "label": "Classic (shift 1.0, as the accepted recipes)"},
-    "shift3": {"shift": 3.0, "inference_steps": 8, "thinking": False,
-               "label": "Turbo, shift 3.0 (ACE-Step's recommendation)"},
-    "lm": {"shift": 3.0, "inference_steps": 8, "thinking": True,
+    "classic": {"dit": DIT_TURBO, "lm": None, "shift": 1.0, "inference_steps": 8, "thinking": False,
+                "label": "Classic (turbo, shift 1.0, as the accepted recipes)"},
+    "shift3": {"dit": DIT_TURBO, "lm": None, "shift": 3.0, "inference_steps": 8, "thinking": False,
+               "label": "Turbo, shift 3.0 (ACE-Step's recommendation for turbo)"},
+    "lm": {"dit": DIT_TURBO, "lm": LM_MODEL, "shift": 3.0, "inference_steps": 8, "thinking": True,
            "label": f"Turbo, shift 3.0, with the 5Hz LM ({LM_MODEL}) planning the audio"},
+    "xl": {"dit": DIT_XL, "lm": None, "shift": 3.0, "inference_steps": 8, "thinking": False,
+           "label": "XL turbo (4B DiT), shift 3.0"},
+    "xl_lm": {"dit": DIT_XL, "lm": LM_MODEL, "shift": 3.0, "inference_steps": 8, "thinking": True,
+              "label": f"XL turbo (4B DiT), shift 3.0, with the 5Hz LM ({LM_MODEL})"},
 }
 DEFAULT_PROFILE = "shift3"
 LANG_NAME = compiler.LANG_NAME
@@ -156,6 +161,9 @@ def _resolve(plan: Plan, preset: dict, rep: _Report) -> dict:
             feelings.remove(w)
             rep.drop("mood", w, "blocked_style_L1")
     production = [p for p in preset.get("production", []) if not avoided(p)]
+    fullness = {"spare": "sparse arrangement with breathing space", "full": "full rich arrangement"}.get(plan.fullness)
+    if fullness:                                       # "How full" leads the production words (dropped last of them)
+        production = [fullness] + production
     return {"mode": mode, "lead": lead, "supports": supports, "bg": bg, "feelings": feelings, "flavour": flavour,
             "production": production, "avoid": kept_terms, "singer": plan.voices.singer,
             "language": plan.voices.language, "style": plan.lead.style}
@@ -294,7 +302,7 @@ def _lyrics(plan: Plan, st: dict, blueprint, rep: _Report) -> tuple[str, dict]:
         raise compiler.LyricsTooLong("lyrics_too_long", f"Lyrics are {len(normalised)} characters; the limit is "
                                      f"{compiler.LYRICS_HARD_CAP}. Nothing was truncated.")
     if plan.lyrics.policy == "exact":
-        tagged, inserted = compiler.insert_tag_lines(normalised)
+        tagged, inserted = song_plan.frame_exact_lyrics(normalised)
         if len(tagged) > compiler.LYRICS_HARD_CAP:
             tagged, inserted = normalised, []
             rep.warnings.append("section tags were not added because the lyrics are close to the character limit.")
@@ -357,6 +365,10 @@ def compile_song(plan: Plan | dict, *, engine_profile: str = DEFAULT_PROFILE,
     preset = genres.get(plan.genre) if plan.genre else genres.get(song_plan.default_genre(plan)[0])
     rep = _Report()
     st = _resolve(plan, preset, rep)
+    if (plan.provenance.get("arc") and plan.provenance["arc"].source == "you"):
+        rep.unsupported.append({"kind": "arc_replaced_by_song_map", "field": "arc", "message":
+                                "Story of the piece is not used for styled songs: the song map sets the shape "
+                                "(which sections, how loud each one gets)."})
     blueprint = song_plan.blueprint_for(plan, lead=st["lead"], supports=st["supports"])
     st["journey"] = _journey(blueprint)
     st["techniques"] = _techniques(st)
@@ -381,12 +393,14 @@ def compile_song(plan: Plan | dict, *, engine_profile: str = DEFAULT_PROFILE,
     notes = ["Turbo model does not use CFG: the engine overrides guidance_scale to 1.0. "
              "The engine result is authoritative; this is the expected value."]
     if prof["thinking"]:
-        notes.append(f"The 5Hz LM ({LM_MODEL}) writes audio codes before the DiT renders; caption, lyrics and "
+        notes.append(f"The 5Hz LM ({prof['lm']}) writes audio codes before the DiT renders; caption, lyrics and "
                      "metadata stay exactly as compiled (no LM rewriting).")
+    if prof["dit"] != DIT_TURBO:
+        notes.append(f"DiT checkpoint {prof['dit']} instead of {DIT_TURBO}.")
     return {
         "caption": caption, "lyrics": lyrics, "params": params, "effective_params": effective,
         "effective_notes": notes, "engine_config": dict(compiler.ENGINE_CONFIG),
-        "engine_profile": engine_profile, "lm_model": LM_MODEL if prof["thinking"] else None,
+        "engine_profile": engine_profile, "lm_model": prof["lm"], "dit_model": prof["dit"],
         "lyrics_prompt": plan.lyrics.topic, "plan_sha256": plan.fingerprint(),
         "compile_report": {
             "pipeline": "song", "genre": preset["id"], "genre_name": preset["name"],
@@ -411,7 +425,24 @@ def compile_any(plan: Plan | dict, *, engine_profile: Optional[str] = None,
     if plan.pipeline == "song":
         return compile_song(plan, engine_profile=engine_profile or DEFAULT_PROFILE, max_chars=max_chars)
     out = compiler.compile(plan, max_chars=max_chars)
-    out["engine_profile"] = "classic"
+    out["engine_profile"], out["lm_model"], out["dit_model"] = "classic", None, DIT_TURBO
     out["compile_report"]["pipeline"] = "classic"
     out["compile_report"]["engine_profile"] = "classic"
     return out
+
+
+def model_block(compiled: dict) -> Optional[dict]:
+    """The engine request's "model" object, or None for the default turbo DiT without an LM (so classic requests
+    stay exactly as they were)."""
+    dit, lm = compiled.get("dit_model") or DIT_TURBO, compiled.get("lm_model")
+    if dit == DIT_TURBO and not lm:
+        return None
+    block: dict[str, Any] = {"dit": dit}
+    if lm:
+        block["lm"] = {"name": lm, "backend": "mlx"}
+    return block
+
+
+def required_weights(profile: str) -> list[str]:
+    prof = ENGINE_PROFILES[profile]
+    return [prof["dit"]] + ([prof["lm"]] if prof["lm"] else [])

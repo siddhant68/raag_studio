@@ -395,17 +395,63 @@ def test_api_engine_profile_setting(tmp_path):
         assert c.put("/api/settings", json={"engine_profile": "lm"}).status_code == 200
         r = c.post("/api/songs", json={"brief": "A lofi beat", "duration": 20, "takes": 1}).json()
         req = engine_request(c, r["round_id"])
-        assert req["params"]["thinking"] is True and req["lm"]["model"] == song_compiler.LM_MODEL
+        assert req["params"]["thinking"] is True
+        assert req["model"] == {"dit": "acestep-v15-turbo", "lm": {"name": song_compiler.LM_MODEL, "backend": "mlx"}}
+        assert c.put("/api/settings", json={"engine_profile": "xl"}).status_code == 200
+        r = c.post("/api/songs", json={"brief": "A lofi beat", "duration": 20, "takes": 1}).json()
+        assert engine_request(c, r["round_id"])["model"] == {"dit": "acestep-v15-xl-turbo"}
         assert c.put("/api/settings", json={"engine_profile": "turbo"}).status_code == 422
-        # a real engine without the LM weights refuses before queueing anything
+        # a real engine without the weights refuses before queueing anything
         c.svc.config.engine = "real"
-        c.svc.probe.lm_installed = lambda: False
+        c.svc.probe.weights_installed = lambda name: name == "acestep-v15-turbo"
         plan = song_from_brief("A lofi beat")
         from backend.schemas import ApiError
         with pytest.raises(ApiError) as e:
             c.svc._compile(plan, 1)
-        assert e.value.code == "lm_not_installed"
+        assert e.value.code == "model_not_installed"
+        c.put("/api/settings", json={"engine_profile": "auto"})
+        c.svc._compile(plan, 1)                                   # the default profile needs only the turbo DiT
         c.svc.config.engine = "fake"
+
+
+def _run_takes_module():
+    import importlib.util
+    path = Path(__file__).resolve().parents[1] / "engine" / "run_takes.py"
+    spec = importlib.util.spec_from_file_location("run_takes_song", path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)                                  # validation path must not import torch
+    return mod
+
+
+@pytest.mark.parametrize("profile", sorted(song_compiler.ENGINE_PROFILES))
+def test_song_requests_pass_the_engine_validator(profile):
+    mod = _run_takes_module()
+    plan = with_lyrics(song_from_brief("A Hindi love song", genre="hindi_acoustic_ballad"))
+    out = song_compiler.compile_song(plan, engine_profile=profile)
+    req = compiler.to_engine_request(out, [11, 22], audio_format="flac")
+    block = song_compiler.model_block(out)
+    if block:
+        req["model"] = block
+    assert mod.validate_request(req, set(compiler.ENGINE_DEFAULTS)) == []
+    assert "sys" in dir(mod) and "torch" not in sys.modules
+
+
+def test_engine_validator_refuses_inconsistent_model_requests(tmp_path):
+    mod = _run_takes_module()
+    out = song_compiler.compile_song(song_from_brief("A lofi beat"), engine_profile="lm")
+    req = compiler.to_engine_request(out, [1], audio_format="flac")
+    known = set(compiler.ENGINE_DEFAULTS)
+    assert any("thinking needs" in e for e in mod.validate_request(req, known))          # thinking without an LM
+    req["model"] = {"dit": "acestep-v15-turbo", "lm": {"name": "some-other-lm", "backend": "mlx"}}
+    assert mod.validate_request(req, known)
+    req["model"] = {"dit": "unknown-dit"}
+    assert mod.validate_request(req, known)
+    # weights are checked on disk, nothing is downloaded
+    engine = tmp_path / "ace"
+    (engine / "checkpoints" / "acestep-v15-turbo").mkdir(parents=True)
+    req["model"] = {"dit": "acestep-v15-turbo", "lm": {"name": song_compiler.LM_MODEL, "backend": "mlx"}}
+    missing = mod.missing_weights(engine, req)
+    assert any(song_compiler.LM_MODEL in m for m in missing) and any("acestep-v15-turbo" in m for m in missing)
 
 
 def test_api_classic_mode_keeps_classic_plans(tmp_path):
@@ -439,3 +485,24 @@ def test_api_another_take_from_a_song_plan_reuses_it(tmp_path):
         c.patch(f"/api/songs/{data['song_id']}/controls", json={"genre": "ambient"})
         r = c.post(f"/api/songs/{data['song_id']}/rounds", json={"kind": "another", "from_take": take, "takes": 1})
         assert r.status_code == 202 and r.json()["plan_id"] == data["plan_id"]
+
+
+def test_styled_songs_drop_an_unpicked_recipe_and_use_how_full():
+    plan = song_from_brief("A peaceful bansuri at dawn, gentle tabla, no singing")
+    assert plan.recipe_id is None and "recipe_id" not in plan.provenance
+    picked = song_from_brief("a calm piece", recipe_id="r2_warm_ensemble", genre="ambient")
+    assert picked.recipe_id == "r2_warm_ensemble"
+    sparse = song_compiler.compile_song(plan.model_copy(update={"fullness": "spare"}))
+    assert "sparse arrangement with breathing space" in sparse["caption"].lower()
+    arc = plan.model_copy(update={"arc": "steady"}).with_provenance("arc", "you", "you picked the story")
+    rep = song_compiler.compile_song(arc)["compile_report"]
+    assert any(u["kind"] == "arc_replaced_by_song_map" for u in rep["unsupported"])
+
+
+def test_engine_settings_endpoint_accepts_only_engine_choices(tmp_path):
+    with client_for(tmp_path) as c:
+        ok = c.put("/api/settings/engine", json={"engine_profile": "shift3", "song_pipeline": False})
+        assert ok.status_code == 200 and ok.json()["settings"]["song_pipeline"] is False
+        bad = c.put("/api/settings/engine", json={"planner_smart_enabled": True})
+        assert bad.status_code == 422
+        assert c.get("/api/settings").json()["settings"]["planner_smart_enabled"] is False

@@ -8,7 +8,7 @@ import pytest
 
 from backend import capabilities as cap
 
-IDS = [f"C{i}" for i in range(1, 26)]
+IDS = [f"C{i}" for i in range(1, 27)]                      # C26 = Style (song pipeline)
 
 
 def test_every_control_id_has_an_entry_and_registry_is_consistent():
@@ -46,4 +46,4 @@ def test_section_11_rows_present_and_unknown_ids_fail():
     assert cap.get_capability("guidance_strength")["classes"] == ["unavailable"]
     assert cap.get_capability("write_lyrics")["ui_wording"] == "needs smart planner"
     with pytest.raises(KeyError):
-        cap.get_control("C26")
+        cap.get_control("C27")

@@ -332,10 +332,13 @@ class Service:
     def _compile(self, plan: Plan, takes: int) -> tuple[dict, dict, list[int]]:
         """Plan -> (compiled, engine_request, seeds). Raises ApiError with the compiler's own message."""
         profile = self.engine_profile(plan)
-        if profile == "lm" and not self.config.is_fake and not self.probe.lm_installed():
-            raise ApiError(409, "lm_not_installed", "The 5Hz LM engine profile is selected but the "
-                           f"{song_compiler.LM_MODEL} weights are not installed. Run scripts/fetch_lm.sh (about "
-                           "3.5 GB) or set the engine profile back to auto.")
+        if not self.config.is_fake:
+            missing = [m for m in song_compiler.required_weights(profile)            # optional models only: a missing
+                       if m != song_compiler.DIT_TURBO and not self.probe.weights_installed(m)]   # turbo fails the job
+            if missing:
+                raise ApiError(409, "model_not_installed", f"The '{profile}' engine profile needs "
+                               f"{', '.join(missing)}, which is not installed. Run python3 scripts/fetch_models.py (it asks "
+                               "before downloading) or set the engine profile back to auto.", missing=missing)
         try:
             compiled = song_compiler.compile_any(plan, engine_profile=profile)
         except compiler.OverBudget as exc:
@@ -349,8 +352,9 @@ class Service:
         request = compiler.to_engine_request(compiled, seeds, audio_format="flac", meta={
             "app": "raag-studio", "pipeline": plan.pipeline, "engine_profile": compiled.get("engine_profile", "classic"),
             "genre": plan.genre})
-        if compiled.get("lm_model"):
-            request["lm"] = {"model": compiled["lm_model"], "backend": "mlx"}
+        model = song_compiler.model_block(compiled)
+        if model:
+            request["model"] = model
         return compiled, request, seeds
 
     def _restyle(self, plan: Plan, controls: Controls) -> Plan:

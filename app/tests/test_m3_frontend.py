@@ -181,11 +181,11 @@ def controls_by_visibility(dom):
 def test_at_m3_02_control_inventory():
     dom = parse_index()
     all_ids, visible = controls_by_visibility(dom)
-    legal = {f"C{i}" for i in range(1, 26)}
-    assert all_ids <= legal, f"ids outside C1-C25: {all_ids - legal}"
-    assert all_ids == legal, f"missing control ids: {legal - all_ids}"        # all 25 exist somewhere (template or drawer)
-    assert len(all_ids) <= 25
-    assert visible == {"C1", "C2", "C3", "C4", "C5"}, visible
+    legal = {f"C{i}" for i in range(1, 27)}                # C26 = Style, added with the song pipeline
+    assert all_ids <= legal, f"ids outside C1-C26: {all_ids - legal}"
+    assert all_ids == legal, f"missing control ids: {legal - all_ids}"        # all 26 exist somewhere (template or drawer)
+    assert len(all_ids) <= 26
+    assert visible == {"C1", "C2", "C3", "C4", "C5", "C26"}, visible
     assert len(visible) <= 9
     # C13-C17 are hidden until the matching voice mode; the Details drawer and Shape it are collapsed
     for cid in ("C13", "C14", "C15", "C16", "C17"):
@@ -209,7 +209,7 @@ def test_at_m3_02_control_inventory():
 
 
 def test_at_m3_02_capabilities_and_html_control_ids_agree():
-    assert set(CAPS["controls"]) == {f"C{i}" for i in range(1, 26)}
+    assert set(CAPS["controls"]) == {f"C{i}" for i in range(1, 27)}
 
 
 # --------------------------------------------------------------------------- AT-M3-03 (DOM wiring; rules are in node)
@@ -307,10 +307,13 @@ def test_honesty_copy_is_present_in_the_page():
     assert "new performances from an updated plan" in text.lower()
     assert not re.search(r"sounds good(?! about)", text) or "say nothing about whether the music is good" in text
     assert "Smart planners are off" in text
-    # no UI path flips smart planners on: settings are only ever read (GET), never written, by the web files
+    # no UI path flips smart planners on: the general settings are only ever read (GET) by the web files. The one
+    # write is the engine choice, through /api/settings/engine, which refuses every planner key (test_song_pipeline).
     js = "".join(read(p) for p in WEB.glob("js/*.js"))
     assert not re.search(r"/api/settings[\"'`]\s*,", js), "a call to /api/settings passes options (a write?)"
-    assert not re.search(r"[\"']PUT[\"']|planner_smart_enabled|planner_provider", js)
+    assert not re.search(r"planner_smart_enabled|planner_provider", js)
+    puts = re.findall(r"api\(([^,]+),\s*\{[^}]*method:\s*[\"']PUT[\"']", js)
+    assert puts and all("/api/settings/engine" in p for p in puts), puts
 
 
 # --------------------------------------------------------------------------- AT-M3-06

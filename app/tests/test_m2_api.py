@@ -223,7 +223,7 @@ def test_settings_and_system(tmp_path):
         assert {"mps", "disk_free_gib", "video_queue", "engine_rev", "planner_provider", "version",
                 "capabilities", "queue"} <= set(sysinfo)
         assert sysinfo["engine"] == "fake" and sysinfo["mps"] is None
-        assert sysinfo["planner_provider"] == "basic" and sysinfo["capabilities"]["controls"] == 25
+        assert sysinfo["planner_provider"] == "basic" and sysinfo["capabilities"]["controls"] == 26   # C26 = Style
         assert sysinfo["video_queue"]["state"] == "idle"
 
 

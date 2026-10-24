@@ -15,6 +15,7 @@ async function loadBasics() {
   const results = await Promise.allSettled([
     loadCapabilities(),
     api("/api/instruments").then((r) => { store.instruments = r.instruments; }),
+    api("/api/genres").then((r) => { store.genres = r.genres; }),
     loadSettings(),
   ]);
   const failed = results.find((r) => r.status === "rejected");

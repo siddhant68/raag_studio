@@ -23,7 +23,7 @@ const VOICE_FIELDS = ["singer", "background", "language", "languageOther", "lyri
 
 export function initialFormState() {
   return {
-    brief: "", voice: "auto", length: "auto", takes: 3, takesTouched: false, recipe: null,
+    brief: "", voice: "auto", length: "auto", takes: 3, takesTouched: false, recipe: null, genre: null,
     lead: null, picked: [], feeling: [], pace: null, fullness: null, arc: null, style: null, avoid: "",
     singer: null, background: null, language: null, languageOther: "", lyricsSource: null, lyricsText: "",
   };
@@ -133,6 +133,7 @@ export function buildCreateBody(state) {
   if (state.recipe) body.recipe = state.recipe;
   if (state.voice === "sung" && state.lyricsSource === "exact" && state.lyricsText.trim()) body.lyrics = state.lyricsText; // sent unchanged
   const shape = {};
+  if (state.genre) shape.genre = state.genre;
   if (state.lead) shape.lead = state.lead;
   const supports = state.picked.filter((x) => x !== state.lead);
   if (supports.length) shape.instruments = supports;
@@ -300,6 +301,7 @@ export function planRows(plan, nameOf = (x) => x, report = null) {
   const rows = [];
   const add = (key, label, control, value, provKey = key, adjusted = null) =>
     rows.push({ key, label, control, value, prov: prov[provKey] || null, adjusted });
+  if (plan.genre) add("genre", "Style", null, (report && report.genre_name) || plan.genre.replace(/_/g, " "));
   add("voice_mode", "Voice", "C2", VOICE_TEXT[plan.voice_mode] || plan.voice_mode);
   add("duration_s", "Length", "C3", `about ${formatDuration(plan.duration_s)} (${plan.duration_s} s)`);
   add("takes", "Versions", "C4", String(plan.takes));
@@ -309,7 +311,7 @@ export function planRows(plan, nameOf = (x) => x, report = null) {
   add("feeling", "Feeling", "C7", (plan.feeling || []).join(", ") || "not specified");
   if (plan.pace) add("pace", "Pace", "C8", `${PACE_TEXT[plan.pace.bucket] || plan.pace.bucket}, target ${plan.pace.bpm} beats per minute`);
   add("fullness", "How full", "C9", FULL_TEXT[plan.fullness] || plan.fullness);
-  add("arc", "Story of the piece", "C10", ARC_TEXT[plan.arc] || plan.arc);
+  if (plan.pipeline !== "song") add("arc", "Story of the piece", "C10", ARC_TEXT[plan.arc] || plan.arc); // styled songs: the song map
   if ((plan.avoid || []).length) add("avoid", "Avoid", "C12", plan.avoid.join(", "));
   if (plan.voice_mode !== "instrumental" && plan.voices) {
     add("voices", "Singer", "C13", SINGER_TEXT[plan.voices.singer] || plan.voices.singer, "voices");
@@ -318,6 +320,7 @@ export function planRows(plan, nameOf = (x) => x, report = null) {
   }
   if (plan.lyrics && plan.lyrics.policy !== "none") add("lyrics", "Lyrics", plan.lyrics.policy === "exact" ? "C17" : "C16", LYRICS_TEXT[plan.lyrics.policy] || plan.lyrics.policy);
   add("key", "Key", "C23", `${plan.key} (a target, not a promise)`);
+  if (plan.pipeline === "song" && plan.meter && plan.meter !== "4/4") add("meter", "Meter", null, plan.meter);
   if (plan.flavour) add("flavour", "Extra flavour", null, plan.flavour);
   return rows;
 }
@@ -329,6 +332,7 @@ const CHANGE_LABEL = {
   lead: "Lead", "lead.style": "Playing style", supports: "Supporting instruments", feeling: "Feeling", pace: "Pace",
   key: "Key", fullness: "How full", arc: "Story of the piece", avoid: "Avoid", flavour: "Extra flavour",
   "voices.singer": "Singer", "voices.background": "Background voices", "voices.language": "Language",
+  genre: "Style", meter: "Meter",
 };
 const CHANGE_SOURCE = { chip: "quick change", you: "you", rule: "automatic" };
 const CHANGE_VOICE = { instrumental: "Instrumental", wordless: "Wordless voices", sung: "Sung words" };
@@ -387,6 +391,34 @@ export function summarySentence(plan, nameOf = (x) => x, report = null) {
 function capitalise(s) { return s ? s[0].toUpperCase() + s.slice(1) : s; }
 
 /** Compile report -> plain lines. Nothing hidden: dropped items, conflicts, warnings, unsupported words. */
+/**
+ * The song map of a song-pipeline plan: one entry per section with its rough time, the hint sent in its lyric tag
+ * and who comes in. Empty for classic plans (they have no sections).
+ */
+export function songMap(report, nameOf = (x) => x) {
+  const bp = report && report.blueprint;
+  if (!bp || !Array.isArray(bp.sections)) return [];
+  let t = 0;
+  return bp.sections.map((s) => {
+    const start = t;
+    t += Number(s.seconds) || 0;
+    const entering = (s.entering || []).map(nameOf);
+    let hint = s.hint || "";
+    if (hint.toLowerCase().startsWith(String(s.name).toLowerCase() + " ")) hint = hint.slice(s.name.length + 1); // "Jor" + "jor pulse"
+    return {
+      name: s.name, start: formatDuration(start), seconds: Math.round(Number(s.seconds) || 0),
+      hint, entering, sung: !!s.lyric, lines: s.lines || 0, energy: s.energy || 0, final: !!s.final,
+      text: `${formatDuration(start)} ${s.name}` + (hint ? ` (${hint})` : "") + (s.lyric ? `, ${s.lines} sung lines` : ""),
+    };
+  });
+}
+
+/** One line about the engine settings of a compiled request ("ACE-Step turbo, shift 3.0"). */
+export function engineLine(report) {
+  if (!report) return "";
+  return report.engine_profile_label || (report.engine_profile === "classic" || !report.engine_profile ? "Classic (as the accepted recipes)" : report.engine_profile);
+}
+
 export function compileReportLines(report) {
   if (!report) return [];
   const lines = [];

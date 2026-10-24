@@ -142,7 +142,7 @@ def test_new_read_only_endpoints(tmp_path):
         assert next(r for r in rec["recipes"] if r["id"] == "r3_hindi_ballad")["experimental"] is True
 
         caps = c.get("/api/capabilities").json()
-        assert [f"C{i}" for i in range(1, 26)] == list(caps["controls"])
+        assert [f"C{i}" for i in range(1, 27)] == list(caps["controls"])
         assert caps["controls"]["C8"]["labels"] and caps["controls"]["C1"]["labels"] == []
         assert caps["controls"]["C15"]["needs_label"] is True
 

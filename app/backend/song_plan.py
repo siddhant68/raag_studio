@@ -104,6 +104,9 @@ def apply_genre(plan: Plan, preset_id: str, source: str, reason: str) -> Plan:
     d["pipeline"] = "song"
     d["genre"] = preset_id
     prov["genre"] = {"source": source, "reason": reason}
+    if _source(plan, "recipe_id") != "you":       # an old recipe nobody picked has no say in a styled song
+        d["recipe_id"] = None
+        prov.pop("recipe_id", None)
     voice = d["voice_mode"]
     if not chosen(plan, "voice_mode"):
         voice = p["voice"]
@@ -202,10 +205,29 @@ def kind_of_tag(tag: str) -> str:
     return "verse"
 
 
-def blueprint_from_lyrics(text: str, *, bpm: int, meter: str, target_s: int, lead: str, supports: list[dict],
-                          hints: dict) -> song_blueprint.Blueprint:
-    """A blueprint that follows the person's own tagged lyrics (their words decide the structure)."""
-    tagged, _ = compiler.insert_tag_lines(text)
+def frame_exact_lyrics(text: str) -> tuple[str, list[int]]:
+    """The person's words with section tags: [Verse]/[Chorus] where they wrote none, plus an [Intro] before and an
+    [Outro] after when their sheet has none. Only tag lines are added; every word line stays exactly as written.
+    Returns (sheet, indices of inserted tag lines)."""
+    tagged, inserted = compiler.insert_tag_lines(text)
+    lines = tagged.split("\n")
+    tags = [i for i, ln in enumerate(lines) if compiler._TAG_LINE.match(ln)]
+    first_tag = lines[tags[0]].strip("[] ").lower() if tags else ""
+    last_tag = lines[tags[-1]].strip("[] ").lower() if tags else ""
+    if not re.match(r"(intro|prelude|alaap|aalap)", first_tag):
+        lines = ["[Intro]", ""] + lines
+        inserted = [0] + [i + 2 for i in inserted]
+    if not re.match(r"(outro|ending|coda|fade)", last_tag):
+        lines = lines + ["", "[Outro]"]
+        inserted = inserted + [len(lines) - 1]
+    return "\n".join(lines), inserted
+
+
+def blueprint_from_lyrics(text: str, *, bpm: int, meter: str, target_s: Optional[int], lead: str,
+                          supports: list[dict], hints: dict) -> song_blueprint.Blueprint:
+    """A blueprint that follows the person's own tagged lyrics (their words decide the structure). With no target
+    length, the length is what the words need at this tempo."""
+    tagged, _ = frame_exact_lyrics(text)
     parsed = lyric_craft.parse_tagged(tagged)
     bar_s = song_blueprint.bar_seconds(bpm, meter)
     energy_of = {"intro": 1, "verse": 2, "pre_chorus": 3, "chorus": 4, "bridge": 2, "solo": 4, "interlude": 3,
@@ -216,6 +238,8 @@ def blueprint_from_lyrics(text: str, *, bpm: int, meter: str, target_s: int, lea
         bars = len(lines) * 2 + song_blueprint.SECTION_BREATH_BARS if lines else 4
         raw.append((tag or "Verse", kind, len(lines), bars))
     est = sum(b for *_, b in raw) * bar_s
+    if target_s is None:
+        target_s = int(round(min(song_blueprint.MAX_TOTAL_S, max(song_blueprint.MIN_TOTAL_S, est))))
     scale = target_s / est if est else 1.0
     chorus_idx = [i for i, r in enumerate(raw) if r[1] == "chorus"]
     last = chorus_idx[-1] if len(chorus_idx) > 1 else None
@@ -225,12 +249,15 @@ def blueprint_from_lyrics(text: str, *, bpm: int, meter: str, target_s: int, lea
         final = i == last
         energy = 5 if final else energy_of.get(kind, 2)
         playing = song_blueprint._playing(energy, lead, supports, "sung")
+        sh = song_blueprint.style_hint(kind, tag, final, hints, "sung", present)
+        playing += [m for m in sorted(inst_db.mentioned(sh) & present) if m not in playing]
         entering = [x for x in playing if x not in prev and i > 0]
         sections.append(song_blueprint.Section(
             kind=kind, name=tag, tag=tag, lyric=n > 0, lines=n, bars=bars, seconds=round(bars * bar_s * scale, 1),
-            energy=energy, hint=song_blueprint._hint(kind, tag, final, hints, entering, "sung", present),
-            playing=playing, entering=entering, final=final,
-            style_hint=song_blueprint.style_hint(kind, tag, final, hints, "sung", present)))
+            energy=energy, hint=song_blueprint._hint(kind, tag, final, hints,
+                                                    [e for e in entering if e not in inst_db.mentioned(sh)], "sung",
+                                                    present),
+            playing=playing, entering=entering, final=final, style_hint=sh))
         prev = set(playing)
     ratio = est / target_s if target_s else 1
     fit = "tight" if ratio > 1.1 else ("roomy" if ratio < 0.85 else "ok")
@@ -256,7 +283,7 @@ def blueprint_for(plan: Plan, *, auto_length: bool = False, lead: Optional[str] 
     target = None if auto_length else plan.duration_s
     if plan.voice_mode == "sung" and plan.lyrics.policy == "exact" and (plan.lyrics.text or "").strip():
         return blueprint_from_lyrics(plan.lyrics.text, bpm=plan.pace.bpm, meter=plan.meter,
-                                     target_s=plan.duration_s, lead=lead, supports=supports, hints=hints)
+                                     target_s=target, lead=lead, supports=supports, hints=hints)
     lyr = (preset or {}).get("lyrics", {})
     return song_blueprint.build(form=plan.form or (preset or {}).get("form"), voice_mode=plan.voice_mode,
                                 bpm=plan.pace.bpm, meter=plan.meter, target_s=target, lead=lead,

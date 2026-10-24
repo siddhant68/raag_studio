@@ -20,6 +20,7 @@ export async function init() {
     recipes = [];
   }
   buildRecipeCards();
+  buildStyleSelect();
   buildInstrumentChips();
   buildFeelingChips();
   buildVoiceSelects();
@@ -50,6 +51,30 @@ function buildRecipeCards() {
         r.experimental ? h("span", { class: "recipe-flag" }, "experimental") : null)));
   }
   render(box, ...cards);
+}
+
+const FAMILY_LABEL = {
+  hindi_song: "Hindi and Indian songs", indian_instrumental: "Indian instrumental", english_song: "English songs",
+  electronic: "Electronic", instrumental: "Instrumental and cinematic",
+};
+
+function buildStyleSelect() {
+  const sel = $("#genre");
+  const groups = new Map();
+  for (const g of store.genres || []) {
+    if (!groups.has(g.family)) groups.set(g.family, []);
+    groups.get(g.family).push(g);
+  }
+  render(sel, h("option", { value: "" }, "Auto (from my words)"),
+    ...[...groups.entries()].map(([fam, list]) => h("optgroup", { label: FAMILY_LABEL[fam] || fam },
+      ...list.map((g) => h("option", { value: g.id }, g.name)))));
+}
+
+function paintStyleBlurb() {
+  const note = $("#genre-blurb");
+  const g = (store.genres || []).find((x) => x.id === state.genre);
+  note.hidden = !g;
+  note.textContent = g ? `${g.blurb} Usually ${g.voice === "sung" ? "sung" : g.voice === "wordless" ? "with wordless voices" : "instrumental"}, around ${g.bpm_default} BPM.` : "";
 }
 
 function buildInstrumentChips() {
@@ -83,6 +108,7 @@ function wire() {
     $$(`input[name="${name}"]`).forEach((r) => r.addEventListener("change", () => { state[name] = r.value || null; }));
   }
   $("#avoid").addEventListener("input", (e) => { state.avoid = e.target.value; });
+  $("#genre").addEventListener("change", (e) => { state.genre = e.target.value || null; paintStyleBlurb(); });
   $("#singer").addEventListener("change", (e) => { state.singer = e.target.value || null; });
   $("#background").addEventListener("change", (e) => { state.background = e.target.value || null; });
   $("#language").addEventListener("change", (e) => { state.language = e.target.value || null; paint(); });

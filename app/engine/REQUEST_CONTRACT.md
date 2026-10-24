@@ -29,6 +29,7 @@ process must never import torch; it only spawns this script.
 | `seeds` | yes | 1 to 8 unique integers in [0, 2^31). One take per seed, rendered serially in this order. |
 | `audio_format` | no | `flac` (default) or `wav`. |
 | `meta` | no | object, copied to `result.json` untouched. |
+| `model` | no | `{"dit": "acestep-v15-turbo" \| "acestep-v15-xl-turbo", "lm": {"name": "acestep-5Hz-lm-1.7B" (or 0.6B/4B), "backend": "mlx" \| "pt"}}`. Absent = the turbo DiT without an LM (every request before the song pipeline). Weights must already be on disk: nothing is downloaded during a render (`python3 scripts/fetch_models.py` is the only download path). |
 
 Other top-level keys are rejected. Validation of `params`:
 
@@ -37,7 +38,10 @@ Other top-level keys are rejected. Validation of `params`:
 - `caption`: non-empty string, at most 512 characters (`len()`).
 - `lyrics`: string, at most 4000 characters (never truncated).
 - `duration`: number in [10, 240] seconds (240 is `MAX_DURATION_S` in `run_takes.py`; see `context_pack/docs/ENGINE_MEASUREMENTS.md`).
-- `thinking` and `use_cot_metas/caption/language/lyrics` must be false (no 5Hz LM installed).
+- `thinking` is true exactly when `model.lm` is given (the LM writes audio codes; it is loaded only then).
+- `use_cot_metas/caption/language/lyrics` must be false: the LM never rewrites the caption, lyrics, language or
+  metadata the app compiled.
+- the named DiT/LM folders must contain `config.json` and `*.safetensors` (checked in `--dry-run` too).
 
 All validation (including `OUT_DIR`) happens before torch is imported or any
 file is created. A bad request prints one `error` event with

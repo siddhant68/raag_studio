@@ -38,16 +38,20 @@ RESULT_SCHEMA = 'raag-engine-result/1'
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_ENGINE = ROOT.parent/'tools/ace-step-1.5'
 CHECKPOINT = 'acestep-v15-turbo'
-# Weight files this harness needs. ACE's own "main model present" check also
-# demands the 5Hz LM (acestep-5Hz-lm-1.7B), which is deliberately not installed.
-REQUIRED_WEIGHTS = ('acestep-v15-turbo/model.safetensors', 'vae/diffusion_pytorch_model.safetensors',
-                    'Qwen3-Embedding-0.6B/model.safetensors')
+# DiT checkpoints and 5Hz LMs a request may name (request "model"); nothing else is ever loaded.
+ALLOWED_DIT = ('acestep-v15-turbo', 'acestep-v15-xl-turbo')
+ALLOWED_LM = ('acestep-5Hz-lm-0.6B', 'acestep-5Hz-lm-1.7B', 'acestep-5Hz-lm-4B')
+LM_BACKENDS = ('mlx', 'pt')
+# Shared weight files this harness needs besides the DiT. ACE's own "main model present" check also demands
+# the 5Hz LM (acestep-5Hz-lm-1.7B); the harness answers that check itself and loads an LM only when asked.
+SHARED_WEIGHTS = ('vae/diffusion_pytorch_model.safetensors', 'Qwen3-Embedding-0.6B/model.safetensors')
+REQUIRED_WEIGHTS = (f'{CHECKPOINT}/model.safetensors',) + SHARED_WEIGHTS
 
 MAX_CAPTION = 512
 MAX_LYRICS = 4000
 MIN_DURATION_S, MAX_DURATION_S = 10, 240   # 240 is the PRD cap until M0 measures it
 MAX_SEEDS = 8
-TOP_LEVEL_KEYS = {'schema', 'params', 'seeds', 'audio_format', 'meta'}
+TOP_LEVEL_KEYS = {'schema', 'params', 'seeds', 'audio_format', 'meta', 'model'}
 NO_COT = ('use_cot_metas', 'use_cot_caption', 'use_cot_language', 'use_cot_lyrics')
 
 _events = sys.stdout       # replaced by a private dup of the real stdout in run()
@@ -133,12 +137,47 @@ def validate_request(request, known_fields):
     if (isinstance(duration, bool) or not isinstance(duration, (int, float))
             or not MIN_DURATION_S <= duration <= MAX_DURATION_S):
         errors.append(f'duration must be a number in [{MIN_DURATION_S}, {MAX_DURATION_S}] seconds')
-    if params.get('thinking', False) is not False:
-        errors.append('thinking must be false (the 5Hz LM is not installed)')
+    model = request.get('model') or {}
+    if 'model' in request and not isinstance(request['model'], dict):
+        errors.append('model must be an object')
+        model = {}
+    if set(model) - {'dit', 'lm'}:
+        errors.append(f'unknown model keys: {sorted(set(model) - {"dit", "lm"})}')
+    if model.get('dit', CHECKPOINT) not in ALLOWED_DIT:
+        errors.append(f'model.dit must be one of {list(ALLOWED_DIT)}')
+    lm = model.get('lm')
+    if lm is not None and (not isinstance(lm, dict) or lm.get('name') not in ALLOWED_LM
+                           or lm.get('backend', 'mlx') not in LM_BACKENDS or set(lm) - {'name', 'backend'}):
+        errors.append(f'model.lm must be {{"name": one of {list(ALLOWED_LM)}, "backend": "mlx"|"pt"}}')
+    thinking = params.get('thinking', False)
+    if thinking not in (True, False):
+        errors.append('thinking must be true or false')
+    elif thinking and not lm:
+        errors.append('thinking needs a 5Hz LM: add model.lm to the request')
+    elif lm and not thinking:
+        errors.append('model.lm is only loaded when thinking is true')
     for key in NO_COT:
         if params.get(key, False) is not False:
             errors.append(f'{key} must be false')
     return errors
+
+
+def model_choice(request):
+    """(dit checkpoint, lm dict or None) named by a validated request."""
+    model = request.get('model') or {}
+    return model.get('dit', CHECKPOINT), model.get('lm')
+
+
+def missing_weights(engine, request):
+    """Weight files a validated request needs that are not on disk (checked without importing torch)."""
+    dit, lm = model_choice(request)
+    base = engine/'checkpoints'
+    missing = [w for w in SHARED_WEIGHTS if not (base/w).is_file()]
+    for folder in [dit] + ([lm['name']] if lm else []):
+        d = base/folder
+        if not (d/'config.json').is_file() or not any(d.glob('*.safetensors')):
+            missing.append(f'{folder}/ (config.json and *.safetensors)')
+    return missing
 
 
 def validate_out_dir(out_dir):
@@ -277,11 +316,12 @@ def run(args, request, request_bytes, out_dir):
     os.dup2(log_fd, 2)
     (out_dir/'request.json').write_bytes(request_bytes)
 
+    dit, lm_choice = model_choice(request)
     result = ResultFile(out_dir/'result.json', {
         'schema': RESULT_SCHEMA, 'status': 'running', 'started_at': now_iso(),
         'request_sha256': hashlib.sha256(request_bytes).hexdigest(),
         'requested_params': params_data, 'seeds': seeds, 'audio_format': audio_format,
-        'meta': request.get('meta'), 'engine': {'source': str(engine), 'checkpoint': CHECKPOINT},
+        'meta': request.get('meta'), 'engine': {'source': str(engine), 'checkpoint': dit, 'lm': lm_choice},
         'takes': [], 'notes': [],
     })
     result.write()
@@ -303,15 +343,16 @@ def run(args, request, request_bytes, out_dir):
                      finished_at=now_iso(), peak_rss_mb=peak_rss_mb())
         emit('error', code=code, message=message)
 
-    missing = [w for w in REQUIRED_WEIGHTS if not (engine/'checkpoints'/w).is_file()]
+    missing = missing_weights(engine, request)
     if missing:
-        fail('missing_checkpoint', f'not found under {engine/"checkpoints"}: {missing}')
+        fail('missing_checkpoint', f'not found under {engine/"checkpoints"}: {missing}. '
+             'Nothing is downloaded during a render; run python3 scripts/fetch_models.py first.')
         return 3
     network_attempts = []
     block_network(network_attempts)
     listing_before = checkpoint_listing(engine)
 
-    emit('model_loading', checkpoint=CHECKPOINT, out_dir=str(out_dir))
+    emit('model_loading', checkpoint=dit, lm=(lm_choice or {}).get('name'), out_dir=str(out_dir))
     load_started = time.time()
     sys.path.insert(0, str(engine))
     import torch
@@ -329,13 +370,22 @@ def run(args, request, request_bytes, out_dir):
 
     handler = AceStepHandler()
     status, ok = handler.initialize_service(
-        project_root=str(engine), config_path=CHECKPOINT, device='mps',
+        project_root=str(engine), config_path=dit, device='mps',
         use_flash_attention=False, compile_model=False,
         offload_to_cpu=False, offload_dit_to_cpu=False)
     log(f'initialize_service ok={ok}: {status}')
     if not ok:
         fail('model_load_failed', str(status))
         return 3
+    lm_handler = LLMHandler()
+    if lm_choice:
+        lm_status, lm_ok = lm_handler.initialize(
+            checkpoint_dir=str(engine/'checkpoints'), lm_model_path=lm_choice['name'],
+            backend=lm_choice.get('backend', 'mlx'), device='mps', offload_to_cpu=False)
+        log(f'5Hz LM initialize ok={lm_ok}: {lm_status}')
+        if not lm_ok:
+            fail('lm_load_failed', str(lm_status))
+            return 3
     load_s = round(time.time() - load_started, 3)
 
     turbo = bool(handler.is_turbo_model())
@@ -353,11 +403,11 @@ def run(args, request, request_bytes, out_dir):
     except Exception as exc:                      # private helper; never fatal
         notes.append(f'could not resolve dcw_enabled: {exc}')
     result.write(effective_params=effective, notes=notes, model_load_s=load_s,
-                 engine={'source': str(engine), 'checkpoint': CHECKPOINT, 'device': 'mps',
+                 engine={'source': str(engine), 'checkpoint': dit, 'device': 'mps', 'lm': lm_choice,
                          'turbo': turbo, 'torch': torch.__version__})
     emit('model_ready', load_s=load_s, device='mps', turbo=turbo, peak_rss_mb=peak_rss_mb())
 
-    ace = {'handler': handler, 'lm': LLMHandler(), 'generate_music': generate_music,
+    ace = {'handler': handler, 'lm': lm_handler, 'generate_music': generate_music,
            'GenerationParams': GenerationParams, 'GenerationConfig': GenerationConfig}
     takes = []
     for index, seed in enumerate(seeds, 1):
@@ -408,6 +458,8 @@ def main():
     if not (args.engine/'acestep/inference.py').is_file():
         fail_validation([f'ACE source not found at {args.engine}'])
     problems += validate_request(request, generation_param_fields(args.engine))
+    if not problems:
+        problems += [f'weights not installed: {m}' for m in missing_weights(args.engine, request)]
     if problems:
         fail_validation(problems)
 

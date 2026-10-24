@@ -4,7 +4,7 @@ import { labelFor } from "./caps.js";
 import { $, $$, h, render, clear, show, announce } from "./dom.js";
 import {
   CHECKS_DISCLAIMER, CHIPS, REASON_TAGS, anotherBody, compileReportLines, formatChanges, formatDuration, lineageText, newIdempotencyKey, plannerNotes, retryBody, selectionNote,
-  planRows, progressView, provenanceInfo, summarySentence, takeLabels, techCheckSummary,
+  planRows, progressView, provenanceInfo, summarySentence, takeLabels, techCheckSummary, songMap, engineLine,
 } from "./logic.js";
 import { store, nameOf, plannerIsSmart } from "./store.js";
 
@@ -168,6 +168,17 @@ function renderPlan(container, planRec, report, isTop) {
       status.reason ? h("span", { class: "help" }, ` Reason: ${status.reason}`) : null));
   }
   kids.push(h("p", { class: "summary-line" }, summarySentence(plan, nameOf, report)));
+  const map = songMap(report, nameOf);
+  if (map.length) {
+    kids.push(h("details", { class: "song-map", open: isTop ? "" : null },
+      h("summary", {}, `Song map: ${map.length} sections, about ${formatDuration(report.blueprint.target_s)}`),
+      h("ol", { class: "song-map-list" }, map.map((m) => h("li", { "data-energy": String(m.energy), class: m.final ? "final" : "" },
+        h("span", { class: "sm-time" }, m.start), " ", h("b", {}, m.name),
+        m.hint ? h("span", { class: "help" }, ` ${m.hint}`) : null,
+        m.sung ? h("span", { class: "help" }, ` · ${m.lines} sung lines`) : null,
+        m.entering.length ? h("span", { class: "help" }, ` · in: ${m.entering.join(", ")}`) : null))),
+      h("p", { class: "help" }, "Times are estimates from the tempo; the music model decides the exact timing. The hints shape the prompt (and the section tags of lyrics written here); they are direction, not guarantees.")));
+  }
   const rows = planRows(plan, nameOf, report);
   kids.push(h("table", { class: "plan-table" }, h("tbody", {}, rows.map((row) => {
     const pi = row.prov ? provenanceInfo(row.prov.source) : null;
@@ -178,7 +189,7 @@ function renderPlan(container, planRec, report, isTop) {
         row.adjusted ? h("span", { class: "why adjusted" }, h("span", { class: "tag tag-rule" }, "Adjusted"), row.adjusted) : null));
   }))));
   if (plan.lyrics && plan.lyrics.policy === "write" && plan.lyrics.text) {
-    kids.push(h("details", { class: "drafted-lyrics" }, h("summary", {}, "Lyrics drafted for you (open to read)"),
+    kids.push(h("details", { class: "drafted-lyrics" }, h("summary", {}, card.song_title ? `Lyrics written for you: "${card.song_title}" (open to read)` : "Lyrics drafted for you (open to read)"),
       h("pre", { class: "lyrics-text" }, plan.lyrics.text),
       h("p", { class: "help" }, "Written once for this song; every take uses these exact words. To sing your own instead, start a new song with Voice → Sung words → Use my words exactly.")));
   }
@@ -192,6 +203,7 @@ function renderPlan(container, planRec, report, isTop) {
   }
   const lines = compileReportLines(report);
   kids.push(h("h3", {}, "What was sent to the music model"));
+  if (report && report.engine_profile) kids.push(h("p", { class: "help" }, `Engine: ${engineLine(report)}.`));
   if (lines.length) kids.push(h("ul", { class: "report" }, lines.map((l) => h("li", { class: l.kind }, l.text))));
   else kids.push(h("p", { class: "help" }, "The prompt check runs when the next takes are made."));
   render(container, ...kids);
