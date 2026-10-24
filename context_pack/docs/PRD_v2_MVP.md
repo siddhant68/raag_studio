@@ -211,7 +211,8 @@ Caption grammar (slots in order, derived from the accepted captions):
 8. Optional <= 120-char flavour clause (smart planner or user words)
 
 Budget: hard cap 512 characters (`len(caption)`); target <= 510. **Drop order**
-when over budget: flavour clause, optional supports (lowest rank first),
+when over budget: flavour clause, the "how full" sentence (the supports' presence words carry it; changed 2026-10-24
+after a Yamuna-style plan lost all three named supports to it), optional supports (lowest rank first),
 technique terms beyond three, arc beats beyond three, mood adjectives. **Never
 dropped**: lead instrument, lead-priority sentence, voice-constraint tail,
 BPM/key. If those alone exceed the cap: return `OverBudget` (never truncate).

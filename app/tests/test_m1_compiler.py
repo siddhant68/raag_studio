@@ -82,7 +82,7 @@ def long_recipe():
 
 
 FILL = ["tabla", "tanpura", "santoor", "sitar", "ghatam", "violin", "cello", "strings"]
-PHASE = {"flavour": 0, "support": 1, "technique": 2, "beat": 3, "mood": 4}
+PHASE = {"flavour": 0, "fullness": 1, "support": 2, "technique": 3, "beat": 4, "mood": 5}
 
 
 def over_budget_plan(**kw):
@@ -109,16 +109,16 @@ def test_at_m1_03_over_budget_drops_in_documented_order():
 def test_at_m1_03_later_phases_and_floors():
     plan = make(arc="slow_build", feeling=["tender", "luminous", "peaceful"], flavour="some flavour",
                 fullness="spare")
-    out = compile_plan(plan, recipe=long_recipe(), max_chars=400)
+    out = compile_plan(plan, recipe=long_recipe(), max_chars=370)
     drops = [(d["kind"], d["item"]) for d in out["compile_report"]["dropped"] if d["reason"] == "over_budget"]
     kinds = [k for k, _ in drops]
     assert kinds == sorted(kinds, key=PHASE.get) and kinds[0] == "flavour"
-    assert {"technique", "beat", "mood"} <= set(kinds)
+    assert {"fullness", "technique", "beat", "mood"} <= set(kinds)
     assert kinds.count("technique") == 2                              # 5 terms -> keeps the first 3
     assert kinds.count("beat") == 3                                   # 6 beats -> keeps the first 3
     assert [i for k, i in drops if k == "technique"] == ["octave turns", "lyrical sustained notes with natural breaths"][::-1]
-    assert len(out["caption"]) <= 400
-    assert kinds.count("mood") == 4                                  # 3 feeling words, then the 'how full' phrase
+    assert len(out["caption"]) <= 370
+    assert kinds.count("mood") == 3 and kinds.count("fullness") == 1  # 3 feeling words; the 'how full' phrase went earlier
     assert "A very spacious quiet solo opening" in out["caption"] and "intricate improvised" not in out["caption"]
 
 

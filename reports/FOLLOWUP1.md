@@ -138,3 +138,15 @@ Verified: 3 new tests (stub provider: drafted once and reused, failure refused w
 through the real Claude CLI on an isolated fake-engine server returned Devanagari lyrics, stored with the plan. Suite 403 passing.
 Caveats: the live draft was written from a female speaker's view ("मैं द्वार पे") although the brief asked for a male voice, so read drafts before
 rendering. The drafter's quality as sung Hindi is unevaluated. The running app must be restarted to pick this up.
+
+## Addendum 5: caption budget no longer strips the named supports (sample 1)
+Seen in the sample batch: the Yamuna-like plan (bansuri + tabla, tanpura, santoor, spare, flavour from the planner) needed 590 characters against a
+510 target. The documented drop order removed the flavour and then **all three supports** before the "how full" sentence (42 chars, "Sparse
+accompaniment with breathing space."), so the engine got a bare flute solo. The accepted Yamuna caption itself is 509 characters and keeps all three.
+Fix (`compiler.py` `_drop_next`): the "how full" sentence now goes right after the flavour clause and before any named instrument (the supports'
+presence words already carry it). The PRD drop-order line was updated and dated; `test_m1_compiler.py` was adjusted for the new order (kind `fullness`
+is its own phase). New regression test reproduces the sample-1 plan: only flavour and fullness are dropped, all supports, the flowing-tabla beat and
+every technique term stay, `arrangement.adjustments` is empty.
+Checked by recompiling the stored plans of all real takes (no engine, no render): only sample 1 changes (old drops: flavour + 3 supports; new: flavour +
+fullness, 508 characters). Its existing audio is unchanged and is still the bare-solo take, so it should not be judged as the Yamuna-style ensemble;
+a new take would need a render (not done). Suite 404 passing. The running app must be restarted for new songs to use this.

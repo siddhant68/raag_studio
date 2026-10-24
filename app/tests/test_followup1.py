@@ -325,3 +325,22 @@ def test_basic_planner_still_asks_for_words_and_exact_words_are_never_drafted(tm
         wait_job(c, ok.json()["job_id"])
         assert stub.calls == 0 and ok.json()["plan"]["lyrics"]["policy"] == "exact"
         assert ok.json()["plan"]["lyrics"]["text"] == "Mere apne shabd\nsuno zara\n"
+
+
+# --------------------------------------------------------------------------- caption budget keeps the named supports
+def test_yamuna_like_plan_keeps_all_three_supports_when_flavour_and_fullness_go_first():
+    """Seen in the real sample batch: 590 characters against a 510 target dropped tabla, tanpura and santoor, leaving a bare solo."""
+    plan = BasicPlanner().plan(BANSURI, Controls.model_validate({"fullness": "spare", "feeling": ["peaceful", "clear"]})).plan
+    plan = plan.model_copy(update={"flavour": "early morning mist over a quiet river", "duration_s": 60})
+    plan = plan.model_copy(update={"supports": [
+        plan.supports[0].model_copy(update={"instrument": "tabla", "presence": "sparse"}),
+        plan.supports[0].model_copy(update={"instrument": "tanpura", "role": "drone", "presence": "gentle"}),
+        plan.supports[0].model_copy(update={"instrument": "santoor", "role": "texture", "presence": "gentle"})]})
+    out = compiler.compile(plan)
+    report = out["compile_report"]
+    caption = out["caption"].lower()
+    assert len(out["caption"]) <= 512
+    assert all(w in caption for w in ("tabla", "tanpura", "santoor", "flowing tabla pulse")), out["caption"]
+    assert [d["kind"] for d in report["dropped"] if d["reason"] == "over_budget"] == ["flavour", "fullness"]
+    assert report["arrangement"]["adjustments"] == []                       # the arrangement that was asked for is the one sent
+    assert "meend" in caption and "natural breaths" in caption              # the expressive technique terms are intact

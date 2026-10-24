@@ -543,6 +543,12 @@ def _drop_next(st: dict, rep: _Report) -> bool:
         rep.drop("flavour", st["flavour"], "over_budget")
         st["flavour"] = None
         return True
+    if st["fullness_on"]:
+        # The "how full" sentence goes before any named instrument: the supports' own presence words ("sparse tabla",
+        # "gentle santoor") already carry it, whereas losing the instruments changes who plays.
+        rep.drop("fullness", FULLNESS_PHRASE[st["fullness"]], "over_budget")
+        st["fullness_on"] = False
+        return True
     if st["supports"]:
         gone = st["supports"].pop()
         rep.drop("support", gone["instrument"], "over_budget")
@@ -556,10 +562,6 @@ def _drop_next(st: dict, rep: _Report) -> bool:
         return True
     if st["feelings"]:
         rep.drop("mood", st["feelings"].pop(), "over_budget")
-        return True
-    if st["fullness_on"]:
-        rep.drop("mood", FULLNESS_PHRASE[st["fullness"]], "over_budget")
-        st["fullness_on"] = False
         return True
     return False
 
