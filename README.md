@@ -3,6 +3,45 @@
 A local AI-music application: a feeling or a little story in, takes you can play, compare, change and export out.
 **The app is implemented and runs.** Current app run commands are in [Run](#run) below.
 
+## DJ Lab — 26 October 2026
+
+**A real source-audio editing workflow now runs inside the app:** open
+[DJ Lab](http://127.0.0.1:8477/dj.html), or double-click `scripts/open_dj.command`.
+The main navigation also has a DJ Lab link. The original song-generation flow remains available.
+
+- Upload MP3/WAV/FLAC/M4A/OGG, inspect the waveform, audition the recording and choose cues.
+- Edit the estimated source tempos and choose a club handover, genre jump, reel moment or chill blend.
+- Six real audio techniques, including Tease & handover: bass handover, tightening source loops, echo reveal, original-tempo reset and short reel switch.
+- **Tease & handover** (the Club default) overlaps both decks for 16 beats, teases the incoming groove with 2 → 1 → ½-beat repeats, exchanges bass and gradually raises B while lowering A. Choose at least 24 beats per deck; the B cue marks the overlap start, with release 16 beats later.
+- Each preview has an untreated comparison matched in volume, a cue sheet, source hashes, a WAV master and downloadable recipe.
+- Reuse a recipe as a new version; save favorites and listening notes. Existing audio is preserved.
+- Export a 720×1280 waveform video with the actual audio and its reveal time. Original-music demos are labeled separately from private commercial-song experiments.
+
+Eight curated edits use the four supplied recordings and two original Raag pieces. One additional original-music preview
+was rendered through the actual browser workflow. Six source imports, sixteen curated MP3 exports and a vertical
+original-music video were checked. [Implementation and evidence](reports/dj_lab_2026-10-26/REPORT.md).
+
+DJ editing uses a separate, single-worker **CPU** subprocess, not ACE or a paid music service. It needs
+`ffmpeg`, `rubberband`, and an audio Python with numpy/scipy/soundfile/Pillow. The inventoried local audio Python is
+used read-only by default; override it with `RAAG_AUDIO_PYTHON`. The API venv gains no numerical/model dependencies.
+Files are in `data/dj/` and `runs/_dj_lab/`; source recordings and rendered commercial excerpts are ignored by git.
+
+Tempo detection remains fallible; it is not automatic hook/downbeat recognition. Long blends need compatible material
+and listening review. The current techniques operate on stereo recordings; they do not offer isolated singer/instrument
+mixing. These are tested editing capabilities and audition candidates, not a certification of professional musical quality.
+
+```sh
+scripts/open_dj.command
+# Or start in the foreground:
+app/.venv/bin/python -m uvicorn app.backend.main:create_app --factory --host 127.0.0.1 --port 8477
+# DJ API + real import/render fixture:
+app/.venv/bin/python -m pytest app/tests/test_dj_api.py -q
+# Audio operations (uses the existing audio environment):
+AUDIO_PY=/Users/sidhandsome/Documents/local-video-generation/qwen-image-generation/tools/acestep-venv/bin/python
+"$AUDIO_PY" -m unittest discover -s app/experiments/tests -p 'test_*lab.py' -q
+node --test app/web/js/dj_logic.test.mjs
+```
+
 The local showcase completed on 25 October 2026: **12/12 real ACE-Step takes**, exactly twelve new attempts,
 no retries, ledger 19 → 31. Listen via the [showcase index](showcase/diverse12_2026-10-25/README.md) or
 [playlist](showcase/diverse12_2026-10-25/listen_all.m3u). All files decode at their requested lengths as

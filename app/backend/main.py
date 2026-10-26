@@ -19,7 +19,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
-from . import exports, ui_api
+from . import exports, ui_api, dj_api
 from .db import Database
 from .events import EventBus, format_sse
 from .jobs import Service
@@ -79,6 +79,7 @@ def create_app(config: Optional[Config] = None) -> FastAPI:
     svc = Service(config, db, storage, probe, bus)
     worker = QueueWorker(svc)
     svc.worker = worker
+    dj = dj_api.DJService(config.data_dir, config.runs_dir)
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
@@ -90,12 +91,15 @@ def create_app(config: Optional[Config] = None) -> FastAPI:
         finally:
             app.state.closing.set()
             await asyncio.get_running_loop().run_in_executor(None, worker.stop)
+            await asyncio.to_thread(dj.close)
 
     app = FastAPI(title="Raag Studio", version=VERSION, lifespan=lifespan,
                   default_response_class=_json_response_class(config.engine), docs_url="/api/docs",
                   openapi_url="/api/openapi.json")
     app.state.config, app.state.svc, app.state.worker, app.state.bus = config, svc, worker, bus
     app.state.closing = None
+    app.state.dj = dj
+    app.include_router(dj_api.router(dj))
     JSON = _json_response_class(config.engine)
 
     hosts = ["127.0.0.1", "localhost", "[::1]"] + (["testserver"] if config.is_fake else [])

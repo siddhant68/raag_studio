@@ -235,3 +235,33 @@ asked-for value. An empty `adjustments` means requested equals effective.
 `reset_not_supported`; use `PATCH /api/songs/{id}/controls`. Resetting `recipe_id` to Auto recomputes every field the recipe
 supplies (`lead supports feeling pace fullness arc key avoid flavour duration_s takes`) except those whose provenance is
 `you` (controls and chip changes), which are kept exactly. Voice fields are not recipe-reset.
+# DJ Lab (26 October 2026)
+
+The `/dj.html` page uses the following local API. These operations are real deterministic CPU audio editing,
+separate from the ACE song queue. JSON objects identify `engine: deterministic_dj`.
+
+| Method | Path | Behavior |
+| --- | --- | --- |
+| GET | `/api/dj/catalog` | Imported sources, estimates/waveforms, presets, previews, jobs and feedback |
+| POST | `/api/dj/import?name=...&extension=mp3` | Raw audio body, maximum 70 MB; probe, copy and queue analysis; 202 |
+| POST | `/api/dj/assets/{id}/analyze` | Retry analysis; reuses an already queued/running analysis job |
+| GET | `/api/dj/assets/{id}/audio` | Source audition with byte-range support |
+| POST | `/api/dj/renders` | Validate selected source passages and queue an immutable real preview; 202 |
+| GET | `/api/dj/jobs/{id}` | `queued`, `running`, `succeeded`, `failed` or `interrupted` |
+| GET | `/api/dj/takes/{id}/{file}` | Whitelisted MP3/WAV/plan/result/video downloads |
+| POST | `/api/dj/takes/{id}/feedback` | `favorite`, `keep`, `revise`, `reject`, `unrated`; optional notes |
+| POST | `/api/dj/takes/{id}/visualizer` | Queue a 720×1280 waveform video; duplicate/completed exports return 409 |
+
+Render body: `a_id`, `b_id`, `a_cue_s`, `b_cue_s`, `a_bpm`, `b_bpm`, `a_beats`, `b_beats`, `target_bpm`,
+`preset`, optional `title`. Techniques: `tease_blend`, `bass_swap`, `loop_drop`, `echo_reveal`, `echo_reset`, `reel_switch`.
+Source/mix BPMs must be finite and in 60–180. Passage lengths are 8/16/24/32/48/64 beats. A source passage
+must fit the supplied recording. More than 15% stretching is rejected except for the original-tempo reset/reel
+paths, which do not stretch. Unknown controls are rejected. Imports default to private user material; clients
+cannot use the import API to relabel commercial recordings as original demos.
+
+The source and output files are under the configured data/runs roots. `RAAG_AUDIO_PYTHON` selects the isolated
+audio Python; normal API requests do not import torch/numpy. One CPU job executes at a time, with six queued
+or running jobs allowed and a ten-minute worker timeout. Existing job files recover as `interrupted` on restart.
+Failed re-analysis retains an earlier successful analysis. No automatic publication or external media upload exists.
+
+`tease_blend` requires at least 24 selected beats on both decks. The incoming cue is the overlap start; B releases after 16 beats. `overlap_start_s` marks the entrance and `reveal_s` the release. The incoming tease uses real B slices, independent complementary volume curves and a bass handover.

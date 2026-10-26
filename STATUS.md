@@ -1,5 +1,11 @@
 # STATUS (single source of truth for resumed sessions)
 
+## Latest: Tease & handover integrated — 26 October 2026
+
+User approved the Kala → Nashe incoming rhythmic tease and gradual volume handover. DJ Lab now exposes `tease_blend`, the Club default: 16-beat overlap, 2 → 1 → half-beat incoming repeats, bass transfer, rising B and falling A. Requires at least 24 selected beats on each deck. B cue means overlap start, release 16 beats later.
+
+Open http://127.0.0.1:8477/dj.html. See reports/dj_lab_2026-10-26/TEASE_HANDOVER.md. Real app render completed locally; private source audio stays outside git. Checks: 57 audio, 37 API/frontend regressions, 8 JS tests pass. No paid generation or model calls.
+
 state: COMPLETE
 heartbeat_utc: 2026-10-24T20:37:16+00:00
 active_session: idle
